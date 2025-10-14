@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>スライドパズル最小版</title>
+    <link rel="stylesheet" href="css/typography.css">
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/animations.css">
+    <link rel="stylesheet" href="css/effects.css">
+    <link rel="stylesheet" href="css/micro-interactions.css">
+    <link rel="stylesheet" href="css/depth-design.css">
+    <link rel="stylesheet" href="css/responsive.css">
+</head>
+<body>
+    <!-- タイトル画面 -->
+    <div id="title-screen" class="screen">
+        <img src="assets/img/title.jpg" alt="スライドパズル" class="title-image">
+        <div class="title-buttons">
+            <button id="start-btn" class="btn">スタート</button>
+            <button id="gallery-btn" class="btn secondary">ギャラリー</button>
+        </div>
+    </div>
+
+    <!-- パズル選択画面 -->
+    <div id="select-screen" class="screen hidden">
+        <h2>パズルサイズを選択</h2>
+        <div class="size-buttons">
+            <button id="size-3x3" class="size-btn" data-size="3">
+                <div class="size-title">3×3 ゴブリン</div>
+                <div class="size-desc">簡単</div>
+            </button>
+            <button id="size-4x4" class="size-btn" data-size="4">
+                <div class="size-title">4×4 触手</div>
+                <div class="size-desc">普通</div>
+            </button>
+            <button id="size-5x5" class="size-btn" data-size="5">
+                <div class="size-title">5×5 オーク</div>
+                <div class="size-desc">難しい</div>
+            </button>
+        </div>
+        <button id="back-to-title" class="btn secondary">戻る</button>
+    </div>
+
+    <!-- 問題選択画面 -->
+    <div id="problem-select-screen" class="screen hidden">
+        <h2>問題を選択</h2>
+        <div class="pagination-info">
+            <span id="page-indicator">ページ 1 / 5</span>
+        </div>
+        <div class="problem-buttons" id="problem-buttons-container">
+            <!-- 問題ボタンはJavaScriptで動的に生成される -->
+        </div>
+        <div class="pagination-controls">
+            <button id="prev-page-btn" class="btn pagination-btn" disabled>前へ</button>
+            <div class="page-numbers" id="page-numbers">
+                <!-- ページ番号ボタンはJavaScriptで動的に生成される -->
+            </div>
+            <button id="next-page-btn" class="btn pagination-btn">次へ</button>
+        </div>
+        <div class="problem-control-buttons">
+            <button id="back-to-size-select" class="btn secondary">サイズ選択に戻る</button>
+            <button id="reset-times-btn" class="btn reset-btn">全記録をリセット</button>
+        </div>
+    </div>
+
+    <!-- ゲーム画面 -->
+    <div id="game-screen" class="screen hidden">
+        <!-- パズルエリア（横持ち時：左側70%） -->
+        <div id="puzzle-container">
+            <div id="puzzle-grid"></div>
+        </div>
+
+        <!-- 情報・操作エリア（横持ち時：右側30%） -->
+        <div class="game-side-panel">
+            <!-- ゲーム情報エリア -->
+            <div class="game-info-area">
+                <h2 id="game-title">3×3スライドパズル</h2>
+                <div id="timer-display">タイム: 00:00</div>
+            </div>
+
+            <!-- 操作ボタンエリア -->
+            <div class="game-controls">
+                <button id="force-clear" class="btn clear-btn">すぐにクリア</button>
+                <button id="back-to-select" class="btn secondary">問題選択に戻る</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- クリア画面 -->
+    <div id="clear-screen" class="screen hidden">
+        <!-- 横持ち時：左側パネル（画像表示） -->
+        <div class="clear-left-panel">
+            <div id="cg-container">
+                <img id="clear-image" alt="クリア画像">
+            </div>
+        </div>
+
+        <!-- 横持ち時：右側パネル（情報・操作） -->
+        <div class="clear-right-panel">
+            <h2>クリア！</h2>
+            <div class="time-display-container">
+                <div id="clear-time" class="time-card">
+                    <div class="time-label">クリアタイム</div>
+                    <div class="time-value">00:00</div>
+                </div>
+                <div id="best-time" class="time-card hidden">
+                    <div class="time-label">ベストタイム</div>
+                    <div class="time-value">00:00</div>
+                </div>
+            </div>
+            <div id="new-record-badge" class="hidden">🎉 NEW RECORD!</div>
+            <div class="clear-buttons">
+                <button id="retry-btn" class="btn">同じ問題に再挑戦</button>
+                <button id="back-to-select-clear" class="btn secondary">問題選択に戻る</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ギャラリー画面 -->
+    <div id="gallery-screen" class="screen hidden">
+        <h2>ギャラリー</h2>
+        <div class="gallery-size-tabs">
+            <button class="gallery-tab-btn active" data-size="3">3×3</button>
+            <button class="gallery-tab-btn" data-size="4">4×4</button>
+            <button class="gallery-tab-btn" data-size="5">5×5</button>
+        </div>
+        <div id="gallery-content">
+            <div class="gallery-grid" id="gallery-3x3">
+                <!-- 3×3のギャラリーアイテムがここに動的に追加される -->
+            </div>
+            <div class="gallery-grid hidden" id="gallery-4x4">
+                <!-- 4×4のギャラリーアイテムがここに動的に追加される -->
+            </div>
+            <div class="gallery-grid hidden" id="gallery-5x5">
+                <!-- 5×5のギャラリーアイテムがここに動的に追加される -->
+            </div>
+        </div>
+        <button id="back-to-title-gallery" class="btn secondary">タイトルに戻る</button>
+    </div>
+
+    <!-- 画像拡大表示モーダル -->
+    <div id="image-modal" class="modal hidden">
+        <div class="modal-content">
+            <span class="modal-close">&times;</span>
+            <img id="modal-image" alt="拡大画像">
+            <div id="modal-info">
+                <h3 id="modal-title"></h3>
+                <p id="modal-time"></p>
+            </div>
+        </div>
+    </div>
+
+    <!-- フラッシュオーバーレイ -->
+    <div class="flash-overlay" id="flash-overlay"></div>
+
+    <!-- ガイドメッセージ -->
+    <div class="guide-message" id="guide-message"></div>
+
+    <!-- ツールチップ -->
+    <div class="tooltip" id="tooltip"></div>
+
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.2/dist/confetti.browser.min.js"></script>
+    <script src="js/sound-manager.js"></script>
+    <script src="js/particles.js"></script>
+    <script src="js/animations.js"></script>
+    <script src="js/feedback.js"></script>
+    <script src="js/micro-interactions.js"></script>
+    <script src="js/depth-manager.js"></script>
+    <script src="js/game.js"></script>
+</body>
+</html>

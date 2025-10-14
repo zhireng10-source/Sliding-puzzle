@@ -1,0 +1,706 @@
+/* ========================================
+   タイポグラフィシステム
+   読みやすく美しい文字デザイン
+   ======================================== */
+
+/* ========================================
+   Webフォントの読み込み（オプション）
+   ======================================== */
+
+/* Google Fonts - Noto Sans JP（日本語最適化） */
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;600;700&display=swap');
+
+/* Google Fonts - Inter（英数字最適化） */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+
+/* ========================================
+   フォント階層システム
+   ======================================== */
+
+:root {
+    /* フォントファミリー */
+    --font-primary: 'Noto Sans JP', 'Hiragino Sans', 'Hiragino Kaku Gothic ProN', 'Yu Gothic', 'Meiryo', sans-serif;
+    --font-secondary: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
+    --font-monospace: 'SF Mono', 'Monaco', 'Inconsolata', 'Fira Code', 'Droid Sans Mono', 'Source Code Pro', monospace;
+
+    /* ========================================
+       フォントサイズ - 絶対値（基準値）
+       ======================================== */
+
+    /* H1 - タイトル */
+    --font-size-h1-base: 32px;
+    --font-weight-h1: 700;
+    --line-height-h1: 1.2;
+    --letter-spacing-h1: 0.02em;
+
+    /* H2 - セクション */
+    --font-size-h2-base: 24px;
+    --font-weight-h2: 600;
+    --line-height-h2: 1.3;
+    --letter-spacing-h2: 0.02em;
+
+    /* H3 - 小見出し */
+    --font-size-h3-base: 20px;
+    --font-weight-h3: 500;
+    --line-height-h3: 1.4;
+    --letter-spacing-h3: 0.01em;
+
+    /* Body - 本文 */
+    --font-size-body-base: 16px;
+    --font-weight-body: 400;
+    --line-height-body: 1.5;
+    --letter-spacing-body: 0;
+
+    /* Caption - 補助テキスト */
+    --font-size-caption-base: 14px;
+    --font-weight-caption: 400;
+    --line-height-caption: 1.4;
+    --letter-spacing-caption: 0;
+
+    /* Small - 最小テキスト */
+    --font-size-small-base: 12px;
+    --font-weight-small: 400;
+    --line-height-small: 1.3;
+
+    /* ========================================
+       レスポンシブフォントサイズ（clamp関数使用）
+       ======================================== */
+
+    /* H1 - 最小24px、最大48px、基準は4vw */
+    --font-size-h1: clamp(24px, 4vw + 1rem, 48px);
+
+    /* H2 - 最小20px、最大32px、基準は3vw */
+    --font-size-h2: clamp(20px, 3vw + 0.5rem, 32px);
+
+    /* H3 - 最小18px、最大24px、基準は2.5vw */
+    --font-size-h3: clamp(18px, 2.5vw + 0.25rem, 24px);
+
+    /* Body - 最小14px、最大18px、基準は2vw */
+    --font-size-body: clamp(14px, 2vw, 18px);
+
+    /* Caption - 最小12px、最大16px */
+    --font-size-caption: clamp(12px, 1.5vw, 16px);
+
+    /* Small - 最小10px、最大14px */
+    --font-size-small: clamp(10px, 1.25vw, 14px);
+
+    /* ========================================
+       テキストカラー - コントラスト比を確保
+       ======================================== */
+
+    /* WCAG AA準拠: コントラスト比 4.5:1 以上 */
+    --text-primary: #1a1a1a;           /* 白背景に対して 16:1 */
+    --text-secondary: #4a4a4a;         /* 白背景に対して 9:1 */
+    --text-tertiary: #767676;          /* 白背景に対して 4.6:1 */
+    --text-disabled: #a0a0a0;          /* 白背景に対して 2.9:1 */
+    --text-light: #ffffff;             /* 暗背景用 */
+    --text-link: #0066cc;              /* リンクカラー */
+    --text-success: #2d7a2d;           /* 成功メッセージ */
+    --text-warning: #c77700;           /* 警告メッセージ */
+    --text-error: #c62828;             /* エラーメッセージ */
+
+    /* ========================================
+       テキストシャドウ
+       ======================================== */
+
+    --text-shadow-subtle: 0 1px 2px rgba(0, 0, 0, 0.1);
+    --text-shadow-medium: 0 2px 4px rgba(0, 0, 0, 0.15);
+    --text-shadow-strong: 0 3px 6px rgba(0, 0, 0, 0.2);
+    --text-shadow-glow: 0 0 10px rgba(255, 255, 255, 0.5);
+}
+
+/* ========================================
+   基本タイポグラフィ設定
+   ======================================== */
+
+body {
+    font-family: var(--font-primary);
+    font-size: var(--font-size-body);
+    font-weight: var(--font-weight-body);
+    line-height: var(--line-height-body);
+    letter-spacing: var(--letter-spacing-body);
+    color: var(--text-primary);
+
+    /* テキストレンダリングの最適化 */
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
+
+    /* 日本語の禁則処理 */
+    word-break: normal;
+    overflow-wrap: break-word;
+    line-break: strict;
+}
+
+/* ========================================
+   見出しスタイル
+   ======================================== */
+
+h1, .text-h1 {
+    font-family: var(--font-primary);
+    font-size: var(--font-size-h1);
+    font-weight: var(--font-weight-h1);
+    line-height: var(--line-height-h1);
+    letter-spacing: var(--letter-spacing-h1);
+    color: var(--text-primary);
+    margin: 0 0 1em 0;
+
+    /* 軽いテキストシャドウで立体感 */
+    text-shadow: var(--text-shadow-subtle);
+
+    /* OpenType機能: カーニング有効化 */
+    font-feature-settings: 'kern' 1, 'liga' 1;
+}
+
+h2, .text-h2 {
+    font-family: var(--font-primary);
+    font-size: var(--font-size-h2);
+    font-weight: var(--font-weight-h2);
+    line-height: var(--line-height-h2);
+    letter-spacing: var(--letter-spacing-h2);
+    color: var(--text-primary);
+    margin: 0 0 0.75em 0;
+
+    text-shadow: var(--text-shadow-subtle);
+    font-feature-settings: 'kern' 1, 'liga' 1;
+}
+
+h3, .text-h3 {
+    font-family: var(--font-primary);
+    font-size: var(--font-size-h3);
+    font-weight: var(--font-weight-h3);
+    line-height: var(--line-height-h3);
+    letter-spacing: var(--letter-spacing-h3);
+    color: var(--text-primary);
+    margin: 0 0 0.5em 0;
+
+    font-feature-settings: 'kern' 1, 'liga' 1;
+}
+
+/* ========================================
+   本文スタイル
+   ======================================== */
+
+p, .text-body {
+    font-family: var(--font-primary);
+    font-size: var(--font-size-body);
+    font-weight: var(--font-weight-body);
+    line-height: var(--line-height-body);
+    letter-spacing: var(--letter-spacing-body);
+    color: var(--text-primary);
+    margin: 0 0 1em 0;
+}
+
+/* 本文の最後の段落は下マージンなし */
+p:last-child,
+.text-body:last-child {
+    margin-bottom: 0;
+}
+
+/* ========================================
+   補助テキストスタイル
+   ======================================== */
+
+.text-caption,
+small {
+    font-family: var(--font-primary);
+    font-size: var(--font-size-caption);
+    font-weight: var(--font-weight-caption);
+    line-height: var(--line-height-caption);
+    letter-spacing: var(--letter-spacing-caption);
+    color: var(--text-secondary);
+}
+
+.text-small {
+    font-size: var(--font-size-small);
+    font-weight: var(--font-weight-small);
+    line-height: var(--line-height-small);
+    color: var(--text-tertiary);
+}
+
+/* ========================================
+   数字の等幅表示
+   ======================================== */
+
+.text-tabular,
+.timer,
+.score,
+.counter {
+    /* OpenType機能: 等幅数字 */
+    font-feature-settings: 'tnum' 1, 'kern' 1;
+    font-variant-numeric: tabular-nums;
+}
+
+/* タイマー表示などの数字 */
+#timer-display,
+#clear-time,
+.problem-best-time,
+#modal-time {
+    font-family: var(--font-secondary);
+    font-feature-settings: 'tnum' 1, 'kern' 1;
+    font-variant-numeric: tabular-nums;
+}
+
+/* ========================================
+   テキストカラーバリエーション
+   ======================================== */
+
+.text-primary {
+    color: var(--text-primary);
+}
+
+.text-secondary {
+    color: var(--text-secondary);
+}
+
+.text-tertiary {
+    color: var(--text-tertiary);
+}
+
+.text-disabled {
+    color: var(--text-disabled);
+}
+
+.text-light {
+    color: var(--text-light);
+}
+
+.text-link {
+    color: var(--text-link);
+    text-decoration: underline;
+    cursor: pointer;
+}
+
+.text-link:hover {
+    text-decoration: none;
+}
+
+.text-success {
+    color: var(--text-success);
+}
+
+.text-warning {
+    color: var(--text-warning);
+}
+
+.text-error {
+    color: var(--text-error);
+}
+
+/* ========================================
+   フォントウェイトバリエーション
+   ======================================== */
+
+.text-thin {
+    font-weight: 300;
+}
+
+.text-regular {
+    font-weight: 400;
+}
+
+.text-medium {
+    font-weight: 500;
+}
+
+.text-semibold {
+    font-weight: 600;
+}
+
+.text-bold {
+    font-weight: 700;
+}
+
+.text-extrabold {
+    font-weight: 800;
+}
+
+/* ========================================
+   テキスト配置
+   ======================================== */
+
+.text-left {
+    text-align: left;
+}
+
+.text-center {
+    text-align: center;
+}
+
+.text-right {
+    text-align: right;
+}
+
+.text-justify {
+    text-align: justify;
+}
+
+/* ========================================
+   テキスト装飾
+   ======================================== */
+
+.text-underline {
+    text-decoration: underline;
+}
+
+.text-line-through {
+    text-decoration: line-through;
+}
+
+.text-uppercase {
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+.text-lowercase {
+    text-transform: lowercase;
+}
+
+.text-capitalize {
+    text-transform: capitalize;
+}
+
+/* ========================================
+   行の高さバリエーション
+   ======================================== */
+
+.leading-none {
+    line-height: 1;
+}
+
+.leading-tight {
+    line-height: 1.25;
+}
+
+.leading-normal {
+    line-height: 1.5;
+}
+
+.leading-relaxed {
+    line-height: 1.75;
+}
+
+.leading-loose {
+    line-height: 2;
+}
+
+/* ========================================
+   文字間隔バリエーション
+   ======================================== */
+
+.tracking-tighter {
+    letter-spacing: -0.05em;
+}
+
+.tracking-tight {
+    letter-spacing: -0.025em;
+}
+
+.tracking-normal {
+    letter-spacing: 0;
+}
+
+.tracking-wide {
+    letter-spacing: 0.025em;
+}
+
+.tracking-wider {
+    letter-spacing: 0.05em;
+}
+
+.tracking-widest {
+    letter-spacing: 0.1em;
+}
+
+/* ========================================
+   テキストシャドウバリエーション
+   ======================================== */
+
+.shadow-text-none {
+    text-shadow: none;
+}
+
+.shadow-text-subtle {
+    text-shadow: var(--text-shadow-subtle);
+}
+
+.shadow-text-medium {
+    text-shadow: var(--text-shadow-medium);
+}
+
+.shadow-text-strong {
+    text-shadow: var(--text-shadow-strong);
+}
+
+.shadow-text-glow {
+    text-shadow: var(--text-shadow-glow);
+}
+
+/* ========================================
+   テキストの切り詰め
+   ======================================== */
+
+.text-truncate {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.text-truncate-2 {
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+
+.text-truncate-3 {
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+
+/* ========================================
+   読みやすさの向上
+   ======================================== */
+
+.text-readable {
+    max-width: 65ch; /* 1行あたり最適な文字数 */
+    margin-left: auto;
+    margin-right: auto;
+}
+
+/* 段落の最初の行を字下げ */
+.text-indent {
+    text-indent: 1em;
+}
+
+/* ドロップキャップ（先頭文字の装飾） */
+.drop-cap::first-letter {
+    float: left;
+    font-size: 3em;
+    line-height: 0.9;
+    margin: 0.1em 0.1em 0 0;
+    font-weight: bold;
+}
+
+/* ========================================
+   特殊なテキストスタイル
+   ======================================== */
+
+/* グラデーションテキスト */
+.text-gradient {
+    background: linear-gradient(
+        135deg,
+        var(--color-primary),
+        var(--color-accent)
+    );
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+/* 輝くテキスト */
+.text-shine {
+    background: linear-gradient(
+        90deg,
+        var(--color-primary) 0%,
+        var(--color-accent) 50%,
+        var(--color-primary) 100%
+    );
+    background-size: 200% auto;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    animation: textShine 3s linear infinite;
+}
+
+@keyframes textShine {
+    to {
+        background-position: 200% center;
+    }
+}
+
+/* アウトラインテキスト */
+.text-outline {
+    color: transparent;
+    -webkit-text-stroke: 2px var(--text-primary);
+    text-stroke: 2px var(--text-primary);
+}
+
+/* ========================================
+   ゲーム固有のテキストスタイル
+   ======================================== */
+
+/* タイトル画面の大きなタイトル */
+#title-screen h1 {
+    font-size: clamp(32px, 6vw + 1rem, 64px);
+    font-weight: 700;
+    letter-spacing: 0.05em;
+    text-shadow:
+        0 2px 4px rgba(0, 0, 0, 0.1),
+        0 4px 8px rgba(0, 0, 0, 0.05);
+    margin-bottom: 1.5em;
+}
+
+/* ゲームタイトル */
+#game-title {
+    font-size: var(--font-size-h2);
+    font-weight: var(--font-weight-h2);
+    color: var(--text-primary);
+    text-align: center;
+    margin-bottom: 0.5em;
+}
+
+/* ページインジケーター */
+#page-indicator {
+    font-family: var(--font-secondary);
+    font-size: var(--font-size-body);
+    font-weight: 600;
+    color: var(--text-secondary);
+    font-feature-settings: 'tnum' 1;
+}
+
+/* 問題ボタンのタイトル */
+.problem-title {
+    font-size: var(--font-size-h3);
+    font-weight: 600;
+    letter-spacing: 0.01em;
+}
+
+/* ベストタイム表示 */
+.problem-best-time {
+    font-size: var(--font-size-caption);
+    font-weight: 400;
+    color: var(--text-secondary);
+}
+
+/* サイズボタンのタイトル */
+.size-title {
+    font-size: var(--font-size-h3);
+    font-weight: 700;
+    letter-spacing: 0.02em;
+}
+
+.size-desc {
+    font-size: var(--font-size-caption);
+    font-weight: 400;
+    opacity: 0.9;
+}
+
+/* ギャラリーアイテムのテキスト */
+.gallery-item-title {
+    font-weight: 600;
+    font-size: var(--font-size-body);
+    color: var(--text-primary);
+}
+
+.gallery-item-time {
+    font-size: var(--font-size-caption);
+    color: var(--text-secondary);
+    font-feature-settings: 'tnum' 1;
+}
+
+/* ========================================
+   レスポンシブ調整
+   ======================================== */
+
+/* タブレット */
+@media (min-width: 768px) and (max-width: 1024px) {
+    :root {
+        --font-size-h1: clamp(28px, 5vw + 0.5rem, 44px);
+        --font-size-h2: clamp(22px, 3.5vw + 0.5rem, 30px);
+        --font-size-h3: clamp(19px, 2.75vw + 0.25rem, 22px);
+    }
+}
+
+/* モバイル */
+@media (max-width: 767px) {
+    :root {
+        --font-size-h1: clamp(24px, 6vw, 36px);
+        --font-size-h2: clamp(20px, 5vw, 28px);
+        --font-size-h3: clamp(18px, 4vw, 22px);
+        --font-size-body: clamp(14px, 3.5vw, 16px);
+        --font-size-caption: clamp(12px, 3vw, 14px);
+    }
+
+    body {
+        /* モバイルでは行間を少し広めに */
+        line-height: 1.6;
+    }
+
+    h1, .text-h1 {
+        letter-spacing: 0.01em;
+        margin-bottom: 0.75em;
+    }
+
+    h2, .text-h2 {
+        margin-bottom: 0.5em;
+    }
+
+    /* タイトル画面 */
+    #title-screen h1 {
+        font-size: clamp(28px, 8vw, 48px);
+    }
+}
+
+/* ========================================
+   印刷時の最適化
+   ======================================== */
+
+@media print {
+    body {
+        font-size: 12pt;
+        line-height: 1.5;
+        color: #000000;
+    }
+
+    h1 {
+        font-size: 24pt;
+        page-break-after: avoid;
+    }
+
+    h2 {
+        font-size: 18pt;
+        page-break-after: avoid;
+    }
+
+    h3 {
+        font-size: 14pt;
+        page-break-after: avoid;
+    }
+
+    /* テキストシャドウを削除 */
+    * {
+        text-shadow: none !important;
+    }
+}
+
+/* ========================================
+   アクセシビリティ: 大きいテキスト設定
+   ======================================== */
+
+@media (prefers-reduced-motion: reduce) {
+    .text-shine {
+        animation: none;
+        background: var(--color-primary);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+    }
+}
+
+/* ユーザーがシステムで大きい文字を設定している場合 */
+@media (min-width: 1px) {
+    html {
+        font-size: 16px;
+    }
+}
+
+@media (min-width: 1px) and (min-resolution: 2dppx) {
+    /* Retinaディスプレイでは文字を少し細く */
+    body {
+        -webkit-font-smoothing: antialiased;
+        -moz-osx-font-smoothing: grayscale;
+    }
+}

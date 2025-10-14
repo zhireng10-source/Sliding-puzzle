@@ -1,0 +1,921 @@
+/* ========================================
+   マイクロインタラクション: 細部の品質向上
+   ======================================== */
+
+/* ========================================
+   ボタン状態のマイクロインタラクション
+   ======================================== */
+
+/* アクティブ状態（クリック時）のリプルエフェクト */
+.btn::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 0;
+    height: 0;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.5);
+    transform: translate(-50%, -50%);
+    transition: width 0.6s ease, height 0.6s ease, opacity 0.6s ease;
+    opacity: 0;
+    pointer-events: none;
+}
+
+.btn:active::before {
+    width: 300px;
+    height: 300px;
+    opacity: 0;
+    transition: width 0s, height 0s, opacity 0.6s ease;
+}
+
+/* ホバー時のグロー効果 */
+.btn::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    border-radius: inherit;
+    background: linear-gradient(135deg, rgba(255, 255, 255, 0.2), rgba(255, 255, 255, 0));
+    opacity: 0;
+    transition: opacity 0.3s ease;
+    pointer-events: none;
+}
+
+.btn:hover::after {
+    opacity: 1;
+}
+
+/* ボタンのバウンスバック効果 */
+.btn {
+    animation-timing-function: cubic-bezier(0.68, -0.55, 0.265, 1.55);
+}
+
+.btn:active {
+    animation: btnPress 0.2s ease;
+}
+
+@keyframes btnPress {
+    0% {
+        transform: translateY(-4px) scale(1.02);
+    }
+    50% {
+        transform: translateY(-1px) scale(0.98);
+    }
+    100% {
+        transform: translateY(-1px) scale(0.98);
+    }
+}
+
+/* disabled状態のスムーズな遷移 */
+.btn:disabled {
+    transition: all 0.3s ease;
+    transform: none !important;
+    cursor: not-allowed;
+    opacity: 0.5;
+    filter: grayscale(0.5);
+}
+
+.btn:disabled:hover {
+    transform: none !important;
+    box-shadow: none !important;
+}
+
+/* ========================================
+   サイズボタンとプロブレムボタンの強化
+   ======================================== */
+
+.size-btn, .problem-btn {
+    position: relative;
+    overflow: hidden;
+}
+
+/* ホバー時の輝き効果 */
+.size-btn::before,
+.problem-btn::before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    left: -50%;
+    width: 200%;
+    height: 200%;
+    background: linear-gradient(
+        90deg,
+        transparent,
+        rgba(255, 255, 255, 0.3),
+        transparent
+    );
+    transform: translateX(-100%) rotate(45deg);
+    transition: transform 0.6s ease;
+}
+
+.size-btn:hover::before,
+.problem-btn:hover::before {
+    transform: translateX(100%) rotate(45deg);
+}
+
+/* アクティブ時のパルス効果 */
+@keyframes btnPulse {
+    0% {
+        box-shadow: 0 0 0 0 rgba(74, 144, 226, 0.7);
+    }
+    70% {
+        box-shadow: 0 0 0 10px rgba(74, 144, 226, 0);
+    }
+    100% {
+        box-shadow: 0 0 0 0 rgba(74, 144, 226, 0);
+    }
+}
+
+.size-btn:active,
+.problem-btn:active {
+    animation: btnPulse 0.5s ease;
+}
+
+/* ========================================
+   パズルピースのインタラクション
+   ======================================== */
+
+/* ホバー時のハイライト - ちらつき防止のため無効化 */
+.puzzle-piece {
+    position: relative;
+    /* ホバーアニメーション無効化 */
+    /* transition: all 0.2s cubic-bezier(0.34, 1.56, 0.64, 1); */
+}
+
+/* ちらつき防止: ::before と ::after エフェクトを無効化 */
+/* .puzzle-piece::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: inherit;
+    opacity: 0;
+    transition: opacity 0.2s ease;
+}
+
+.puzzle-piece:hover::before {
+    opacity: 1;
+} */
+
+/* クリック時のフラッシュエフェクト - ちらつき防止のため無効化 */
+/* .puzzle-piece:active::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 100%;
+    height: 100%;
+    background: radial-gradient(circle, rgba(255, 255, 255, 0.8) 0%, transparent 70%);
+    transform: translate(-50%, -50%);
+    opacity: 0;
+    animation: pieceFlash 0.3s ease;
+} */
+
+@keyframes pieceFlash {
+    0% {
+        opacity: 0;
+        transform: translate(-50%, -50%) scale(0.8);
+    }
+    50% {
+        opacity: 1;
+        transform: translate(-50%, -50%) scale(1);
+    }
+    100% {
+        opacity: 0;
+        transform: translate(-50%, -50%) scale(1.2);
+    }
+}
+
+/* ピース番号のバウンス - ちらつき防止のため無効化 */
+.puzzle-number {
+    /* ホバーアニメーション無効化 */
+    /* transition: transform 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55); */
+}
+
+/* ちらつき防止: ピース番号のアニメーションを無効化 */
+/* .puzzle-piece:hover .puzzle-number {
+    transform: scale(1.15) rotate(5deg);
+} */
+
+/* ========================================
+   タイマー表示のアニメーション
+   ======================================== */
+
+/* タイマーの数値変化時のフラッシュ */
+@keyframes timerUpdate {
+    0% {
+        transform: translateY(-4px);
+        opacity: 1;
+    }
+    50% {
+        transform: translateY(-6px);
+        opacity: 0.9;
+        color: var(--color-primary-light);
+    }
+    100% {
+        transform: translateY(-4px);
+        opacity: 1;
+    }
+}
+
+#timer-display {
+    position: relative;
+}
+
+/* タイマーアイコンの回転アニメーション */
+#timer-display::before {
+    animation: timerPulse 2s ease-in-out infinite;
+}
+
+@keyframes timerPulse {
+    0%, 100% {
+        transform: scale(1) rotate(0deg);
+        opacity: 0.7;
+    }
+    50% {
+        transform: scale(1.1) rotate(10deg);
+        opacity: 1;
+    }
+}
+
+/* ========================================
+   クリアタイムの表示アニメーション
+   ======================================== */
+
+/* クリアタイムの登場アニメーション強化 */
+@keyframes clearTimeEnhanced {
+    0% {
+        opacity: 0;
+        transform: scale(0.5) translateY(30px) rotate(-5deg);
+    }
+    60% {
+        opacity: 1;
+        transform: scale(1.15) translateY(-10px) rotate(2deg);
+    }
+    80% {
+        transform: scale(0.95) translateY(0) rotate(-1deg);
+    }
+    100% {
+        opacity: 1;
+        transform: scale(1) translateY(0) rotate(0deg);
+    }
+}
+
+#clear-time {
+    animation: clearTimeEnhanced 0.8s cubic-bezier(0.68, -0.55, 0.265, 1.55) forwards;
+}
+
+/* NEW RECORDテキストのキラキラアニメーション */
+.new-record {
+    display: inline-block;
+    animation: recordShine 1.5s ease-in-out infinite;
+    background: linear-gradient(
+        90deg,
+        var(--color-secondary),
+        var(--color-accent),
+        var(--color-secondary)
+    );
+    background-size: 200% auto;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    font-weight: var(--font-weight-bold);
+}
+
+@keyframes recordShine {
+    0%, 100% {
+        background-position: 0% center;
+        transform: scale(1);
+    }
+    50% {
+        background-position: 100% center;
+        transform: scale(1.05);
+    }
+}
+
+/* ========================================
+   ギャラリーアイテムのマイクロインタラクション
+   ======================================== */
+
+.gallery-item {
+    position: relative;
+    overflow: hidden;
+}
+
+/* ホバー時の画像ズーム */
+.gallery-item img {
+    transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.gallery-item:hover img {
+    transform: scale(1.1);
+}
+
+/* ホバー時の情報オーバーレイ */
+.gallery-item-info {
+    position: relative;
+    background: linear-gradient(to top, rgba(255, 255, 255, 0.95), rgba(255, 255, 255, 0.9));
+    transition: all 0.3s ease;
+}
+
+.gallery-item:hover .gallery-item-info {
+    background: linear-gradient(to top, rgba(255, 255, 255, 1), rgba(255, 255, 255, 0.95));
+}
+
+/* すぐクリアのみアイテムの特殊効果 */
+.forced-clear-only {
+    position: relative;
+}
+
+.forced-clear-only::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    border: 2px dashed var(--color-accent-warning);
+    border-radius: inherit;
+    opacity: 0.5;
+    animation: dashedBorder 20s linear infinite;
+}
+
+@keyframes dashedBorder {
+    0% {
+        stroke-dashoffset: 0;
+    }
+    100% {
+        stroke-dashoffset: 1000;
+    }
+}
+
+/* ========================================
+   ページネーションボタンのマイクロインタラクション
+   ======================================== */
+
+.page-number-btn {
+    position: relative;
+    overflow: hidden;
+    transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+/* アクティブページのパルス効果 */
+.page-number-btn.active {
+    animation: pageActive 2s ease-in-out infinite;
+}
+
+@keyframes pageActive {
+    0%, 100% {
+        box-shadow: 0 4px 16px rgba(74, 144, 226, 0.3);
+    }
+    50% {
+        box-shadow: 0 4px 24px rgba(74, 144, 226, 0.5);
+    }
+}
+
+/* ホバー時のページ番号の跳ねる効果 */
+.page-number-btn:hover {
+    animation: pageHover 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+}
+
+@keyframes pageHover {
+    0%, 100% {
+        transform: translateY(-2px) scale(1);
+    }
+    50% {
+        transform: translateY(-6px) scale(1.05);
+    }
+}
+
+/* ========================================
+   モーダルのマイクロインタラクション
+   ======================================== */
+
+/* モーダルの登場アニメーション */
+.modal {
+    animation: modalFadeIn 0.3s ease-out;
+}
+
+@keyframes modalFadeIn {
+    from {
+        opacity: 0;
+        backdrop-filter: blur(0px);
+    }
+    to {
+        opacity: 1;
+        backdrop-filter: blur(8px);
+    }
+}
+
+.modal-content {
+    animation: modalSlideIn 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+@keyframes modalSlideIn {
+    from {
+        transform: scale(0.8) translateY(30px);
+        opacity: 0;
+    }
+    to {
+        transform: scale(1) translateY(0);
+        opacity: 1;
+    }
+}
+
+/* モーダル画像のズームイン */
+#modal-image {
+    animation: modalImageZoom 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+@keyframes modalImageZoom {
+    from {
+        transform: scale(0.9);
+        opacity: 0;
+    }
+    to {
+        transform: scale(1);
+        opacity: 1;
+    }
+}
+
+/* 閉じるボタンの回転効果 */
+.modal-close {
+    transition: all 0.3s ease;
+}
+
+.modal-close:hover {
+    transform: rotate(90deg) scale(1.2);
+    color: var(--color-accent-danger);
+}
+
+/* ========================================
+   リセットボタンの警告インタラクション
+   ======================================== */
+
+.btn.reset-btn {
+    position: relative;
+}
+
+/* ホバー時の警告パルス */
+.btn.reset-btn:hover {
+    animation: warningPulse 1s ease-in-out infinite;
+}
+
+@keyframes warningPulse {
+    0%, 100% {
+        box-shadow: 0 2px 8px rgba(232, 93, 117, 0.15);
+    }
+    50% {
+        box-shadow: 0 4px 16px rgba(232, 93, 117, 0.4);
+    }
+}
+
+/* ========================================
+   ギャラリータブの切り替えアニメーション
+   ======================================== */
+
+.gallery-tab-btn {
+    position: relative;
+    transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.gallery-tab-btn::after {
+    content: '';
+    position: absolute;
+    bottom: -4px;
+    left: 50%;
+    width: 0;
+    height: 3px;
+    background: var(--color-primary);
+    border-radius: 2px;
+    transform: translateX(-50%);
+    transition: width 0.3s ease;
+}
+
+.gallery-tab-btn.active::after {
+    width: 80%;
+}
+
+/* タブホバー時の下線プレビュー */
+.gallery-tab-btn:hover::after {
+    width: 60%;
+    background: var(--color-primary-light);
+}
+
+.gallery-tab-btn.active:hover::after {
+    width: 80%;
+    background: var(--color-primary);
+}
+
+/* ========================================
+   情報カードのホバーエフェクト
+   ======================================== */
+
+.info-card {
+    position: relative;
+}
+
+/* ホバー時の光沢効果 */
+.info-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(
+        90deg,
+        transparent,
+        rgba(255, 255, 255, 0.4),
+        transparent
+    );
+    transition: left 0.5s ease;
+}
+
+.info-card:hover::before {
+    left: 100%;
+}
+
+/* ========================================
+   スクリーン遷移の強化
+   ======================================== */
+
+/* 画面フェードインの遅延子要素 */
+.screen > * {
+    animation: elementFadeIn 0.5s ease-out backwards;
+}
+
+.screen > *:nth-child(1) {
+    animation-delay: 0.05s;
+}
+
+.screen > *:nth-child(2) {
+    animation-delay: 0.1s;
+}
+
+.screen > *:nth-child(3) {
+    animation-delay: 0.15s;
+}
+
+.screen > *:nth-child(4) {
+    animation-delay: 0.2s;
+}
+
+.screen > *:nth-child(5) {
+    animation-delay: 0.25s;
+}
+
+@keyframes elementFadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* ========================================
+   数値カウントアップアニメーション
+   ======================================== */
+
+/* タイマーとクリアタイムの数値変化 */
+.number-change {
+    animation: numberPop 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+@keyframes numberPop {
+    0% {
+        transform: scale(1);
+    }
+    50% {
+        transform: scale(1.15);
+        color: var(--color-primary-light);
+    }
+    100% {
+        transform: scale(1);
+    }
+}
+
+/* ========================================
+   ローディングとプログレス
+   ======================================== */
+
+/* プログレスバーのアニメーション（将来的な拡張用） */
+.progress-bar {
+    position: relative;
+    height: 4px;
+    background: var(--color-neutral-300);
+    border-radius: 2px;
+    overflow: hidden;
+}
+
+.progress-bar-fill {
+    height: 100%;
+    background: linear-gradient(
+        90deg,
+        var(--color-primary),
+        var(--color-primary-light),
+        var(--color-primary)
+    );
+    background-size: 200% 100%;
+    border-radius: 2px;
+    transition: width 0.3s ease;
+    animation: progressShine 2s linear infinite;
+}
+
+@keyframes progressShine {
+    0% {
+        background-position: 0% center;
+    }
+    100% {
+        background-position: 200% center;
+    }
+}
+
+/* ========================================
+   フォーカス状態の強化
+   ======================================== */
+
+/* キーボードフォーカス時のアウトライン */
+.btn:focus-visible,
+.size-btn:focus-visible,
+.problem-btn:focus-visible,
+.gallery-tab-btn:focus-visible,
+.page-number-btn:focus-visible {
+    outline: 3px solid var(--color-primary-light);
+    outline-offset: 3px;
+    animation: focusPulse 1s ease-in-out infinite;
+}
+
+@keyframes focusPulse {
+    0%, 100% {
+        outline-color: var(--color-primary-light);
+    }
+    50% {
+        outline-color: var(--color-primary);
+    }
+}
+
+/* ========================================
+   アクセシビリティ: 動きを減らす設定
+   ======================================== */
+
+@media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+    }
+}
+
+/* ========================================
+   タッチデバイス向けの調整
+   ======================================== */
+
+@media (hover: none) and (pointer: coarse) {
+    /* タッチデバイスではホバー効果を軽減 */
+    .btn:hover::after,
+    .info-card:hover::before {
+        opacity: 0;
+    }
+
+    /* タップ時のフィードバックを強化 */
+    .btn:active,
+    .size-btn:active,
+    .problem-btn:active {
+        transform: scale(0.95) !important;
+        transition: transform 0.1s ease;
+    }
+}
+
+/* ========================================
+   パフォーマンス最適化
+   ======================================== */
+
+/* GPUアクセラレーション */
+.btn,
+.size-btn,
+.problem-btn,
+.gallery-item,
+.modal-content {
+    /* ホバーアニメーション無効化のため will-change も無効化 */
+    /* will-change: transform; */
+    transform: translateZ(0);
+    backface-visibility: hidden;
+}
+
+/* パズルピースは translateZ(0) と backface-visibility を無効化: 他のピースが暗くなるのを防止 */
+.puzzle-piece {
+    /* transform: translateZ(0); */
+    /* backface-visibility: hidden; */
+}
+
+/* アニメーション完了後のwill-changeリセット */
+.btn:not(:hover):not(:active),
+.puzzle-piece:not(:hover):not(:active) {
+    /* will-change: auto; */
+}
+
+/* ========================================
+   リプルエフェクト（JS生成要素用）
+   ======================================== */
+
+.ripple-effect {
+    position: absolute;
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.6);
+    transform: translate(-50%, -50%) scale(0);
+    animation: rippleExpand 0.6s ease-out;
+    pointer-events: none;
+}
+
+@keyframes rippleExpand {
+    0% {
+        transform: translate(-50%, -50%) scale(0);
+        opacity: 1;
+    }
+    100% {
+        transform: translate(-50%, -50%) scale(15);
+        opacity: 0;
+    }
+}
+
+/* ========================================
+   フォーカスリングアニメーション
+   ======================================== */
+
+@keyframes focusRingExpand {
+    from {
+        transform: scale(0.95);
+        opacity: 0;
+    }
+    to {
+        transform: scale(1);
+        opacity: 1;
+    }
+}
+
+/* ========================================
+   シェイクアニメーション（エラー用）
+   ======================================== */
+
+@keyframes shake {
+    0%, 100% {
+        transform: translateX(0);
+    }
+    10%, 30%, 50%, 70%, 90% {
+        transform: translateX(-8px);
+    }
+    20%, 40%, 60%, 80% {
+        transform: translateX(8px);
+    }
+}
+
+/* ========================================
+   バウンスアニメーション（成功用）
+   ======================================== */
+
+@keyframes bounce {
+    0%, 20%, 50%, 80%, 100% {
+        transform: translateY(0);
+    }
+    40% {
+        transform: translateY(-20px);
+    }
+    60% {
+        transform: translateY(-10px);
+    }
+}
+
+/* ========================================
+   入力フィールドの状態（将来の拡張用）
+   ======================================== */
+
+.input-focused {
+    position: relative;
+}
+
+.input-focused input,
+.input-focused textarea {
+    border-color: var(--color-primary);
+    box-shadow: 0 0 0 3px rgba(74, 144, 226, 0.1);
+    transform: scale(1.02);
+}
+
+.input-error {
+    border-color: var(--color-accent-danger) !important;
+    animation: shake 0.5s ease-in-out;
+}
+
+.input-success {
+    border-color: var(--color-secondary) !important;
+}
+
+/* 入力フィールドのプレースホルダーアニメーション */
+input:focus::placeholder,
+textarea:focus::placeholder {
+    transform: translateY(-20px);
+    font-size: 0.85em;
+    opacity: 0.7;
+    transition: all 0.3s ease;
+}
+
+/* ========================================
+   マイクロパーティクル（JS生成要素用）
+   ======================================== */
+
+.micro-particle {
+    transition: opacity 0.6s ease;
+}
+
+/* ========================================
+   モーダルフェードアウト
+   ======================================== */
+
+@keyframes modalFadeOut {
+    from {
+        opacity: 1;
+        backdrop-filter: blur(8px);
+    }
+    to {
+        opacity: 0;
+        backdrop-filter: blur(0px);
+    }
+}
+
+/* ========================================
+   ツールチップスタイル拡張
+   ======================================== */
+
+.tooltip {
+    background: rgba(0, 0, 0, 0.85);
+    color: var(--color-neutral-100);
+    padding: 8px 12px;
+    border-radius: var(--radius-sm);
+    font-size: var(--font-size-small);
+    white-space: nowrap;
+    pointer-events: none;
+    box-shadow: var(--shadow-lg);
+}
+
+.tooltip::after {
+    content: '';
+    position: absolute;
+    border: 6px solid transparent;
+}
+
+.tooltip-top::after {
+    top: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    border-top-color: rgba(0, 0, 0, 0.85);
+}
+
+.tooltip-bottom::after {
+    bottom: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    border-bottom-color: rgba(0, 0, 0, 0.85);
+}
+
+.tooltip-left::after {
+    left: 100%;
+    top: 50%;
+    transform: translateY(-50%);
+    border-left-color: rgba(0, 0, 0, 0.85);
+}
+
+.tooltip-right::after {
+    right: 100%;
+    top: 50%;
+    transform: translateY(-50%);
+    border-right-color: rgba(0, 0, 0, 0.85);
+}
+
+/* ========================================
+   クリアタイムの追加スタイル
+   ======================================== */
+
+/* ちらつき防止: clearImageFadeInアニメーションを無効化 */
+/* @keyframes clearImageFadeIn {
+    from {
+        opacity: 0;
+        transform: scale(0.95);
+    }
+    to {
+        opacity: 1;
+        transform: scale(1);
+    }
+} */

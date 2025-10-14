@@ -1,0 +1,723 @@
+/* ========================================
+   エフェクトCSS - スライドパズルゲーム
+   ======================================== */
+
+/* ========================================
+   フラッシュオーバーレイ
+   ======================================== */
+
+.flash-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    z-index: 9999;
+    background: transparent;
+}
+
+.flash-overlay.active {
+    animation: screenFlash 0.5s ease-out;
+}
+
+@keyframes screenFlash {
+    0% {
+        background: rgba(255, 255, 255, 0);
+    }
+    50% {
+        background: rgba(255, 255, 255, 0.8);
+    }
+    100% {
+        background: rgba(255, 255, 255, 0);
+    }
+}
+
+/* ========================================
+   グローエフェクト
+   ======================================== */
+
+/* ちらつき防止: パズルピースのグローエフェクトを無効化 */
+/* .puzzle-piece:hover {
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3),
+                0 0 20px rgba(79, 195, 247, 0.6);
+} */
+
+.btn:hover {
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3),
+                0 0 15px rgba(255, 107, 107, 0.4);
+}
+
+.glow-effect {
+    position: relative;
+}
+
+.glow-effect::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 100%;
+    height: 100%;
+    background: radial-gradient(circle, rgba(79, 195, 247, 0.3) 0%, transparent 70%);
+    transform: translate(-50%, -50%);
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.glow-effect:hover::before {
+    opacity: 1;
+}
+
+/* ========================================
+   シャインエフェクト
+   ======================================== */
+
+.shine {
+    position: relative;
+    overflow: hidden;
+}
+
+.shine::after {
+    content: '';
+    position: absolute;
+    top: -50%;
+    left: -50%;
+    width: 200%;
+    height: 200%;
+    background: linear-gradient(
+        to right,
+        rgba(255, 255, 255, 0) 0%,
+        rgba(255, 255, 255, 0.3) 50%,
+        rgba(255, 255, 255, 0) 100%
+    );
+    transform: rotate(45deg) translateX(-100%);
+    transition: transform 0.6s ease;
+}
+
+.shine:hover::after {
+    transform: rotate(45deg) translateX(100%);
+}
+
+/* ========================================
+   パルスエフェクト
+   ======================================== */
+
+.pulse {
+    animation: pulse 1.5s ease-in-out infinite;
+}
+
+@keyframes pulse {
+    0%, 100% {
+        transform: scale(1);
+        opacity: 1;
+    }
+    50% {
+        transform: scale(1.05);
+        opacity: 0.9;
+    }
+}
+
+/* ========================================
+   スパークルエフェクト
+   ======================================== */
+
+.sparkle-container {
+    position: relative;
+}
+
+.sparkle-particle {
+    position: absolute;
+    width: 20px;
+    height: 20px;
+    background-image: url('../assets/img/effects/sparkle.png');
+    background-size: contain;
+    background-repeat: no-repeat;
+    pointer-events: none;
+    animation: sparkleFloat 2s ease-in-out infinite;
+}
+
+@keyframes sparkleFloat {
+    0%, 100% {
+        transform: translateY(0) rotate(0deg);
+        opacity: 0;
+    }
+    50% {
+        opacity: 1;
+    }
+    100% {
+        transform: translateY(-30px) rotate(180deg);
+        opacity: 0;
+    }
+}
+
+/* ========================================
+   影とデプス
+   ======================================== */
+
+.elevated-1 {
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.elevated-2 {
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+}
+
+.elevated-3 {
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+}
+
+.elevated-4 {
+    box-shadow: 0 15px 40px rgba(0, 0, 0, 0.4);
+}
+
+/* ========================================
+   背景エフェクト
+   ======================================== */
+
+body {
+    position: relative;
+}
+
+body::before {
+    content: '';
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-image: url('../assets/img/backgrounds/bg-pattern.png');
+    background-repeat: repeat;
+    opacity: 0.05;
+    z-index: -1;
+    pointer-events: none;
+}
+
+/* パーティクル背景（オプション） */
+.background-particles {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-image: url('../assets/img/backgrounds/bg-particles.png');
+    background-size: cover;
+    opacity: 0.1;
+    z-index: -1;
+    pointer-events: none;
+    animation: particleDrift 20s linear infinite;
+}
+
+@keyframes particleDrift {
+    0% {
+        transform: translateY(0);
+    }
+    100% {
+        transform: translateY(-50px);
+    }
+}
+
+/* ========================================
+   トロフィー・アイコンエフェクト
+   ======================================== */
+
+.trophy-icon {
+    display: inline-block;
+    width: 32px;
+    height: 32px;
+    background-image: url('../assets/img/ui/icons/icon-trophy.png');
+    background-size: contain;
+    background-repeat: no-repeat;
+    vertical-align: middle;
+    animation: trophyBounce 2s ease-in-out infinite;
+}
+
+@keyframes trophyBounce {
+    0%, 100% {
+        transform: translateY(0);
+    }
+    50% {
+        transform: translateY(-5px);
+    }
+}
+
+.star-icon {
+    display: inline-block;
+    width: 24px;
+    height: 24px;
+    background-image: url('../assets/img/ui/icons/icon-star.png');
+    background-size: contain;
+    background-repeat: no-repeat;
+    vertical-align: middle;
+    animation: starTwinkle 1.5s ease-in-out infinite;
+}
+
+@keyframes starTwinkle {
+    0%, 100% {
+        opacity: 1;
+        transform: scale(1);
+    }
+    50% {
+        opacity: 0.7;
+        transform: scale(1.1);
+    }
+}
+
+/* ========================================
+   ボタンカスタムスタイル（素材使用）
+   ======================================== */
+
+.btn-with-bg {
+    background-image: url('../assets/img/ui/buttons/btn-primary.png');
+    background-size: cover;
+    background-position: center;
+    border: none;
+}
+
+.btn-secondary-bg {
+    background-image: url('../assets/img/ui/buttons/btn-secondary.png');
+    background-size: cover;
+    background-position: center;
+}
+
+/* ========================================
+   パネル装飾
+   ======================================== */
+
+.decorated-panel {
+    position: relative;
+    background-image: url('../assets/img/ui/panels/panel-gradient.png');
+    background-size: cover;
+    background-position: center;
+}
+
+.decorated-panel::before,
+.decorated-panel::after {
+    content: '';
+    position: absolute;
+    width: 100px;
+    height: 100px;
+    background-image: url('../assets/img/ui/decorations/corner-decoration.png');
+    background-size: contain;
+    background-repeat: no-repeat;
+    opacity: 0.3;
+}
+
+.decorated-panel::before {
+    top: 10px;
+    left: 10px;
+}
+
+.decorated-panel::after {
+    bottom: 10px;
+    right: 10px;
+    transform: rotate(180deg);
+}
+
+/* ========================================
+   光線エフェクト（クリア時）
+   ======================================== */
+
+.light-rays {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    width: 100%;
+    height: 100%;
+    background-image: url('../assets/img/effects/light-ray.png');
+    background-size: cover;
+    background-position: center;
+    transform: translate(-50%, -50%);
+    opacity: 0;
+    pointer-events: none;
+    z-index: 9998;
+    animation: lightRaysFade 3s ease-out forwards;
+}
+
+@keyframes lightRaysFade {
+    0% {
+        opacity: 0;
+        transform: translate(-50%, -50%) scale(0.8) rotate(0deg);
+    }
+    50% {
+        opacity: 0.3;
+    }
+    100% {
+        opacity: 0;
+        transform: translate(-50%, -50%) scale(1.2) rotate(30deg);
+    }
+}
+
+/* ========================================
+   テキストグローエフェクト
+   ======================================== */
+
+.text-glow {
+    text-shadow: 0 0 10px rgba(79, 195, 247, 0.5),
+                 0 0 20px rgba(79, 195, 247, 0.3),
+                 0 0 30px rgba(79, 195, 247, 0.2);
+}
+
+.text-glow-red {
+    text-shadow: 0 0 10px rgba(255, 107, 107, 0.5),
+                 0 0 20px rgba(255, 107, 107, 0.3),
+                 0 0 30px rgba(255, 107, 107, 0.2);
+}
+
+.text-glow-gold {
+    text-shadow: 0 0 10px rgba(255, 215, 0, 0.5),
+                 0 0 20px rgba(255, 215, 0, 0.3),
+                 0 0 30px rgba(255, 215, 0, 0.2);
+}
+
+/* ========================================
+   ボタンフィードバックエフェクト
+   ======================================== */
+
+/* 成功フィードバック - 緑色の点滅 */
+.feedback-success {
+    animation: successFlash 0.5s ease-out;
+}
+
+@keyframes successFlash {
+    0% {
+        background: inherit;
+        box-shadow: inherit;
+    }
+    50% {
+        background: linear-gradient(135deg, #7ED321, #95DC4A);
+        box-shadow: 0 0 20px rgba(126, 211, 33, 0.8), 0 0 40px rgba(126, 211, 33, 0.4);
+        transform: scale(1.05);
+    }
+    100% {
+        background: inherit;
+        box-shadow: inherit;
+        transform: scale(1);
+    }
+}
+
+/* エラーフィードバック - 赤色の振動 */
+.feedback-error {
+    animation: errorShake 0.5s ease-out;
+}
+
+@keyframes errorShake {
+    0%, 100% {
+        transform: translateX(0);
+        background: inherit;
+    }
+    10%, 30%, 50%, 70%, 90% {
+        transform: translateX(-5px);
+        background: linear-gradient(135deg, #E85D75, #ED7A8F);
+        box-shadow: 0 0 20px rgba(232, 93, 117, 0.8);
+    }
+    20%, 40%, 60%, 80% {
+        transform: translateX(5px);
+        background: linear-gradient(135deg, #E85D75, #ED7A8F);
+        box-shadow: 0 0 20px rgba(232, 93, 117, 0.8);
+    }
+}
+
+/* クリックフィードバック - 短い色変化 */
+.feedback-click {
+    animation: clickFeedback 0.2s ease-out;
+}
+
+@keyframes clickFeedback {
+    0% {
+        transform: scale(1);
+        filter: brightness(1);
+    }
+    50% {
+        transform: scale(0.95);
+        filter: brightness(1.2);
+    }
+    100% {
+        transform: scale(1);
+        filter: brightness(1);
+    }
+}
+
+/* ローディングスピナー */
+.loading-spinner {
+    display: inline-block;
+    width: 20px;
+    height: 20px;
+    border: 3px solid rgba(255, 255, 255, 0.3);
+    border-top-color: #fff;
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+    vertical-align: middle;
+    margin-left: 8px;
+}
+
+@keyframes spin {
+    0% {
+        transform: rotate(0deg);
+    }
+    100% {
+        transform: rotate(360deg);
+    }
+}
+
+/* 処理中のボタン状態 */
+.btn-processing {
+    opacity: 0.7;
+    cursor: wait;
+    pointer-events: none;
+}
+
+/* 成功時の拡散効果 */
+.feedback-ripple {
+    position: relative;
+    overflow: visible;
+}
+
+.feedback-ripple::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(126, 211, 33, 0.6) 0%, transparent 70%);
+    transform: translate(-50%, -50%) scale(0);
+    animation: rippleExpand 0.6s ease-out;
+    pointer-events: none;
+}
+
+@keyframes rippleExpand {
+    0% {
+        transform: translate(-50%, -50%) scale(0);
+        opacity: 1;
+    }
+    100% {
+        transform: translate(-50%, -50%) scale(2.5);
+        opacity: 0;
+    }
+}
+
+/* ========================================
+   ツールチップスタイル
+   ======================================== */
+
+.tooltip {
+    position: absolute;
+    background: rgba(66, 66, 66, 0.95);
+    color: white;
+    padding: 8px 12px;
+    border-radius: 6px;
+    font-size: 0.9em;
+    white-space: nowrap;
+    z-index: 10000;
+    pointer-events: none;
+    opacity: 0;
+    transform: translateY(-10px);
+    transition: opacity 0.3s ease, transform 0.3s ease;
+}
+
+.tooltip.show {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+.tooltip::after {
+    content: '';
+    position: absolute;
+    top: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    border: 6px solid transparent;
+    border-top-color: rgba(66, 66, 66, 0.95);
+}
+
+/* ガイドメッセージ */
+.guide-message {
+    position: fixed;
+    top: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: linear-gradient(135deg, rgba(74, 144, 226, 0.95), rgba(53, 122, 189, 0.95));
+    color: white;
+    padding: 12px 24px;
+    border-radius: 24px;
+    font-size: 1em;
+    font-weight: 600;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+    z-index: 9999;
+    opacity: 0;
+    transform: translateX(-50%) translateY(-20px);
+    transition: opacity 0.3s ease, transform 0.3s ease;
+    pointer-events: none;
+}
+
+.guide-message.show {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+}
+
+.guide-message.success {
+    background: linear-gradient(135deg, rgba(126, 211, 33, 0.95), rgba(107, 185, 26, 0.95));
+}
+
+.guide-message.error {
+    background: linear-gradient(135deg, rgba(232, 93, 117, 0.95), rgba(214, 74, 92, 0.95));
+}
+
+.guide-message.info {
+    background: linear-gradient(135deg, rgba(245, 166, 35, 0.95), rgba(248, 184, 78, 0.95));
+}
+
+/* ========================================
+   背景の緩やかな変化（BGM代替）
+   ======================================== */
+
+/* 背景色固定: アニメーションなし */
+body.ambient-calm,
+body.ambient-active,
+body.ambient-victory {
+    /* アニメーションなし - 背景色は style.css の body で固定 */
+}
+
+/* ========================================
+   進行状況バー
+   ======================================== */
+
+.progress-bar-container {
+    width: 100%;
+    height: 8px;
+    background: rgba(0, 0, 0, 0.1);
+    border-radius: 4px;
+    overflow: hidden;
+    margin: 12px 0;
+}
+
+.progress-bar {
+    height: 100%;
+    background: linear-gradient(90deg, #4A90E2, #7ED321);
+    border-radius: 4px;
+    transition: width 0.3s ease;
+    position: relative;
+}
+
+.progress-bar::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(90deg,
+        transparent 0%,
+        rgba(255, 255, 255, 0.3) 50%,
+        transparent 100%);
+    animation: progressShine 2s linear infinite;
+}
+
+@keyframes progressShine {
+    0% {
+        transform: translateX(-100%);
+    }
+    100% {
+        transform: translateX(100%);
+    }
+}
+
+/* ========================================
+   カウントダウン表示
+   ======================================== */
+
+.countdown-display {
+    font-size: 2em;
+    font-weight: bold;
+    color: #4A90E2;
+    text-align: center;
+    margin: 20px 0;
+}
+
+.countdown-display.warning {
+    color: #F5A623;
+    animation: countdownPulse 1s ease-in-out infinite;
+}
+
+.countdown-display.danger {
+    color: #E85D75;
+    animation: countdownUrgent 0.5s ease-in-out infinite;
+}
+
+@keyframes countdownPulse {
+    0%, 100% {
+        transform: scale(1);
+        opacity: 1;
+    }
+    50% {
+        transform: scale(1.1);
+        opacity: 0.8;
+    }
+}
+
+@keyframes countdownUrgent {
+    0%, 100% {
+        transform: scale(1);
+        text-shadow: 0 0 10px rgba(232, 93, 117, 0.5);
+    }
+    50% {
+        transform: scale(1.15);
+        text-shadow: 0 0 20px rgba(232, 93, 117, 0.8);
+    }
+}
+
+/* ========================================
+   操作ヒント表示
+   ======================================== */
+
+.hint-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: rgba(74, 144, 226, 0.1);
+    border: 1px solid rgba(74, 144, 226, 0.3);
+    border-radius: 12px;
+    padding: 6px 12px;
+    font-size: 0.85em;
+    color: #4A90E2;
+    margin: 4px;
+}
+
+.hint-badge::before {
+    content: '💡';
+    font-size: 1.2em;
+}
+
+/* ========================================
+   prefers-reduced-motion対応
+   ======================================== */
+
+@media (prefers-reduced-motion: reduce) {
+    .flash-overlay.active,
+    .sparkle-particle,
+    .background-particles,
+    .trophy-icon,
+    .star-icon,
+    .light-rays,
+    .feedback-success,
+    .feedback-error,
+    .feedback-click,
+    .feedback-ripple::after,
+    .loading-spinner,
+    .progress-bar::after,
+    .countdown-display.warning,
+    .countdown-display.danger,
+    body.ambient-calm,
+    body.ambient-active,
+    body.ambient-victory {
+        animation: none !important;
+    }
+
+    .tooltip,
+    .guide-message {
+        transition: opacity 0.1s ease;
+    }
+}

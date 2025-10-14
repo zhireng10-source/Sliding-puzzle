@@ -1,0 +1,687 @@
+/* ========================================
+   集中力を高めるUI設計
+   パズルゲーム向けの最適化
+   ======================================== */
+
+/* ========================================
+   色彩戦略: 集中力を高める配色
+   ======================================== */
+
+:root {
+    /* ========================================
+       基調色: 落ち着いた寒色系
+       ======================================== */
+
+    /* プライマリ: 深い青（信頼感・集中力） */
+    --focus-blue-darker: #2c5282;
+    --focus-blue-dark: #3182ce;
+    --focus-blue: #4299e1;
+    --focus-blue-light: #63b3ed;
+    --focus-blue-lighter: #90cdf4;
+    --focus-blue-subtle: #bee3f8;
+
+    /* セカンダリ: 穏やかな緑（リラックス・バランス） */
+    --focus-green-darker: #276749;
+    --focus-green-dark: #38a169;
+    --focus-green: #48bb78;
+    --focus-green-light: #68d391;
+    --focus-green-lighter: #9ae6b4;
+    --focus-green-subtle: #c6f6d5;
+
+    /* ========================================
+       アクセント色: 暖色でポイント強調
+       ======================================== */
+
+    /* アクセント: 柔らかいオレンジ（注意喚起） */
+    --focus-accent-warm: #ed8936;
+    --focus-accent-warm-light: #f6ad55;
+    --focus-accent-warm-subtle: #fbd38d;
+
+    /* 成功: 黄緑（達成感） */
+    --focus-success: #68d391;
+    --focus-success-bg: #f0fff4;
+
+    /* 警告: 琥珀色（注意） */
+    --focus-warning: #f6ad55;
+    --focus-warning-bg: #fffaf0;
+
+    /* エラー: 柔らかい赤（警告） */
+    --focus-error: #fc8181;
+    --focus-error-bg: #fff5f5;
+
+    /* ========================================
+       背景色: 目に優しい白・薄グレー
+       ======================================== */
+
+    /* ベース背景 */
+    --focus-bg-primary: #ffffff;
+    --focus-bg-secondary: #f7fafc;
+    --focus-bg-tertiary: #edf2f7;
+    --focus-bg-quaternary: #e2e8f0;
+
+    /* グラデーション背景（環境を整える） */
+    --focus-bg-gradient: linear-gradient(
+        135deg,
+        #f7fafc 0%,
+        #edf2f7 50%,
+        #e2e8f0 100%
+    );
+
+    /* ゲーム盤面専用背景（最も重要な要素） */
+    --focus-game-board-bg: #ffffff;
+    --focus-game-board-shadow: 0 10px 40px rgba(66, 153, 225, 0.15);
+
+    /* ========================================
+       テキストカラー: 読みやすさ重視
+       ======================================== */
+
+    --focus-text-primary: #2d3748;
+    --focus-text-secondary: #4a5568;
+    --focus-text-tertiary: #718096;
+    --focus-text-muted: #a0aec0;
+    --focus-text-inverse: #ffffff;
+
+    /* ========================================
+       境界線: 控えめな分離
+       ======================================== */
+
+    --focus-border-light: #e2e8f0;
+    --focus-border-medium: #cbd5e0;
+    --focus-border-strong: #a0aec0;
+
+    /* ========================================
+       スペーシング: 十分な余白
+       ======================================== */
+
+    --focus-space-xs: 4px;
+    --focus-space-sm: 8px;
+    --focus-space-md: 16px;
+    --focus-space-lg: 24px;
+    --focus-space-xl: 32px;
+    --focus-space-xxl: 48px;
+    --focus-space-xxxl: 64px;
+
+    /* ========================================
+       レイアウト設定
+       ======================================== */
+
+    /* ゲーム盤面のサイズ */
+    --focus-board-width: min(90vw, 600px);
+    --focus-board-max-width: 600px;
+
+    /* コンテナの最大幅 */
+    --focus-container-max-width: 1200px;
+
+    /* ========================================
+       トランジション: スムーズな変化
+       ======================================== */
+
+    --focus-transition-fast: 150ms ease;
+    --focus-transition-normal: 250ms ease;
+    --focus-transition-slow: 400ms ease;
+
+    /* ========================================
+       フォーカス状態
+       ======================================== */
+
+    --focus-ring-color: rgba(66, 153, 225, 0.5);
+    --focus-ring-width: 3px;
+    --focus-ring-offset: 2px;
+}
+
+/* ========================================
+   グローバル背景: 環境を整える
+   ======================================== */
+
+body.focus-mode {
+    background: var(--focus-bg-gradient);
+    color: var(--focus-text-primary);
+    min-height: 100vh;
+
+    /* スムーズなスクロール */
+    scroll-behavior: smooth;
+
+    /* 目の負担を軽減 */
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+}
+
+/* ========================================
+   レイアウト: ゲーム盤面を中心に
+   ======================================== */
+
+/* メインコンテナ */
+.focus-container {
+    max-width: var(--focus-container-max-width);
+    margin: 0 auto;
+    padding: var(--focus-space-lg);
+
+    /* グリッドレイアウト */
+    display: grid;
+    grid-template-areas:
+        "header"
+        "game"
+        "controls"
+        "footer";
+    grid-template-rows: auto 1fr auto auto;
+    gap: var(--focus-space-xl);
+    min-height: 100vh;
+}
+
+/* ヘッダーエリア */
+.focus-header {
+    grid-area: header;
+    text-align: center;
+    padding: var(--focus-space-md) 0;
+}
+
+/* ゲームエリア（最重要） */
+.focus-game-area {
+    grid-area: game;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: var(--focus-space-xl);
+
+    /* 十分な余白で圧迫感を軽減 */
+    padding: var(--focus-space-xxl) var(--focus-space-lg);
+}
+
+/* ゲーム情報（タイマー等） */
+.focus-game-info {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: var(--focus-space-lg);
+    flex-wrap: wrap;
+
+    /* コンパクトに配置 */
+    padding: var(--focus-space-md);
+    background: var(--focus-bg-secondary);
+    border-radius: 12px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+}
+
+/* ゲーム盤面（パズル） */
+.focus-board {
+    background: var(--focus-game-board-bg);
+    border-radius: 16px;
+    padding: var(--focus-space-lg);
+    box-shadow: var(--focus-game-board-shadow);
+
+    /* 最も重要な要素として強調 */
+    position: relative;
+    z-index: 10;
+
+    /* 十分な余白 */
+    margin: var(--focus-space-xl) auto;
+}
+
+/* コントロールエリア */
+.focus-controls {
+    grid-area: controls;
+    display: flex;
+    flex-direction: column;
+    gap: var(--focus-space-md);
+    align-items: center;
+    padding: 0 var(--focus-space-lg);
+}
+
+/* フッターエリア */
+.focus-footer {
+    grid-area: footer;
+    text-align: center;
+    padding: var(--focus-space-lg) 0;
+    color: var(--focus-text-tertiary);
+}
+
+/* ========================================
+   ボタンスタイル: 集中を妨げない
+   ======================================== */
+
+.focus-btn {
+    /* 基本スタイル */
+    padding: var(--focus-space-md) var(--focus-space-xl);
+    border-radius: 8px;
+    border: none;
+    font-weight: 500;
+    font-size: 16px;
+    cursor: pointer;
+    transition: all var(--focus-transition-normal);
+
+    /* アクセシビリティ */
+    min-height: 44px;
+    min-width: 100px;
+
+    /* 影で浮遊感 */
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+/* プライマリボタン */
+.focus-btn-primary {
+    background: linear-gradient(135deg, var(--focus-blue), var(--focus-blue-dark));
+    color: var(--focus-text-inverse);
+}
+
+.focus-btn-primary:hover {
+    background: linear-gradient(135deg, var(--focus-blue-light), var(--focus-blue));
+    box-shadow: 0 4px 12px rgba(66, 153, 225, 0.3);
+    transform: translateY(-2px);
+}
+
+.focus-btn-primary:active {
+    transform: translateY(0);
+    box-shadow: 0 2px 4px rgba(66, 153, 225, 0.2);
+}
+
+/* セカンダリボタン */
+.focus-btn-secondary {
+    background: var(--focus-bg-tertiary);
+    color: var(--focus-text-primary);
+    border: 1px solid var(--focus-border-medium);
+}
+
+.focus-btn-secondary:hover {
+    background: var(--focus-bg-quaternary);
+    border-color: var(--focus-border-strong);
+}
+
+/* 成功ボタン */
+.focus-btn-success {
+    background: linear-gradient(135deg, var(--focus-green), var(--focus-green-dark));
+    color: var(--focus-text-inverse);
+}
+
+.focus-btn-success:hover {
+    background: linear-gradient(135deg, var(--focus-green-light), var(--focus-green));
+    box-shadow: 0 4px 12px rgba(72, 187, 120, 0.3);
+    transform: translateY(-2px);
+}
+
+/* 警告ボタン */
+.focus-btn-warning {
+    background: var(--focus-warning);
+    color: var(--focus-text-primary);
+}
+
+.focus-btn-warning:hover {
+    background: var(--focus-accent-warm);
+    box-shadow: 0 4px 12px rgba(237, 137, 54, 0.3);
+    transform: translateY(-2px);
+}
+
+/* 無効化ボタン */
+.focus-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    background: var(--focus-bg-quaternary);
+    color: var(--focus-text-muted);
+    box-shadow: none;
+}
+
+/* ========================================
+   カードコンポーネント
+   ======================================== */
+
+.focus-card {
+    background: var(--focus-bg-primary);
+    border-radius: 12px;
+    padding: var(--focus-space-lg);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+    border: 1px solid var(--focus-border-light);
+    transition: all var(--focus-transition-normal);
+}
+
+.focus-card:hover {
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+    transform: translateY(-2px);
+}
+
+/* カードの見出し */
+.focus-card-header {
+    font-size: 18px;
+    font-weight: 600;
+    color: var(--focus-text-primary);
+    margin-bottom: var(--focus-space-md);
+    padding-bottom: var(--focus-space-sm);
+    border-bottom: 1px solid var(--focus-border-light);
+}
+
+/* カードの本文 */
+.focus-card-body {
+    color: var(--focus-text-secondary);
+    line-height: 1.6;
+}
+
+/* ========================================
+   情報表示: コンパクトで明確
+   ======================================== */
+
+/* タイマー表示 */
+.focus-timer {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--focus-space-sm);
+    padding: var(--focus-space-md) var(--focus-space-lg);
+    background: var(--focus-bg-primary);
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(66, 153, 225, 0.15);
+    border: 1px solid var(--focus-blue-subtle);
+}
+
+.focus-timer-icon {
+    font-size: 20px;
+    color: var(--focus-blue);
+}
+
+.focus-timer-value {
+    font-size: 24px;
+    font-weight: 600;
+    color: var(--focus-blue-dark);
+    font-variant-numeric: tabular-nums;
+    letter-spacing: 0.05em;
+}
+
+/* スコア表示 */
+.focus-score {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--focus-space-sm);
+    padding: var(--focus-space-md) var(--focus-space-lg);
+    background: var(--focus-success-bg);
+    border-radius: 8px;
+    border: 1px solid var(--focus-green-subtle);
+}
+
+.focus-score-value {
+    font-size: 20px;
+    font-weight: 600;
+    color: var(--focus-green-dark);
+    font-variant-numeric: tabular-nums;
+}
+
+/* ========================================
+   余白の最適化
+   ======================================== */
+
+/* セクション間の余白 */
+.focus-section {
+    margin-bottom: var(--focus-space-xxl);
+}
+
+/* 小さな余白 */
+.focus-spacer-sm {
+    height: var(--focus-space-sm);
+}
+
+/* 中程度の余白 */
+.focus-spacer-md {
+    height: var(--focus-space-md);
+}
+
+/* 大きな余白 */
+.focus-spacer-lg {
+    height: var(--focus-space-lg);
+}
+
+/* 特大の余白 */
+.focus-spacer-xl {
+    height: var(--focus-space-xl);
+}
+
+/* ========================================
+   視覚的階層: 重要度を明確に
+   ======================================== */
+
+/* レベル1: 最重要（ゲーム盤面） */
+.focus-priority-1 {
+    background: var(--focus-bg-primary);
+    box-shadow: var(--focus-game-board-shadow);
+    border: 2px solid var(--focus-blue-subtle);
+    z-index: 10;
+}
+
+/* レベル2: 重要（情報・操作） */
+.focus-priority-2 {
+    background: var(--focus-bg-secondary);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+    z-index: 5;
+}
+
+/* レベル3: 補助（背景要素） */
+.focus-priority-3 {
+    background: var(--focus-bg-tertiary);
+    opacity: 0.9;
+    z-index: 1;
+}
+
+/* ========================================
+   認知負荷を減らすパターン
+   ======================================== */
+
+/* グループ化: 関連要素をまとめる */
+.focus-group {
+    display: flex;
+    flex-direction: column;
+    gap: var(--focus-space-md);
+    padding: var(--focus-space-lg);
+    background: var(--focus-bg-secondary);
+    border-radius: 12px;
+    border-left: 4px solid var(--focus-blue);
+}
+
+.focus-group-title {
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--focus-text-primary);
+    margin-bottom: var(--focus-space-sm);
+}
+
+/* プログレスバー: 進捗の可視化 */
+.focus-progress {
+    width: 100%;
+    height: 8px;
+    background: var(--focus-bg-tertiary);
+    border-radius: 4px;
+    overflow: hidden;
+    position: relative;
+}
+
+.focus-progress-bar {
+    height: 100%;
+    background: linear-gradient(90deg, var(--focus-blue), var(--focus-blue-light));
+    border-radius: 4px;
+    transition: width var(--focus-transition-slow);
+    position: relative;
+}
+
+/* プログレスバーのアニメーション */
+.focus-progress-bar::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(
+        90deg,
+        transparent,
+        rgba(255, 255, 255, 0.3),
+        transparent
+    );
+    animation: progressShine 2s linear infinite;
+}
+
+@keyframes progressShine {
+    0% {
+        transform: translateX(-100%);
+    }
+    100% {
+        transform: translateX(100%);
+    }
+}
+
+/* ========================================
+   フィードバック: 明確な状態表示
+   ======================================== */
+
+/* 成功メッセージ */
+.focus-alert-success {
+    padding: var(--focus-space-md) var(--focus-space-lg);
+    background: var(--focus-success-bg);
+    border-left: 4px solid var(--focus-success);
+    border-radius: 8px;
+    color: var(--focus-text-primary);
+    display: flex;
+    align-items: center;
+    gap: var(--focus-space-md);
+}
+
+/* 警告メッセージ */
+.focus-alert-warning {
+    padding: var(--focus-space-md) var(--focus-space-lg);
+    background: var(--focus-warning-bg);
+    border-left: 4px solid var(--focus-warning);
+    border-radius: 8px;
+    color: var(--focus-text-primary);
+    display: flex;
+    align-items: center;
+    gap: var(--focus-space-md);
+}
+
+/* エラーメッセージ */
+.focus-alert-error {
+    padding: var(--focus-space-md) var(--focus-space-lg);
+    background: var(--focus-error-bg);
+    border-left: 4px solid var(--focus-error);
+    border-radius: 8px;
+    color: var(--focus-text-primary);
+    display: flex;
+    align-items: center;
+    gap: var(--focus-space-md);
+}
+
+/* ========================================
+   集中モード: 邪魔な要素を最小化
+   ======================================== */
+
+.focus-mode-active .focus-header,
+.focus-mode-active .focus-footer {
+    opacity: 0.5;
+    transition: opacity var(--focus-transition-normal);
+}
+
+.focus-mode-active .focus-header:hover,
+.focus-mode-active .focus-footer:hover {
+    opacity: 1;
+}
+
+/* ゲーム盤面を最大化 */
+.focus-mode-active .focus-game-area {
+    flex: 1;
+    justify-content: center;
+}
+
+/* コントロールを最小化 */
+.focus-mode-active .focus-controls {
+    opacity: 0.7;
+    transition: opacity var(--focus-transition-normal);
+}
+
+.focus-mode-active .focus-controls:hover {
+    opacity: 1;
+}
+
+/* ========================================
+   レスポンシブ調整
+   ======================================== */
+
+/* タブレット */
+@media (min-width: 768px) and (max-width: 1024px) {
+    .focus-container {
+        padding: var(--focus-space-md);
+        gap: var(--focus-space-lg);
+    }
+
+    .focus-game-area {
+        padding: var(--focus-space-lg);
+    }
+}
+
+/* モバイル */
+@media (max-width: 767px) {
+    .focus-container {
+        padding: var(--focus-space-sm);
+        gap: var(--focus-space-md);
+    }
+
+    .focus-game-area {
+        padding: var(--focus-space-md);
+    }
+
+    .focus-board {
+        padding: var(--focus-space-md);
+        margin: var(--focus-space-md) auto;
+    }
+
+    .focus-game-info {
+        flex-direction: column;
+        gap: var(--focus-space-sm);
+        padding: var(--focus-space-sm);
+    }
+
+    .focus-btn {
+        width: 100%;
+        min-width: auto;
+    }
+}
+
+/* ========================================
+   ダークモード対応（将来の拡張用）
+   ======================================== */
+
+@media (prefers-color-scheme: dark) {
+    :root {
+        --focus-bg-primary: #1a202c;
+        --focus-bg-secondary: #2d3748;
+        --focus-bg-tertiary: #4a5568;
+        --focus-bg-quaternary: #718096;
+
+        --focus-text-primary: #f7fafc;
+        --focus-text-secondary: #e2e8f0;
+        --focus-text-tertiary: #cbd5e0;
+        --focus-text-muted: #a0aec0;
+
+        --focus-border-light: #4a5568;
+        --focus-border-medium: #718096;
+        --focus-border-strong: #a0aec0;
+
+        /* 影を濃く */
+        --focus-game-board-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
+    }
+
+    body.focus-mode {
+        background: linear-gradient(135deg, #1a202c 0%, #2d3748 50%, #4a5568 100%);
+    }
+}
+
+/* ========================================
+   印刷時の最適化
+   ======================================== */
+
+@media print {
+    .focus-controls,
+    .focus-footer {
+        display: none;
+    }
+
+    .focus-game-area {
+        padding: 0;
+    }
+
+    .focus-board {
+        box-shadow: none;
+        border: 1px solid #000;
+    }
+}

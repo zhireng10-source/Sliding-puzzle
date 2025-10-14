@@ -1,0 +1,796 @@
+/* ========================================
+   アニメーションCSS - スライドパズルゲーム
+   ======================================== */
+
+/* CSS変数定義 */
+:root {
+    --animation-speed-fast: 0.2s;
+    --animation-speed-normal: 0.4s;
+    --animation-speed-slow: 0.6s;
+    --easing-smooth: cubic-bezier(0.4, 0, 0.2, 1);
+    --easing-bounce: cubic-bezier(0.68, -0.55, 0.265, 1.55);
+}
+
+/* ========================================
+   画面遷移アニメーション
+   ======================================== */
+
+/* クリア画面は点滅を防ぐためアニメーションなし */
+.screen:not(#clear-screen) {
+    animation: fadeInSlide var(--animation-speed-normal) var(--easing-smooth);
+}
+
+@keyframes fadeInSlide {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.screen.exit {
+    animation: fadeOutSlide 0.3s var(--easing-smooth);
+}
+
+@keyframes fadeOutSlide {
+    from {
+        opacity: 1;
+        transform: translateY(0);
+    }
+    to {
+        opacity: 0;
+        transform: translateY(-20px);
+    }
+}
+
+/* ========================================
+   パズルタイルアニメーション
+   ======================================== */
+
+.puzzle-piece {
+    transition: transform var(--animation-speed-fast) var(--easing-smooth),
+                box-shadow var(--animation-speed-fast) var(--easing-smooth);
+}
+
+.puzzle-piece.moving {
+    z-index: 100;
+    transition: all var(--animation-speed-fast) var(--easing-smooth);
+}
+
+.puzzle-piece.just-moved {
+    animation: tileGlow 0.3s ease-out;
+}
+
+@keyframes tileGlow {
+    0% {
+        box-shadow: 0 0 0 rgba(79, 195, 247, 0);
+    }
+    50% {
+        box-shadow: 0 0 20px rgba(79, 195, 247, 0.8);
+    }
+    100% {
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+    }
+}
+
+/* ========================================
+   ボタンアニメーション
+   ======================================== */
+
+.btn {
+    transition: all 0.3s var(--easing-smooth);
+    position: relative;
+    overflow: hidden;
+}
+
+.btn:hover {
+    transform: translateY(-2px);
+}
+
+.btn:active {
+    transform: translateY(0) scale(0.98);
+}
+
+.size-btn, .problem-btn {
+    transition: all 0.3s var(--easing-smooth);
+}
+
+.size-btn:active, .problem-btn:active {
+    transform: translateY(-1px) scale(0.98);
+}
+
+/* ボタンリップル効果 */
+.btn::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 0;
+    height: 0;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.5);
+    transform: translate(-50%, -50%);
+    transition: width 0.6s, height 0.6s;
+}
+
+.btn:active::after {
+    width: 300px;
+    height: 300px;
+}
+
+/* ========================================
+   NEW RECORDアニメーション
+   ======================================== */
+
+.new-record {
+    display: inline-block;
+    animation: recordPulse 1s ease-in-out infinite;
+    color: #ff6b6b;
+    font-weight: bold;
+    text-shadow: 0 0 10px rgba(255, 107, 107, 0.5);
+}
+
+@keyframes recordPulse {
+    0%, 100% {
+        transform: scale(1);
+        opacity: 1;
+    }
+    50% {
+        transform: scale(1.1);
+        opacity: 0.8;
+    }
+}
+
+/* ========================================
+   クリア画像フェードイン - ちらつき防止のため無効化
+   ======================================== */
+
+/* #clear-image {
+    opacity: 0;
+    animation: clearImageFadeIn 1s ease-in forwards;
+}
+
+@keyframes clearImageFadeIn {
+    from {
+        opacity: 0;
+        transform: scale(0.95);
+    }
+    to {
+        opacity: 1;
+        transform: scale(1);
+    }
+} */
+
+/* ========================================
+   ギャラリーアイテムアニメーション
+   ======================================== */
+
+.gallery-item {
+    transition: all 0.3s var(--easing-smooth);
+}
+
+.gallery-item:hover {
+    transform: translateY(-5px) scale(1.02);
+}
+
+/* ========================================
+   情報表示アニメーション - カウントアップ・状態変化
+   ======================================== */
+
+/* 数値カウントアップ効果（JavaScript用クラス） */
+.count-up {
+    animation: numberPulse 0.3s ease-out;
+}
+
+@keyframes numberPulse {
+    0%, 100% {
+        transform: scale(1);
+    }
+    50% {
+        transform: scale(1.15);
+    }
+}
+
+/* 重要な変化の点滅効果 */
+.highlight-change {
+    animation: highlightFlash 0.8s ease-out;
+}
+
+@keyframes highlightFlash {
+    0% {
+        background-color: rgba(126, 211, 33, 0.3);
+        transform: scale(1.05);
+    }
+    100% {
+        background-color: transparent;
+        transform: scale(1);
+    }
+}
+
+/* 警告時の点滅（時間切れなど） */
+.warning-blink {
+    animation: warningBlink 1s ease-in-out infinite;
+}
+
+@keyframes warningBlink {
+    0%, 100% {
+        border-color: #E85D75;
+        box-shadow: 0 2px 8px rgba(232, 93, 117, 0.3);
+    }
+    50% {
+        border-color: #ED7A8F;
+        box-shadow: 0 4px 16px rgba(232, 93, 117, 0.5);
+    }
+}
+
+/* タイマー刻み効果 */
+.timer-tick {
+    animation: timerTick 0.2s ease-out;
+}
+
+@keyframes timerTick {
+    0% {
+        transform: scale(1);
+    }
+    50% {
+        transform: scale(1.08);
+    }
+    100% {
+        transform: scale(1);
+    }
+}
+
+/* 成功時の色変化 */
+.success-glow {
+    animation: successGlow 1.5s ease-out;
+}
+
+@keyframes successGlow {
+    0% {
+        background: rgba(126, 211, 33, 0.2);
+        box-shadow: 0 4px 20px rgba(126, 211, 33, 0.4);
+    }
+    100% {
+        background: rgba(126, 211, 33, 0.05);
+        box-shadow: 0 2px 8px rgba(126, 211, 33, 0.15);
+    }
+}
+
+/* 情報カード登場アニメーション */
+.info-card-appear {
+    animation: infoCardAppear 0.4s ease-out;
+}
+
+@keyframes infoCardAppear {
+    0% {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+    100% {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* ========================================
+   タイマー数字アニメーション
+   ======================================== */
+
+#timer-display {
+    transition: all 0.3s ease;
+}
+
+#timer-display.pulse {
+    animation: timerPulse 0.5s ease;
+}
+
+@keyframes timerPulse {
+    0%, 100% {
+        transform: scale(1);
+    }
+    50% {
+        transform: scale(1.05);
+        color: #E85D75;
+    }
+}
+
+/* ========================================
+   モーダルアニメーション
+   ======================================== */
+
+.modal {
+    animation: modalFadeIn 0.3s ease-out;
+}
+
+@keyframes modalFadeIn {
+    from {
+        opacity: 0;
+        background-color: rgba(0, 0, 0, 0);
+    }
+    to {
+        opacity: 1;
+        background-color: rgba(0, 0, 0, 0.8);
+    }
+}
+
+.modal-content {
+    animation: modalSlideIn 0.3s var(--easing-bounce);
+}
+
+@keyframes modalSlideIn {
+    from {
+        transform: scale(0.7) translateY(-50px);
+        opacity: 0;
+    }
+    to {
+        transform: scale(1) translateY(0);
+        opacity: 1;
+    }
+}
+
+/* ========================================
+   タブボタンアニメーション
+   ======================================== */
+
+.gallery-tab-btn {
+    transition: all 0.3s var(--easing-smooth);
+}
+
+.gallery-tab-btn.active {
+    animation: tabActivate 0.3s var(--easing-bounce);
+}
+
+@keyframes tabActivate {
+    0% {
+        transform: scale(1);
+    }
+    50% {
+        transform: scale(1.15);
+    }
+    100% {
+        transform: scale(1.1);
+    }
+}
+
+/* ========================================
+   prefers-reduced-motion対応
+   ======================================== */
+
+@media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+    }
+}
+
+/* ========================================
+   パーティクル装飾（オプション）
+   ======================================== */
+
+.sparkle {
+    animation: sparkleRotate 2s linear infinite;
+}
+
+@keyframes sparkleRotate {
+    from {
+        transform: rotate(0deg);
+    }
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+/* ========================================
+   状態変化アニメーション - 要素の出現・消失
+   ======================================== */
+
+/* 新しい要素の出現: fade-in + slide-up */
+.fade-in-up {
+    animation: fadeInUp 0.5s ease-out;
+}
+
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* 要素の消失: fade-out + scale-down */
+.fade-out-scale {
+    animation: fadeOutScale 0.4s ease-in forwards;
+}
+
+@keyframes fadeOutScale {
+    from {
+        opacity: 1;
+        transform: scale(1);
+    }
+    to {
+        opacity: 0;
+        transform: scale(0.8);
+    }
+}
+
+/* エラー表示: shake（左右振動） */
+.shake {
+    animation: shake 0.5s cubic-bezier(0.36, 0.07, 0.19, 0.97);
+}
+
+@keyframes shake {
+    0%, 100% {
+        transform: translateX(0);
+    }
+    10%, 30%, 50%, 70%, 90% {
+        transform: translateX(-8px);
+    }
+    20%, 40%, 60%, 80% {
+        transform: translateX(8px);
+    }
+}
+
+/* 成功表示: bounce（弾む動き） */
+.bounce {
+    animation: bounce 0.8s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+}
+
+@keyframes bounce {
+    0%, 100% {
+        transform: scale(1) translateY(0);
+    }
+    25% {
+        transform: scale(1.1) translateY(-10px);
+    }
+    50% {
+        transform: scale(0.95) translateY(0);
+    }
+    75% {
+        transform: scale(1.05) translateY(-5px);
+    }
+}
+
+/* フィードバック: 色の一瞬の変化 */
+.flash-success {
+    animation: flashSuccess 0.6s ease-out;
+}
+
+@keyframes flashSuccess {
+    0% {
+        background-color: rgba(126, 211, 33, 0.5);
+    }
+    50% {
+        background-color: rgba(126, 211, 33, 0.8);
+    }
+    100% {
+        background-color: transparent;
+    }
+}
+
+.flash-error {
+    animation: flashError 0.6s ease-out;
+}
+
+@keyframes flashError {
+    0% {
+        background-color: rgba(232, 93, 117, 0.5);
+    }
+    50% {
+        background-color: rgba(232, 93, 117, 0.8);
+    }
+    100% {
+        background-color: transparent;
+    }
+}
+
+/* ポップアップ効果 */
+.popup {
+    animation: popup 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+}
+
+@keyframes popup {
+    0% {
+        opacity: 0;
+        transform: scale(0.3);
+    }
+    50% {
+        transform: scale(1.1);
+    }
+    100% {
+        opacity: 1;
+        transform: scale(1);
+    }
+}
+
+/* スライドイン（左から） */
+.slide-in-left {
+    animation: slideInLeft 0.5s ease-out;
+}
+
+@keyframes slideInLeft {
+    from {
+        opacity: 0;
+        transform: translateX(-100px);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+/* スライドイン（右から） */
+.slide-in-right {
+    animation: slideInRight 0.5s ease-out;
+}
+
+@keyframes slideInRight {
+    from {
+        opacity: 0;
+        transform: translateX(100px);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+/* 回転しながら出現 */
+.rotate-in {
+    animation: rotateIn 0.6s ease-out;
+}
+
+@keyframes rotateIn {
+    from {
+        opacity: 0;
+        transform: rotate(-180deg) scale(0.5);
+    }
+    to {
+        opacity: 1;
+        transform: rotate(0deg) scale(1);
+    }
+}
+
+/* パルス効果（注目を集める） */
+.pulse {
+    animation: pulse 1.5s ease-in-out infinite;
+}
+
+@keyframes pulse {
+    0%, 100% {
+        transform: scale(1);
+        opacity: 1;
+    }
+    50% {
+        transform: scale(1.05);
+        opacity: 0.9;
+    }
+}
+
+/* ========================================
+   パーティクルエフェクト用アニメーション
+   ======================================== */
+
+/* パーティクルコンテナ */
+.particle-container {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    z-index: 9999;
+    overflow: hidden;
+}
+
+/* 紙吹雪（confetti）の降下 */
+.particle-confetti {
+    position: absolute;
+    width: 10px;
+    height: 10px;
+    animation: confettiFall 3s ease-out forwards;
+    opacity: 1;
+}
+
+@keyframes confettiFall {
+    0% {
+        transform: translateY(0) rotate(0deg);
+        opacity: 1;
+    }
+    100% {
+        transform: translateY(100vh) rotate(720deg);
+        opacity: 0;
+    }
+}
+
+/* 星の輝き */
+.particle-star {
+    position: absolute;
+    width: 8px;
+    height: 8px;
+    animation: starTwinkle 2s ease-out forwards;
+    clip-path: polygon(50% 0%, 61% 35%, 98% 35%, 68% 57%, 79% 91%, 50% 70%, 21% 91%, 32% 57%, 2% 35%, 39% 35%);
+}
+
+@keyframes starTwinkle {
+    0% {
+        transform: translate(0, 0) scale(0) rotate(0deg);
+        opacity: 1;
+    }
+    50% {
+        transform: translate(var(--dx), var(--dy)) scale(1.5) rotate(180deg);
+        opacity: 1;
+    }
+    100% {
+        transform: translate(calc(var(--dx) * 2), calc(var(--dy) * 2)) scale(0) rotate(360deg);
+        opacity: 0;
+    }
+}
+
+/* ハートの舞い散り */
+.particle-heart {
+    position: absolute;
+    width: 12px;
+    height: 12px;
+    animation: heartFloat 3s ease-out forwards;
+}
+
+.particle-heart::before {
+    content: '❤';
+    font-size: 12px;
+    display: block;
+}
+
+@keyframes heartFloat {
+    0% {
+        transform: translateY(0) rotate(0deg) scale(1);
+        opacity: 1;
+    }
+    50% {
+        transform: translateY(-50vh) rotate(180deg) scale(1.2);
+        opacity: 0.8;
+    }
+    100% {
+        transform: translateY(-100vh) rotate(360deg) scale(0.5);
+        opacity: 0;
+    }
+}
+
+/* 魔法の光のパーティクル */
+.particle-magic {
+    position: absolute;
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    animation: magicSparkle 1.5s ease-out forwards;
+    box-shadow: 0 0 10px currentColor;
+}
+
+@keyframes magicSparkle {
+    0% {
+        transform: translate(0, 0) scale(1);
+        opacity: 1;
+    }
+    50% {
+        transform: translate(var(--dx), var(--dy)) scale(1.5);
+        opacity: 0.8;
+    }
+    100% {
+        transform: translate(calc(var(--dx) * 2), calc(var(--dy) * 2.5)) scale(0);
+        opacity: 0;
+    }
+}
+
+/* 爆発の火花 */
+.particle-spark {
+    position: absolute;
+    width: 4px;
+    height: 4px;
+    border-radius: 50%;
+    animation: sparkBurst 1s ease-out forwards;
+    box-shadow: 0 0 8px currentColor;
+}
+
+@keyframes sparkBurst {
+    0% {
+        transform: translate(0, 0) scale(1);
+        opacity: 1;
+    }
+    100% {
+        transform: translate(var(--dx), var(--dy)) scale(0);
+        opacity: 0;
+    }
+}
+
+/* 治癒の光の粒 */
+.particle-heal {
+    position: absolute;
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    animation: healRise 2s ease-out forwards;
+    box-shadow: 0 0 12px currentColor;
+}
+
+@keyframes healRise {
+    0% {
+        transform: translateY(0) scale(0.5);
+        opacity: 0;
+    }
+    20% {
+        opacity: 1;
+    }
+    80% {
+        opacity: 1;
+    }
+    100% {
+        transform: translateY(-150px) scale(1.5);
+        opacity: 0;
+    }
+}
+
+/* キラキラ効果 */
+.particle-glitter {
+    position: absolute;
+    width: 6px;
+    height: 6px;
+    animation: glitterShine 1.5s ease-out forwards;
+}
+
+@keyframes glitterShine {
+    0%, 100% {
+        transform: scale(0) rotate(0deg);
+        opacity: 0;
+    }
+    50% {
+        transform: scale(1.5) rotate(180deg);
+        opacity: 1;
+    }
+}
+
+/* 泡の浮上 */
+.particle-bubble {
+    position: absolute;
+    border-radius: 50%;
+    animation: bubbleFloat 3s ease-out forwards;
+    border: 2px solid currentColor;
+    background: radial-gradient(circle at 30% 30%, rgba(255,255,255,0.8), transparent);
+}
+
+@keyframes bubbleFloat {
+    0% {
+        transform: translateY(0) scale(0.5);
+        opacity: 0.8;
+    }
+    100% {
+        transform: translateY(-120vh) scale(1.2);
+        opacity: 0;
+    }
+}
+
+/* ========================================
+   ローディングアニメーション（将来用）
+   ======================================== */
+
+.loading-spinner {
+    width: 40px;
+    height: 40px;
+    border: 4px solid rgba(0, 0, 0, 0.1);
+    border-top-color: #4fc3f7;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    to {
+        transform: rotate(360deg);
+    }
+}

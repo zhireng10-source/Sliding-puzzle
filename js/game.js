@@ -1,0 +1,1232 @@
+class SlidePuzzleGame {
+    constructor() {
+        this.gridSize = 3;
+        this.totalTiles = 9;
+        this.emptyIndex = 8;
+        this.puzzleState = [];
+        this.correctOrder = [];
+        this.startTime = 0;
+        this.timerInterval = null;
+        this.gameRunning = false;
+        this.currentProblem = 1;
+        this.isForcedClear = false;
+        this.currentGallerySize = 3;
+        this.currentPage = 1;
+        this.problemsPerPage = 10;
+        this.totalPages = 5;
+
+
+        // 画像パスを動的に生成
+        this.problemImages = {
+            3: {},
+            4: {},
+            5: {}
+        };
+
+        // 各サイズごとに50問分の画像パスを生成
+        for (let size of [3, 4, 5]) {
+            for (let i = 1; i <= 50; i++) {
+                this.problemImages[size][i] = `assets/img/${size}x${size}/problem${i}.jpg`;
+            }
+        }
+
+        this.init();
+    }
+
+    saveBestTime(size, problemNum, timeInMs) {
+        const key = `puzzle_${size}x${size}_problem${problemNum}`;
+        const existingTime = localStorage.getItem(key);
+
+        if (!existingTime || timeInMs < parseInt(existingTime)) {
+            localStorage.setItem(key, timeInMs.toString());
+            return true; // 新記録
+        }
+        return false; // 記録更新なし
+    }
+
+    getBestTime(size, problemNum) {
+        const key = `puzzle_${size}x${size}_problem${problemNum}`;
+        const time = localStorage.getItem(key);
+        return time ? parseInt(time) : null;
+    }
+
+    markProblemAsCleared(size, problemNum) {
+        const key = `puzzle_${size}x${size}_problem${problemNum}_cleared`;
+        localStorage.setItem(key, 'true');
+    }
+
+    isProblemCleared(size, problemNum) {
+        const key = `puzzle_${size}x${size}_problem${problemNum}_cleared`;
+        return localStorage.getItem(key) === 'true';
+    }
+
+    clearProblemFlags(size, problemNum) {
+        const timeKey = `puzzle_${size}x${size}_problem${problemNum}`;
+        const clearedKey = `puzzle_${size}x${size}_problem${problemNum}_cleared`;
+        localStorage.removeItem(timeKey);
+        localStorage.removeItem(clearedKey);
+    }
+
+    formatTime(timeInMs) {
+        const seconds = Math.floor(timeInMs / 1000);
+        const minutes = Math.floor(seconds / 60);
+        const remainingSeconds = seconds % 60;
+        return `${minutes.toString().padStart(2, '0')}:${remainingSeconds.toString().padStart(2, '0')}`;
+    }
+
+    resetAllTimes() {
+        const sizeText = this.gridSize + "×" + this.gridSize;
+        const confirmMessage = `${sizeText}の全ての記録をリセットしますか？\nこの操作は取り消せません。`;
+
+        if (confirm(confirmMessage)) {
+            this.clearTimesForSize(this.gridSize);
+            this.updateBestTimesDisplay();
+            alert(`${sizeText}の記録をリセットしました。`);
+        }
+    }
+
+    clearTimesForSize(size) {
+        for (let problemNum = 1; problemNum <= 50; problemNum++) {
+            this.clearProblemFlags(size, problemNum);
+        }
+    }
+
+    showGallery() {
+        this.currentGallerySize = 3;
+        this.updateGalleryDisplay();
+        this.showScreen('gallery-screen');
+    }
+
+    switchGalleryTab(size) {
+        this.currentGallerySize = size;
+
+        // タブボタンの状態を更新
+        document.querySelectorAll('.gallery-tab-btn').forEach(btn => {
+            btn.classList.remove('active');
+            if (parseInt(btn.dataset.size) === size) {
+                btn.classList.add('active');
+            }
+        });
+
+        // ギャラリーグリッドの表示を切り替え
+        document.querySelectorAll('.gallery-grid').forEach(grid => {
+            grid.classList.add('hidden');
+        });
+        document.getElementById(`gallery-${size}x${size}`).classList.remove('hidden');
+
+        this.updateGalleryDisplay();
+    }
+
+    updateGalleryDisplay() {
+        const galleryGrid = document.getElementById(`gallery-${this.currentGallerySize}x${this.currentGallerySize}`);
+        galleryGrid.innerHTML = '';
+
+        const clearedProblems = this.getClearedProblems(this.currentGallerySize);
+
+        if (clearedProblems.length === 0) {
+            galleryGrid.innerHTML = '<div class="gallery-empty">まだクリアした問題がありません</div>';
+            return;
+        }
+
+        clearedProblems.forEach((problem, index) => {
+            const galleryItem = this.createGalleryItem(problem);
+            galleryGrid.appendChild(galleryItem);
+
+            // ギャラリーアイテムのアニメーションは無効化
+        });
+    }
+
+    getClearedProblems(size) {
+        const clearedProblems = [];
+        for (let problemNum = 1; problemNum <= 50; problemNum++) {
+            const isCleared = this.isProblemCleared(size, problemNum);
+            if (isCleared) {
+                const bestTime = this.getBestTime(size, problemNum);
+                clearedProblems.push({
+                    size: size,
+                    problemNum: problemNum,
+                    bestTime: bestTime, // nullの場合もある（すぐクリアのみの場合）
+                    imagePath: this.problemImages[size][problemNum],
+                    isForcedOnly: !bestTime // ベストタイムがない場合はすぐクリアのみ
+                });
+            }
+        }
+        return clearedProblems;
+    }
+
+    createGalleryItem(problem) {
+        const item = document.createElement('div');
+        item.className = 'gallery-item';
+
+        // すぐクリアのみの場合は特別なスタイルを追加
+        if (problem.isForcedOnly) {
+            item.classList.add('forced-clear-only');
+        }
+
+        const img = document.createElement('img');
+        img.src = problem.imagePath;
+        img.alt = `${problem.size}×${problem.size} 第${problem.problemNum}問`;
+
+        const info = document.createElement('div');
+        info.className = 'gallery-item-info';
+
+        const title = document.createElement('div');
+        title.className = 'gallery-item-title';
+        title.textContent = `${problem.size}×${problem.size} 第${problem.problemNum}問`;
+
+        const time = document.createElement('div');
+        time.className = 'gallery-item-time';
+
+        if (problem.bestTime) {
+            time.textContent = `ベスト: ${this.formatTime(problem.bestTime)}`;
+        } else {
+            time.textContent = 'すぐクリアのみ';
+            time.classList.add('forced-clear-text');
+        }
+
+        info.appendChild(title);
+        info.appendChild(time);
+        item.appendChild(img);
+        item.appendChild(info);
+
+        // クリックで拡大表示
+        item.addEventListener('click', () => {
+            this.showModal(problem);
+        });
+
+        return item;
+    }
+
+    showModal(problem) {
+        const modal = document.getElementById('image-modal');
+        const modalImage = document.getElementById('modal-image');
+        const modalTitle = document.getElementById('modal-title');
+        const modalTime = document.getElementById('modal-time');
+
+        modalImage.src = problem.imagePath;
+        modalTitle.textContent = `${problem.size}×${problem.size} 第${problem.problemNum}問`;
+
+        if (problem.bestTime) {
+            modalTime.textContent = `ベストタイム: ${this.formatTime(problem.bestTime)}`;
+        } else {
+            modalTime.textContent = 'すぐクリアのみ（正式なクリア記録なし）';
+        }
+
+        modal.classList.remove('hidden');
+    }
+
+    closeModal() {
+        document.getElementById('image-modal').classList.add('hidden');
+    }
+
+    init() {
+        this.setGridSize(3); // デフォルトは3x3
+        this.bindEvents();
+        this.showScreen('title-screen');
+
+        // モーダルを確実に非表示にする
+        document.getElementById('image-modal').classList.add('hidden');
+
+        // BGM初期化フラグ
+        this.bgmInitialized = false;
+
+        // ゲーム起動時にBGMを開始
+        this.initBGM();
+    }
+
+    initBGM() {
+        if (!window.soundManager) {
+            return;
+        }
+
+        // BGMを即座に開始試行
+        window.soundManager.switchToTitleBGM();
+        this.bgmInitialized = true;
+
+        // ユーザーインタラクション時の再試行用ハンドラ
+        const startBGMOnInteraction = () => {
+            if (!this.bgmInitialized) {
+                window.soundManager.switchToTitleBGM();
+                this.bgmInitialized = true;
+            }
+            // 一度成功したらリスナーを削除
+            document.removeEventListener('click', startBGMOnInteraction);
+            document.removeEventListener('touchstart', startBGMOnInteraction);
+            document.removeEventListener('keydown', startBGMOnInteraction);
+        };
+
+        // 複数のイベントでBGM開始を試みる
+        document.addEventListener('click', startBGMOnInteraction, { once: true });
+        document.addEventListener('touchstart', startBGMOnInteraction, { once: true });
+        document.addEventListener('keydown', startBGMOnInteraction, { once: true });
+    }
+
+    bindEvents() {
+        // 全てのボタンにクリック音を追加
+        document.querySelectorAll('.btn, .size-btn, .problem-btn, .gallery-tab-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                // 初回クリック時にBGMを初期化
+                if (!this.bgmInitialized && window.soundManager) {
+                    window.soundManager.switchToTitleBGM();
+                    this.bgmInitialized = true;
+                }
+
+                if (window.soundManager) {
+                    window.soundManager.playButtonClick();
+                }
+            });
+        });
+
+        document.getElementById('start-btn').addEventListener('click', () => {
+            this.showScreen('select-screen');
+        });
+
+        // サイズ選択ボタン
+        document.querySelectorAll('.size-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                const size = parseInt(btn.dataset.size);
+                this.setGridSize(size);
+                this.showProblemSelectScreen();
+            });
+        });
+
+        // 戻るボタン
+        document.getElementById('back-to-title').addEventListener('click', () => {
+            this.showScreen('title-screen');
+        });
+
+        document.getElementById('back-to-size-select').addEventListener('click', () => {
+            this.showScreen('select-screen');
+        });
+
+        document.getElementById('back-to-select').addEventListener('click', () => {
+            this.stopTimer();
+            this.showProblemSelectScreen();
+        });
+
+        document.getElementById('back-to-select-clear').addEventListener('click', () => {
+            this.showProblemSelectScreen();
+        });
+
+        document.getElementById('retry-btn').addEventListener('click', () => {
+            this.startGameWithProblem(this.currentProblem);
+        });
+
+        document.getElementById('force-clear').addEventListener('click', () => {
+            this.forceClear();
+        });
+
+        // リセットボタン
+        document.getElementById('reset-times-btn').addEventListener('click', () => {
+            this.resetAllTimes();
+        });
+
+        // ギャラリーボタン
+        document.getElementById('gallery-btn').addEventListener('click', () => {
+            this.showGallery();
+        });
+
+        document.getElementById('back-to-title-gallery').addEventListener('click', () => {
+            this.showScreen('title-screen');
+        });
+
+        // ギャラリータブボタン
+        document.querySelectorAll('.gallery-tab-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                const size = parseInt(btn.dataset.size);
+                this.switchGalleryTab(size);
+            });
+        });
+
+        // モーダル関連
+        const modal = document.getElementById('image-modal');
+        if (modal) {
+            modal.addEventListener('click', (e) => {
+                if (e.target.id === 'image-modal') {
+                    this.closeModal();
+                }
+            });
+        }
+
+        const modalClose = document.querySelector('.modal-close');
+        if (modalClose) {
+            modalClose.addEventListener('click', () => {
+                this.closeModal();
+            });
+        }
+
+        // ページネーションボタン
+        document.getElementById('prev-page-btn').addEventListener('click', () => {
+            this.goToPreviousPage();
+        });
+
+        document.getElementById('next-page-btn').addEventListener('click', () => {
+            this.goToNextPage();
+        });
+    }
+
+    showScreen(screenId) {
+        const screens = document.querySelectorAll('.screen');
+        screens.forEach(screen => screen.classList.add('hidden'));
+
+        const targetScreen = document.getElementById(screenId);
+        targetScreen.classList.remove('hidden');
+
+        // 画面出現アニメーション（特定の画面のみ）
+        // アニメーションなし: title-screen, select-screen, problem-select-screen, game-screen, gallery-screen
+        const noAnimationScreens = ['title-screen', 'select-screen', 'problem-select-screen', 'game-screen', 'gallery-screen'];
+
+        if (window.animationController && !noAnimationScreens.includes(screenId)) {
+            window.animationController.fadeInUp(targetScreen);
+        }
+
+        // 画面遷移時に必ずページトップにスクロール
+        window.scrollTo(0, 0);
+
+        // BGM管理: 画面ごとに適切なBGMを再生
+        if (window.soundManager) {
+            if (screenId === 'title-screen' || screenId === 'select-screen' || screenId === 'problem-select-screen') {
+                window.soundManager.switchToTitleBGM();
+            } else if (screenId === 'gallery-screen') {
+                window.soundManager.switchToGalleryBGM();
+            } else if (screenId === 'clear-screen') {
+                window.soundManager.switchToClearBGM();
+            }
+        }
+    }
+
+    showProblemSelectScreen() {
+        const title = document.querySelector('#problem-select-screen h2');
+        title.textContent = `${this.gridSize}×${this.gridSize} 問題を選択`;
+        this.currentPage = 1; // ページをリセット
+        this.generateProblemButtons();
+        this.generatePageNumbers();
+        this.updateBestTimesDisplay();
+        this.updatePaginationControls();
+        this.showScreen('problem-select-screen');
+    }
+
+    generateProblemButtons() {
+        const container = document.getElementById('problem-buttons-container');
+        container.innerHTML = '';
+
+        // 現在のページに表示する問題の範囲を計算
+        const startProblem = (this.currentPage - 1) * this.problemsPerPage + 1;
+        const endProblem = Math.min(startProblem + this.problemsPerPage - 1, 50);
+
+        for (let i = startProblem; i <= endProblem; i++) {
+            const btn = document.createElement('button');
+            btn.className = 'problem-btn';
+            btn.dataset.problem = i;
+            btn.dataset.size = this.gridSize; // サイズ情報を追加
+
+            const title = document.createElement('div');
+            title.className = 'problem-title';
+            title.textContent = `第${i}問`;
+
+            const bestTimeDiv = document.createElement('div');
+            bestTimeDiv.className = 'problem-best-time';
+
+            btn.appendChild(title);
+            btn.appendChild(bestTimeDiv);
+
+            btn.addEventListener('click', () => {
+                const problemNum = parseInt(btn.dataset.problem);
+                this.currentProblem = problemNum;
+
+                // フィードバック
+                if (window.feedbackManager) {
+                    window.feedbackManager.showClick(btn);
+                }
+
+                this.startGameWithProblem(problemNum);
+            });
+
+            // ARIA属性を設定
+            const bestTime = this.getBestTime(this.gridSize, i);
+            const isCleared = this.isProblemCleared(this.gridSize, i);
+
+            let ariaLabel = `第${i}問`;
+
+            if (bestTime) {
+                const timeStr = this.formatTime(bestTime);
+                ariaLabel += ` ベストタイム ${timeStr}`;
+                btn.dataset.cleared = 'true';
+                btn.dataset.hasTime = 'true';
+            } else if (isCleared) {
+                ariaLabel += ' すぐクリアのみ';
+                btn.dataset.cleared = 'true';
+                btn.dataset.forcedOnly = 'true';
+            } else {
+                ariaLabel += ' 未クリア';
+                btn.dataset.cleared = 'false';
+            }
+
+            btn.setAttribute('aria-label', ariaLabel);
+
+            container.appendChild(btn);
+        }
+    }
+
+    updateBestTimesDisplay() {
+        const problemBtns = document.querySelectorAll('.problem-btn');
+        problemBtns.forEach(btn => {
+            const problemNum = parseInt(btn.dataset.problem);
+            const bestTimeElement = btn.querySelector('.problem-best-time');
+            const bestTime = this.getBestTime(this.gridSize, problemNum);
+            const isCleared = this.isProblemCleared(this.gridSize, problemNum);
+
+            if (bestTime) {
+                // 正式なベストタイムがある場合
+                const bestTimeString = this.formatTime(bestTime);
+                bestTimeElement.textContent = `ベスト: ${bestTimeString}`;
+                bestTimeElement.className = 'problem-best-time';
+            } else if (isCleared) {
+                // すぐクリアのみの場合
+                bestTimeElement.textContent = 'すぐクリアのみ';
+                bestTimeElement.className = 'problem-best-time forced-clear-text';
+            } else {
+                // 未クリアの場合
+                bestTimeElement.textContent = '未クリア';
+                bestTimeElement.className = 'problem-best-time';
+            }
+        });
+    }
+
+    setGridSize(size) {
+        this.gridSize = size;
+        this.totalTiles = size * size;
+        this.emptyIndex = this.totalTiles - 1;
+
+        // パズル状態と正解状態を初期化
+        this.puzzleState = [];
+        this.correctOrder = [];
+        for (let i = 1; i < this.totalTiles; i++) {
+            this.puzzleState.push(i);
+            this.correctOrder.push(i);
+        }
+        // 最後に空のタイル（0）を追加
+        this.puzzleState.push(0);
+        this.correctOrder.push(0);
+
+        // ゲームタイトルを更新
+        document.getElementById('game-title').innerHTML = `${size}×${size}スライドパズル<br>第${this.currentProblem}問`;
+    }
+
+    startGame() {
+        this.stopTimer();
+        this.startTimer();
+        this.isForcedClear = false; // ゲーム開始時にフラグをリセット
+        this.shufflePuzzle();
+        this.renderPuzzle();
+        this.showScreen('game-screen');
+        this.gameRunning = true;
+    }
+
+    startGameWithProblem(problemNum) {
+        this.stopTimer();
+        this.startTimer();
+        this.isForcedClear = false; // ゲーム開始時にフラグをリセット
+        this.currentProblem = problemNum;
+        this.shufflePuzzle(); // 問題番号に関係なくシャッフルを行う
+        this.renderPuzzle();
+        document.getElementById('game-title').innerHTML = `${this.gridSize}×${this.gridSize}スライドパズル<br>第${problemNum}問`;
+        this.showScreen('game-screen');
+        this.gameRunning = true;
+
+        // パズルBGMに切り替え
+        if (window.soundManager) {
+            window.soundManager.switchToPuzzleBGM();
+        }
+
+        // ゲーム開始時のフィードバック
+        if (window.feedbackManager) {
+            window.feedbackManager.setAmbient('active');
+        }
+
+        // アクセシビリティアナウンス
+        if (window.accessibilityManager) {
+            window.accessibilityManager.announceGameStart(problemNum, this.gridSize);
+        }
+    }
+
+
+    shufflePuzzle() {
+        console.log("シャッフル開始:", this.gridSize + "x" + this.gridSize);
+        console.log("シャッフル前:", [...this.puzzleState]);
+
+        // 完全ランダムな配置を生成し、解ける配置になるまで繰り返す
+        let attempts = 0;
+        const maxAttempts = 100;
+
+        do {
+            this.generateRandomConfiguration();
+            attempts++;
+        } while (!this.isSolvable() && attempts < maxAttempts);
+
+        console.log("シャッフル試行回数:", attempts);
+        console.log("シャッフル後:", [...this.puzzleState]);
+
+        // 万が一解ける配置が見つからない場合は、移動ベースのシャッフルにフォールバック
+        if (!this.isSolvable()) {
+            console.log("フォールバック: 移動ベースのシャッフルを使用");
+            this.fallbackShuffle();
+            console.log("フォールバック後:", [...this.puzzleState]);
+        }
+    }
+
+    generateRandomConfiguration() {
+        // Fisher-Yatesシャッフルを使用して完全ランダムな配置を生成
+        const numbers = [];
+        for (let i = 1; i < this.totalTiles; i++) {
+            numbers.push(i);
+        }
+        numbers.push(0); // 空のタイルを最後に追加
+
+        // Fisher-Yatesシャッフル
+        for (let i = numbers.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [numbers[i], numbers[j]] = [numbers[j], numbers[i]];
+        }
+
+        this.puzzleState = [...numbers];
+        this.emptyIndex = this.puzzleState.indexOf(0);
+    }
+
+    isSolvable() {
+        // スライドパズルが解けるかどうかを判定
+        const inversions = this.countInversions();
+
+        if (this.gridSize % 2 === 1) {
+            // 奇数サイズ: 逆転数が偶数なら解ける
+            return inversions % 2 === 0;
+        } else {
+            // 偶数サイズ: より複雑な判定が必要
+            const emptyRowFromBottom = this.gridSize - Math.floor(this.emptyIndex / this.gridSize);
+            if (emptyRowFromBottom % 2 === 1) {
+                return inversions % 2 === 0;
+            } else {
+                return inversions % 2 === 1;
+            }
+        }
+    }
+
+    countInversions() {
+        // 逆転数をカウント（空のタイル0は除外）
+        let inversions = 0;
+        const nonZeroTiles = this.puzzleState.filter(tile => tile !== 0);
+
+        for (let i = 0; i < nonZeroTiles.length - 1; i++) {
+            for (let j = i + 1; j < nonZeroTiles.length; j++) {
+                if (nonZeroTiles[i] > nonZeroTiles[j]) {
+                    inversions++;
+                }
+            }
+        }
+
+        return inversions;
+    }
+
+    fallbackShuffle() {
+        // 移動ベースのシャッフル（フォールバック用）
+        const shuffleCount = this.gridSize * this.gridSize * 100;
+
+        for (let i = 0; i < shuffleCount; i++) {
+            const validMoves = this.getValidMoves();
+            if (validMoves.length > 0) {
+                const randomMove = validMoves[Math.floor(Math.random() * validMoves.length)];
+                this.swapTiles(this.emptyIndex, randomMove);
+            }
+        }
+    }
+
+    getValidMoves() {
+        const moves = [];
+        const row = Math.floor(this.emptyIndex / this.gridSize);
+        const col = this.emptyIndex % this.gridSize;
+
+        // 上
+        if (row > 0) moves.push(this.emptyIndex - this.gridSize);
+        // 下
+        if (row < this.gridSize - 1) moves.push(this.emptyIndex + this.gridSize);
+        // 左
+        if (col > 0) moves.push(this.emptyIndex - 1);
+        // 右
+        if (col < this.gridSize - 1) moves.push(this.emptyIndex + 1);
+
+        return moves;
+    }
+
+    renderPuzzle() {
+        const puzzleGrid = document.getElementById('puzzle-grid');
+        puzzleGrid.innerHTML = '';
+
+        // グリッドサイズに応じたクラスを設定
+        puzzleGrid.className = `size-${this.gridSize}`;
+
+        const tileSize = this.getTileSize();
+
+        for (let i = 0; i < this.totalTiles; i++) {
+            const tile = document.createElement('div');
+            tile.className = 'puzzle-piece';
+            tile.dataset.index = i;
+
+            if (this.puzzleState[i] === 0) {
+                // 空のタイル
+                tile.classList.add('empty');
+            } else {
+                // 画像のタイル
+                const pieceNumber = this.puzzleState[i];
+                const displayNumber = pieceNumber; // 表示用の番号（1から始まる）
+                const imageIndex = pieceNumber - 1; // 画像位置計算用（0から始まる）
+                const row = Math.floor(imageIndex / this.gridSize);
+                const col = imageIndex % this.gridSize;
+                tile.style.backgroundImage = `url(${this.getPuzzleImagePath()})`;
+                tile.style.backgroundPosition = `-${col * tileSize}px -${row * tileSize}px`;
+
+                // 番号を表示
+                const numberElement = document.createElement('div');
+                numberElement.className = 'puzzle-number';
+                numberElement.textContent = displayNumber; // そのまま表示
+                tile.appendChild(numberElement);
+
+                // クリックイベント
+                tile.addEventListener('click', () => {
+                    this.handleTileClick(i);
+                });
+
+                // タッチイベント（長押し防止とタッチフィードバック）
+                let touchStartTime = 0;
+                let touchMoved = false;
+
+                tile.addEventListener('touchstart', (e) => {
+                    touchStartTime = Date.now();
+                    touchMoved = false;
+                    tile.style.opacity = '0.8';  // タッチフィードバック
+                }, { passive: true });
+
+                tile.addEventListener('touchmove', () => {
+                    touchMoved = true;
+                }, { passive: true });
+
+                tile.addEventListener('touchend', (e) => {
+                    tile.style.opacity = '1';  // 元に戻す
+                    const touchDuration = Date.now() - touchStartTime;
+
+                    // 短いタップのみ処理（誤タップ防止）
+                    if (!touchMoved && touchDuration < 500) {
+                        e.preventDefault();  // クリックイベントとの重複を防ぐ
+                        this.handleTileClick(i);
+                    }
+                }, { passive: false });
+            }
+
+            puzzleGrid.appendChild(tile);
+        }
+
+        // パズルグリッド全体にスワイプジェスチャーを追加
+        this.addSwipeGesture(puzzleGrid);
+    }
+
+    getTileSize() {
+        // デスクトップサイズとモバイルサイズを考慮
+        const isMobile = window.innerWidth <= 480;
+
+        if (isMobile) {
+            switch (this.gridSize) {
+                case 3: return 300 / 3;  // モバイル最適化サイズに合わせて更新
+                case 4: return 320 / 4;
+                case 5: return 340 / 5;
+                default: return 300 / 3;
+            }
+        } else {
+            switch (this.gridSize) {
+                case 3: return 420 / 3;
+                case 4: return 440 / 4;
+                case 5: return 460 / 5;
+                default: return 420 / 3;
+            }
+        }
+    }
+
+    addSwipeGesture(element) {
+        // スワイプジェスチャーのサポート（空タイルを移動）
+        let touchStartX = 0;
+        let touchStartY = 0;
+        let touchEndX = 0;
+        let touchEndY = 0;
+
+        element.addEventListener('touchstart', (e) => {
+            touchStartX = e.changedTouches[0].screenX;
+            touchStartY = e.changedTouches[0].screenY;
+        }, { passive: true });
+
+        element.addEventListener('touchend', (e) => {
+            touchEndX = e.changedTouches[0].screenX;
+            touchEndY = e.changedTouches[0].screenY;
+            this.handleSwipe(touchStartX, touchStartY, touchEndX, touchEndY);
+        }, { passive: true });
+    }
+
+    handleSwipe(startX, startY, endX, endY) {
+        const diffX = endX - startX;
+        const diffY = endY - startY;
+        const minSwipeDistance = 30;  // 最小スワイプ距離
+
+        // スワイプが十分な距離でない場合は無視
+        if (Math.abs(diffX) < minSwipeDistance && Math.abs(diffY) < minSwipeDistance) {
+            return;
+        }
+
+        // 水平方向と垂直方向のどちらが大きいかを判定
+        if (Math.abs(diffX) > Math.abs(diffY)) {
+            // 水平スワイプ
+            if (diffX > 0) {
+                this.moveEmptyTile('right');  // 右スワイプ → 空タイルを右に移動
+            } else {
+                this.moveEmptyTile('left');   // 左スワイプ → 空タイルを左に移動
+            }
+        } else {
+            // 垂直スワイプ
+            if (diffY > 0) {
+                this.moveEmptyTile('down');   // 下スワイプ → 空タイルを下に移動
+            } else {
+                this.moveEmptyTile('up');     // 上スワイプ → 空タイルを上に移動
+            }
+        }
+    }
+
+    moveEmptyTile(direction) {
+        const emptyRow = Math.floor(this.emptyIndex / this.gridSize);
+        const emptyCol = this.emptyIndex % this.gridSize;
+        let targetIndex = -1;
+
+        switch (direction) {
+            case 'up':
+                if (emptyRow > 0) {
+                    targetIndex = this.emptyIndex - this.gridSize;
+                }
+                break;
+            case 'down':
+                if (emptyRow < this.gridSize - 1) {
+                    targetIndex = this.emptyIndex + this.gridSize;
+                }
+                break;
+            case 'left':
+                if (emptyCol > 0) {
+                    targetIndex = this.emptyIndex - 1;
+                }
+                break;
+            case 'right':
+                if (emptyCol < this.gridSize - 1) {
+                    targetIndex = this.emptyIndex + 1;
+                }
+                break;
+        }
+
+        if (targetIndex !== -1) {
+            // タイルクリック音を再生
+            if (window.soundManager) {
+                window.soundManager.playTileClick();
+            }
+
+            this.swapTiles(this.emptyIndex, targetIndex);
+
+            // タイルスライド音を再生
+            if (window.soundManager) {
+                window.soundManager.playTileSlide();
+            }
+
+            this.renderPuzzle();
+
+            if (this.checkWin()) {
+                this.gameRunning = false;
+                this.isForcedClear = false;
+                this.markProblemAsCleared(this.gridSize, this.currentProblem);
+                this.stopTimer();
+
+                // 成功フィードバック
+                if (window.feedbackManager) {
+                    window.feedbackManager.setAmbient('victory');
+                }
+
+                setTimeout(() => {
+                    this.showWinScreen();
+                }, 300);
+            }
+        }
+    }
+
+    getPuzzleImagePath() {
+        const sizeImages = this.problemImages[this.gridSize];
+        if (sizeImages && sizeImages[this.currentProblem]) {
+            return sizeImages[this.currentProblem];
+        }
+
+        // フォールバック画像
+        switch (this.gridSize) {
+            case 3: return 'assets/img/puzzle3x3.jpg';
+            case 4: return 'assets/img/puzzle4x4.jpg';
+            case 5: return 'assets/img/puzzle5x5.jpg';
+            default: return 'assets/img/puzzle3x3.jpg';
+        }
+    }
+
+    handleTileClick(clickedIndex) {
+        // クリックされたタイルが空のタイルと隣接しているかチェック
+        if (this.isAdjacent(clickedIndex, this.emptyIndex)) {
+            // タイルクリック音を再生
+            if (window.soundManager) {
+                window.soundManager.playTileClick();
+            }
+
+            // タイル移動時のパーティクルエフェクト
+            if (window.particleEffects) {
+                const puzzleGrid = document.getElementById('puzzle-grid');
+                const tiles = puzzleGrid.querySelectorAll('.puzzle-piece');
+                const clickedTile = tiles[clickedIndex];
+
+                if (clickedTile) {
+                    const rect = clickedTile.getBoundingClientRect();
+                    const x = rect.left + rect.width / 2;
+                    const y = rect.top + rect.height / 2;
+
+                    // 軽い魔法のパーティクル
+                    window.particleEffects.createMagicSparkles(x, y, 5);
+                }
+            }
+
+            this.swapTiles(clickedIndex, this.emptyIndex);
+
+            // タイルスライド音を再生
+            if (window.soundManager) {
+                window.soundManager.playTileSlide();
+            }
+
+            this.renderPuzzle();
+
+            if (this.checkWin()) {
+                this.gameRunning = false;
+                this.isForcedClear = false; // 通常クリアなのでフラグをリセット
+                this.markProblemAsCleared(this.gridSize, this.currentProblem); // クリア済みフラグを設定
+                this.stopTimer();
+
+                // 成功フィードバック
+                if (window.feedbackManager) {
+                    window.feedbackManager.setAmbient('victory');
+                }
+
+                setTimeout(() => {
+                    this.showWinScreen();
+                }, 300);
+            }
+        }
+    }
+
+    isAdjacent(index1, index2) {
+        const row1 = Math.floor(index1 / this.gridSize);
+        const col1 = index1 % this.gridSize;
+        const row2 = Math.floor(index2 / this.gridSize);
+        const col2 = index2 % this.gridSize;
+
+        const rowDiff = Math.abs(row1 - row2);
+        const colDiff = Math.abs(col1 - col2);
+
+        return (rowDiff === 1 && colDiff === 0) || (rowDiff === 0 && colDiff === 1);
+    }
+
+    swapTiles(index1, index2) {
+        [this.puzzleState[index1], this.puzzleState[index2]] = [this.puzzleState[index2], this.puzzleState[index1]];
+
+        // 空のタイルの位置を更新
+        if (this.puzzleState[index1] === 0) {
+            this.emptyIndex = index1;
+        } else if (this.puzzleState[index2] === 0) {
+            this.emptyIndex = index2;
+        }
+    }
+
+    startTimer() {
+        this.startTime = Date.now();
+        this.updateTimer();
+        this.timerInterval = setInterval(() => {
+            this.updateTimer();
+        }, 1000);
+    }
+
+    stopTimer() {
+        if (this.timerInterval) {
+            clearInterval(this.timerInterval);
+            this.timerInterval = null;
+        }
+    }
+
+    updateTimer() {
+        const elapsed = Date.now() - this.startTime;
+        const seconds = Math.floor(elapsed / 1000);
+        const minutes = Math.floor(seconds / 60);
+        const remainingSeconds = seconds % 60;
+
+        const timeString = `${minutes.toString().padStart(2, '0')}:${remainingSeconds.toString().padStart(2, '0')}`;
+        const timerDisplay = document.getElementById('timer-display');
+
+        // タイマーはアニメーションなしで更新
+        timerDisplay.textContent = `タイム: ${timeString}`;
+    }
+
+    checkWin() {
+        return JSON.stringify(this.puzzleState) === JSON.stringify(this.correctOrder);
+    }
+
+    showWinScreen() {
+        const clearTimeCard = document.getElementById('clear-time');
+        const bestTimeCard = document.getElementById('best-time');
+        const newRecordBadge = document.getElementById('new-record-badge');
+
+        // バッジとベストタイムカードを初期化
+        newRecordBadge.classList.add('hidden');
+        bestTimeCard.classList.add('hidden');
+
+        if (this.isForcedClear) {
+            // すぐクリアの場合
+            const bestTime = this.getBestTime(this.gridSize, this.currentProblem);
+
+            clearTimeCard.querySelector('.time-value').textContent = 'すぐクリア';
+
+            if (bestTime) {
+                bestTimeCard.querySelector('.time-value').textContent = this.formatTime(bestTime);
+                bestTimeCard.classList.remove('hidden');
+            }
+
+            this.isForcedClear = false; // フラグをリセット
+        } else {
+            // 通常クリアの場合
+            const elapsed = Date.now() - this.startTime;
+            const timeString = this.formatTime(elapsed);
+
+            // ベストタイムの保存と比較
+            const isNewRecord = this.saveBestTime(this.gridSize, this.currentProblem, elapsed);
+            const bestTime = this.getBestTime(this.gridSize, this.currentProblem);
+
+            // クリアタイムを表示
+            clearTimeCard.querySelector('.time-value').textContent = timeString;
+
+            if (isNewRecord) {
+                // NEW RECORDバッジを表示
+                newRecordBadge.classList.remove('hidden');
+
+                // 新記録時のエフェクトとアニメーション
+                if (window.particleEffects) {
+                    // canvas-confettiによる豪華な紙吹雪
+                    window.particleEffects.celebrateNewRecord();
+
+                    // カスタムパーティクルエフェクトを追加
+                    setTimeout(() => {
+                        window.particleEffects.createStars(window.innerWidth / 2, window.innerHeight / 2, 30);
+                    }, 500);
+
+                    setTimeout(() => {
+                        window.particleEffects.createHearts(20);
+                    }, 1000);
+                }
+                if (window.soundManager) {
+                    window.soundManager.playNewRecord();
+                }
+                if (window.animationController) {
+                    window.animationController.bounceElement(clearTimeCard);
+                }
+            } else {
+                // 通常クリア時のエフェクト
+                if (window.particleEffects) {
+                    // canvas-confettiによる紙吹雪
+                    window.particleEffects.celebrateWin();
+
+                    // カスタムパーティクルエフェクト
+                    window.particleEffects.celebrationCombo(clearTimeCard);
+                }
+                if (window.soundManager) {
+                    window.soundManager.playComplete();
+                }
+                if (window.animationController) {
+                    window.animationController.popup(clearTimeCard);
+                }
+
+                // ベストタイムカードを表示
+                if (bestTime && bestTime !== elapsed) {
+                    bestTimeCard.querySelector('.time-value').textContent = this.formatTime(bestTime);
+                    bestTimeCard.classList.remove('hidden');
+                }
+            }
+        }
+
+        // CG画像の処理
+        const clearImage = document.getElementById('clear-image');
+        const cgContainer = document.getElementById('cg-container');
+
+        if (this.isForcedClear) {
+            // すぐクリアの場合は画像を非表示
+            cgContainer.classList.add('hidden');
+            this.showScreen('clear-screen');
+        } else {
+            // 通常クリアの場合は画像を表示
+            cgContainer.classList.remove('hidden');
+            const imagePath = this.getPuzzleImagePath();
+
+            // 画像のloadedクラスを削除して初期化
+            clearImage.classList.remove('loaded');
+            clearImage.src = '';
+
+            // 先に画面を表示してから画像を読み込む（点滅防止）
+            this.showScreen('clear-screen');
+
+            // 画像を事前に読み込む
+            const preloadImage = new Image();
+            preloadImage.onload = () => {
+                // 画像が読み込まれたら設定
+                clearImage.src = imagePath;
+                // 少し遅延させてから画像を表示（スムーズな遷移）
+                setTimeout(() => {
+                    clearImage.classList.add('loaded');
+                }, 50);
+            };
+            preloadImage.onerror = () => {
+                // エラーの場合もとりあえず表示
+                clearImage.src = imagePath;
+                setTimeout(() => {
+                    clearImage.classList.add('loaded');
+                }, 50);
+            };
+            preloadImage.src = imagePath;
+        }
+    }
+
+
+    forceClear() {
+        if (this.gameRunning) {
+            this.gameRunning = false;
+            this.isForcedClear = true;
+            this.markProblemAsCleared(this.gridSize, this.currentProblem); // すぐクリアでもクリア済みフラグを設定
+            this.stopTimer();
+            this.showWinScreen();
+        }
+    }
+
+    generatePageNumbers() {
+        const pageNumbersContainer = document.getElementById('page-numbers');
+        pageNumbersContainer.innerHTML = '';
+
+        for (let i = 1; i <= this.totalPages; i++) {
+            const pageBtn = document.createElement('button');
+            pageBtn.className = 'page-number-btn';
+            pageBtn.textContent = i;
+            pageBtn.dataset.page = i;
+
+            if (i === this.currentPage) {
+                pageBtn.classList.add('active');
+            }
+
+            pageBtn.addEventListener('click', () => {
+                if (window.soundManager) {
+                    window.soundManager.playButtonClick();
+                }
+                this.goToPage(parseInt(pageBtn.dataset.page));
+            });
+
+            pageNumbersContainer.appendChild(pageBtn);
+        }
+    }
+
+    updatePaginationControls() {
+        const prevBtn = document.getElementById('prev-page-btn');
+        const nextBtn = document.getElementById('next-page-btn');
+        const pageIndicator = document.getElementById('page-indicator');
+
+        // 前へボタンの状態
+        if (this.currentPage === 1) {
+            prevBtn.disabled = true;
+        } else {
+            prevBtn.disabled = false;
+        }
+
+        // 次へボタンの状態
+        if (this.currentPage === this.totalPages) {
+            nextBtn.disabled = true;
+        } else {
+            nextBtn.disabled = false;
+        }
+
+        // ページインジケーターの更新
+        pageIndicator.textContent = `ページ ${this.currentPage} / ${this.totalPages}`;
+
+        // ページ番号ボタンの状態を更新
+        document.querySelectorAll('.page-number-btn').forEach(btn => {
+            if (parseInt(btn.dataset.page) === this.currentPage) {
+                btn.classList.add('active');
+            } else {
+                btn.classList.remove('active');
+            }
+        });
+    }
+
+    goToPage(pageNumber) {
+        if (pageNumber < 1 || pageNumber > this.totalPages) {
+            return;
+        }
+
+        this.currentPage = pageNumber;
+        this.generateProblemButtons();
+        this.updateBestTimesDisplay();
+        this.updatePaginationControls();
+    }
+
+    goToNextPage() {
+        if (this.currentPage < this.totalPages) {
+            this.goToPage(this.currentPage + 1);
+        } else {
+            // エラーフィードバック
+            if (window.feedbackManager) {
+                const btn = document.getElementById('next-page-btn');
+                window.feedbackManager.showError(btn);
+            }
+        }
+    }
+
+    goToPreviousPage() {
+        if (this.currentPage > 1) {
+            this.goToPage(this.currentPage - 1);
+        } else {
+            // エラーフィードバック
+            if (window.feedbackManager) {
+                const btn = document.getElementById('prev-page-btn');
+                window.feedbackManager.showError(btn);
+            }
+        }
+    }
+}
+
+// ゲーム開始
+document.addEventListener('DOMContentLoaded', () => {
+    const game = new SlidePuzzleGame();
+    window.game = game; // グローバルアクセス用（キーボード操作）
+
+    // ツールチップをバインド
+    if (window.feedbackManager) {
+        // 遅延実行でボタンが生成された後にバインド
+        setTimeout(() => {
+            const resetBtn = document.getElementById('reset-times-btn');
+            if (resetBtn) {
+                window.feedbackManager.bindTooltip(resetBtn, '全ての記録をリセット', 'top');
+            }
+
+            const prevPageBtn = document.getElementById('prev-page-btn');
+            if (prevPageBtn) {
+                window.feedbackManager.bindTooltip(prevPageBtn, '前のページへ', 'bottom');
+            }
+
+            const nextPageBtn = document.getElementById('next-page-btn');
+            if (nextPageBtn) {
+                window.feedbackManager.bindTooltip(nextPageBtn, '次のページへ', 'bottom');
+            }
+        }, 500);
+    }
+});

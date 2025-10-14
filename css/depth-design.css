@@ -1,0 +1,588 @@
+/* ========================================
+   奥行きのある立体的なデザインシステム
+   Material Design風の影とレイヤー構造
+   ======================================== */
+
+/* ========================================
+   デザインシステム: 影のレベル定義
+   ======================================== */
+
+:root {
+    /* Material Design風の影レベル */
+
+    /* レベル0: 影なし（平面） */
+    --shadow-level-0: none;
+
+    /* レベル1: 軽く浮いた状態（カード、ボタンの通常状態） */
+    --shadow-level-1:
+        0 1px 3px rgba(0, 0, 0, 0.12),
+        0 1px 2px rgba(0, 0, 0, 0.24);
+
+    /* レベル2: 中程度の浮遊感（ホバー時、選択されたアイテム） */
+    --shadow-level-2:
+        0 3px 6px rgba(0, 0, 0, 0.16),
+        0 3px 6px rgba(0, 0, 0, 0.23);
+
+    /* レベル3: 高い浮遊感（アクティブなカード、ドラッグ中） */
+    --shadow-level-3:
+        0 10px 20px rgba(0, 0, 0, 0.19),
+        0 6px 6px rgba(0, 0, 0, 0.23);
+
+    /* レベル4: 非常に高い浮遊感（モーダル、ドロップダウン） */
+    --shadow-level-4:
+        0 14px 28px rgba(0, 0, 0, 0.25),
+        0 10px 10px rgba(0, 0, 0, 0.22);
+
+    /* レベル5: 最高の浮遊感（ツールチップ、通知） */
+    --shadow-level-5:
+        0 19px 38px rgba(0, 0, 0, 0.30),
+        0 15px 12px rgba(0, 0, 0, 0.22);
+
+    /* 色付き影（強調用） */
+    --shadow-primary:
+        0 4px 12px rgba(74, 144, 226, 0.3),
+        0 2px 4px rgba(74, 144, 226, 0.2);
+
+    --shadow-secondary:
+        0 4px 12px rgba(126, 211, 33, 0.3),
+        0 2px 4px rgba(126, 211, 33, 0.2);
+
+    --shadow-danger:
+        0 4px 12px rgba(232, 93, 117, 0.3),
+        0 2px 4px rgba(232, 93, 117, 0.2);
+
+    /* ========================================
+       z-indexレイヤーシステム
+       ======================================== */
+
+    /* 背景層 */
+    --z-background: 1;
+    --z-background-decoration: 5;
+
+    /* コンテンツ層 */
+    --z-content: 10;
+    --z-content-elevated: 20;
+
+    /* UI層 */
+    --z-ui: 100;
+    --z-ui-dropdown: 150;
+    --z-ui-sticky: 200;
+
+    /* オーバーレイ層 */
+    --z-overlay: 500;
+    --z-overlay-content: 600;
+
+    /* モーダル・通知層 */
+    --z-modal-backdrop: 1000;
+    --z-modal-content: 1100;
+    --z-notification: 1200;
+    --z-tooltip: 1300;
+
+    /* 最上位層（デバッグ用など） */
+    --z-top: 9999;
+}
+
+/* ========================================
+   背景層（z-index: 1-9）
+   ======================================== */
+
+body {
+    position: relative;
+    z-index: var(--z-background);
+}
+
+/* 背景の装飾要素（パーティクルなど） */
+.background-decoration,
+.particle-container {
+    position: fixed;
+    z-index: var(--z-background-decoration);
+    pointer-events: none;
+}
+
+/* ========================================
+   コンテンツ層（z-index: 10-99）
+   ======================================== */
+
+/* 基本スクリーン */
+.screen {
+    position: relative;
+    z-index: var(--z-content);
+    box-shadow: var(--shadow-level-2);
+    /* 奥行き感を出すための軽いグラデーション */
+    background: linear-gradient(
+        135deg,
+        var(--color-neutral-100) 0%,
+        rgba(255, 255, 255, 0.98) 100%
+    );
+}
+
+/* パズルグリッド - 少し浮かせる */
+#puzzle-grid {
+    z-index: var(--z-content-elevated);
+    box-shadow: var(--shadow-level-2);
+    position: relative;
+}
+
+/* パズルピース - 操作可能なので明確な浮遊感 */
+.puzzle-piece {
+    box-shadow: var(--shadow-level-1);
+    /* ホバーアニメーション無効化 */
+    /* transition: box-shadow 0.3s ease, transform 0.2s ease; */
+}
+
+.puzzle-piece:hover {
+    /* ホバー時のアニメーション無効化 */
+    /* box-shadow: var(--shadow-level-3); */
+    /* z-indexを無効化: 他のピースが暗くなるのを防止 */
+    /* z-index: var(--z-content-elevated); */
+}
+
+.puzzle-piece:active {
+    /* アクティブ状態の影も無効化 */
+    /* box-shadow: var(--shadow-level-2); */
+}
+
+/* 空のピースは影を減らして奥に見せる */
+.puzzle-piece.empty {
+    box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.1);
+    background: linear-gradient(
+        135deg,
+        rgba(255, 255, 255, 0.3) 0%,
+        rgba(240, 240, 240, 0.3) 100%
+    );
+}
+
+/* ========================================
+   UI層（z-index: 100-499）
+   ======================================== */
+
+/* ボタン - 階層に応じた影 */
+.btn {
+    position: relative;
+    z-index: var(--z-ui);
+    box-shadow: var(--shadow-level-1);
+    transition: box-shadow 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.btn:hover {
+    box-shadow: var(--shadow-level-2);
+    z-index: calc(var(--z-ui) + 1);
+}
+
+.btn:active {
+    box-shadow: var(--shadow-level-1);
+}
+
+/* プライマリボタン - 色付き影で強調 */
+.btn:not(.secondary):not(.reset-btn):not(.clear-btn) {
+    box-shadow: var(--shadow-primary);
+}
+
+.btn:not(.secondary):not(.reset-btn):not(.clear-btn):hover {
+    box-shadow:
+        0 6px 16px rgba(74, 144, 226, 0.4),
+        0 3px 6px rgba(74, 144, 226, 0.3);
+}
+
+/* クリアボタン - 緑の影 */
+.btn.clear-btn {
+    box-shadow: var(--shadow-secondary);
+}
+
+.btn.clear-btn:hover {
+    box-shadow:
+        0 6px 16px rgba(126, 211, 33, 0.4),
+        0 3px 6px rgba(126, 211, 33, 0.3);
+}
+
+/* リセットボタン - 赤の影 */
+.btn.reset-btn {
+    box-shadow: var(--shadow-danger);
+}
+
+.btn.reset-btn:hover {
+    box-shadow:
+        0 6px 16px rgba(232, 93, 117, 0.4),
+        0 3px 6px rgba(232, 93, 117, 0.3);
+}
+
+/* サイズ選択ボタン - カード風 */
+.size-btn {
+    position: relative;
+    z-index: var(--z-ui);
+    box-shadow: var(--shadow-level-2);
+    transition: box-shadow 0.3s ease, transform 0.3s ease;
+}
+
+.size-btn:hover {
+    box-shadow: var(--shadow-level-3);
+    z-index: calc(var(--z-ui) + 2);
+}
+
+.size-btn:active {
+    box-shadow: var(--shadow-level-2);
+}
+
+/* 問題選択ボタン - グリッドカード */
+.problem-btn {
+    position: relative;
+    z-index: var(--z-ui);
+    box-shadow: var(--shadow-level-2);
+    transition: box-shadow 0.3s ease, transform 0.3s ease;
+}
+
+.problem-btn:hover {
+    box-shadow: var(--shadow-level-3);
+    z-index: calc(var(--z-ui) + 2);
+}
+
+.problem-btn:active {
+    box-shadow: var(--shadow-level-2);
+}
+
+/* クリア済みボタンには特別な輝き */
+.problem-btn[data-cleared="true"] {
+    box-shadow:
+        var(--shadow-level-2),
+        inset 0 1px 0 rgba(255, 255, 255, 0.5);
+}
+
+.problem-btn[data-cleared="true"]:hover {
+    box-shadow:
+        var(--shadow-level-3),
+        inset 0 1px 0 rgba(255, 255, 255, 0.6);
+}
+
+/* ページネーションボタン */
+.page-number-btn {
+    box-shadow: var(--shadow-level-1);
+    transition: box-shadow 0.3s ease;
+}
+
+.page-number-btn:hover {
+    box-shadow: var(--shadow-level-2);
+}
+
+.page-number-btn.active {
+    box-shadow: var(--shadow-primary);
+    z-index: calc(var(--z-ui) + 1);
+}
+
+/* 情報カード */
+.info-card,
+#timer-display,
+.game-info-area {
+    position: relative;
+    z-index: var(--z-content-elevated);
+    box-shadow: var(--shadow-level-2);
+    transition: box-shadow 0.3s ease;
+    /* 奥行き感のための微妙なグラデーション */
+    background: linear-gradient(
+        135deg,
+        rgba(255, 255, 255, 0.95) 0%,
+        rgba(250, 250, 250, 0.95) 100%
+    );
+}
+
+.info-card:hover,
+#timer-display:hover {
+    box-shadow: var(--shadow-level-3);
+}
+
+/* クリアタイム表示 - 強調 */
+#clear-time {
+    box-shadow: var(--shadow-secondary);
+    z-index: var(--z-content-elevated);
+}
+
+/* ========================================
+   ギャラリー要素
+   ======================================== */
+
+.gallery-item {
+    position: relative;
+    z-index: var(--z-content);
+    box-shadow: var(--shadow-level-1);
+    transition: box-shadow 0.3s ease, transform 0.3s ease, z-index 0s 0s;
+}
+
+.gallery-item:hover {
+    box-shadow: var(--shadow-level-3);
+    z-index: calc(var(--z-content) + 5);
+    transition: box-shadow 0.3s ease, transform 0.3s ease, z-index 0s 0s;
+}
+
+.gallery-item:active {
+    box-shadow: var(--shadow-level-2);
+}
+
+/* ギャラリータブ */
+.gallery-tab-btn {
+    box-shadow: var(--shadow-level-1);
+    transition: box-shadow 0.3s ease;
+}
+
+.gallery-tab-btn:hover {
+    box-shadow: var(--shadow-level-2);
+}
+
+.gallery-tab-btn.active {
+    box-shadow: var(--shadow-level-2);
+    z-index: calc(var(--z-ui) + 1);
+    /* 前面に出ているように見せる */
+    background: linear-gradient(
+        135deg,
+        var(--color-primary-light),
+        var(--color-primary)
+    );
+}
+
+/* ========================================
+   モーダル・通知層（z-index: 1000+）
+   ======================================== */
+
+/* モーダル背景 */
+.modal {
+    position: fixed;
+    z-index: var(--z-modal-backdrop);
+    /* 背景をぼかして焦点を制御 */
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    background-color: rgba(0, 0, 0, 0.6);
+}
+
+/* モーダルコンテンツ */
+.modal-content {
+    position: relative;
+    z-index: var(--z-modal-content);
+    box-shadow: var(--shadow-level-5);
+    /* 最前面の強調 */
+    background: linear-gradient(
+        135deg,
+        var(--color-neutral-100) 0%,
+        rgba(255, 255, 255, 0.98) 100%
+    );
+}
+
+/* モーダル画像 - さらに浮かせる */
+#modal-image {
+    box-shadow: var(--shadow-level-3);
+    border-radius: var(--radius-sm);
+}
+
+/* 閉じるボタン */
+.modal-close {
+    z-index: calc(var(--z-modal-content) + 1);
+    transition: all 0.3s ease;
+}
+
+.modal-close:hover {
+    filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.3));
+}
+
+/* フラッシュオーバーレイ */
+.flash-overlay {
+    position: fixed;
+    z-index: var(--z-overlay);
+    pointer-events: none;
+}
+
+/* ガイドメッセージ */
+.guide-message {
+    position: fixed;
+    z-index: var(--z-notification);
+    box-shadow: var(--shadow-level-4);
+}
+
+/* ツールチップ */
+.tooltip,
+#tooltip {
+    position: absolute;
+    z-index: var(--z-tooltip);
+    box-shadow: var(--shadow-level-5);
+    /* 最上位なので強い影 */
+}
+
+/* ========================================
+   視覚的階層: 明度による前後関係
+   ======================================== */
+
+/* 最前面の要素は明るく */
+.elevated-bright {
+    filter: brightness(1.05);
+}
+
+/* 背景の要素は暗く */
+.recessed-dark {
+    filter: brightness(0.95);
+}
+
+/* フォーカスされていない要素 */
+.unfocused {
+    opacity: 0.7;
+    filter: brightness(0.9);
+    transition: opacity 0.3s ease, filter 0.3s ease;
+}
+
+/* フォーカスされた要素 */
+.focused {
+    opacity: 1;
+    filter: brightness(1);
+    z-index: 999;
+}
+
+/* ========================================
+   視覚的階層: Blur効果による焦点制御
+   ======================================== */
+
+/* 背景のぼかし（モーダル表示時など） */
+.blur-background {
+    filter: blur(4px);
+    transition: filter 0.3s ease;
+}
+
+/* 軽いぼかし（非アクティブ要素） */
+.blur-light {
+    filter: blur(1px);
+    opacity: 0.8;
+}
+
+/* ========================================
+   インタラクション時の奥行き変化
+   ======================================== */
+
+/* 押し込み効果（影が減る） */
+.pressed {
+    box-shadow: var(--shadow-level-0) !important;
+    transform: translateY(2px) !important;
+}
+
+/* 浮上効果（影が増える） */
+.lifted {
+    box-shadow: var(--shadow-level-4) !important;
+    transform: translateY(-4px) !important;
+}
+
+/* ドラッグ中の要素 */
+.dragging {
+    box-shadow: var(--shadow-level-4);
+    z-index: var(--z-ui-sticky);
+    opacity: 0.9;
+    transform: rotate(3deg);
+}
+
+/* ========================================
+   階層別の背景グラデーション
+   ======================================== */
+
+/* レベル1: 基本コンテンツ */
+.depth-level-1 {
+    background: linear-gradient(
+        135deg,
+        rgba(255, 255, 255, 1) 0%,
+        rgba(250, 250, 250, 1) 100%
+    );
+    box-shadow: var(--shadow-level-1);
+}
+
+/* レベル2: 浮いたコンテンツ */
+.depth-level-2 {
+    background: linear-gradient(
+        135deg,
+        rgba(255, 255, 255, 1) 0%,
+        rgba(252, 252, 252, 1) 100%
+    );
+    box-shadow: var(--shadow-level-2);
+}
+
+/* レベル3: 高く浮いたコンテンツ */
+.depth-level-3 {
+    background: linear-gradient(
+        135deg,
+        rgba(255, 255, 255, 1) 0%,
+        rgba(255, 255, 255, 0.98) 100%
+    );
+    box-shadow: var(--shadow-level-3);
+}
+
+/* ========================================
+   パフォーマンス最適化
+   ======================================== */
+
+/* GPUアクセラレーションを有効化 */
+.modal,
+.modal-content,
+.btn,
+.size-btn,
+.problem-btn,
+.gallery-item {
+    transform: translateZ(0);
+    /* ホバーアニメーション無効化のため will-change も無効化 */
+    /* will-change: box-shadow, transform; */
+}
+
+/* パズルピースは translateZ(0) を無効化: 他のピースが暗くなるのを防止 */
+.puzzle-piece {
+    /* transform: translateZ(0); */
+}
+
+/* アニメーション後はwill-changeをリセット */
+.btn:not(:hover),
+.gallery-item:not(:hover) {
+    /* will-change: auto; */
+}
+
+/* ========================================
+   レスポンシブ調整: モバイルでは影を軽減
+   ======================================== */
+
+@media (max-width: 768px) {
+    /* モバイルでは影を控えめに（パフォーマンス向上） */
+    .btn,
+    .size-btn,
+    .problem-btn {
+        box-shadow: var(--shadow-level-1);
+    }
+
+    .btn:hover,
+    .size-btn:hover,
+    .problem-btn:hover {
+        box-shadow: var(--shadow-level-2);
+    }
+
+    .screen {
+        box-shadow: var(--shadow-level-1);
+    }
+}
+
+/* ========================================
+   ダークモード対応（将来の拡張用）
+   ======================================== */
+
+@media (prefers-color-scheme: dark) {
+    :root {
+        /* ダークモードでは影を濃く */
+        --shadow-level-1:
+            0 1px 3px rgba(0, 0, 0, 0.24),
+            0 1px 2px rgba(0, 0, 0, 0.48);
+
+        --shadow-level-2:
+            0 3px 6px rgba(0, 0, 0, 0.32),
+            0 3px 6px rgba(0, 0, 0, 0.46);
+
+        --shadow-level-3:
+            0 10px 20px rgba(0, 0, 0, 0.38),
+            0 6px 6px rgba(0, 0, 0, 0.46);
+    }
+}
+
+/* ========================================
+   印刷時: 影を最小化
+   ======================================== */
+
+@media print {
+    * {
+        box-shadow: none !important;
+        text-shadow: none !important;
+    }
+}

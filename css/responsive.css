@@ -1,0 +1,1107 @@
+/* ========================================
+   レスポンシブデザイン補足設定
+   - キーボードショートカット対応
+   - タッチとマウスの両対応
+   - アクセシビリティ改善
+   ======================================== */
+
+/* ========================================
+   タッチデバイス対応
+   ======================================== */
+
+/* タッチデバイスでのホバー効果を無効化 */
+@media (hover: none) and (pointer: coarse) {
+    /* タッチデバイス専用スタイル */
+    .btn:hover,
+    .size-btn:hover,
+    .problem-btn:hover,
+    .gallery-item:hover,
+    .puzzle-piece:hover {
+        /* ホバー効果を打ち消し */
+        transform: none;
+    }
+
+    /* タップ時のフィードバックを強化 */
+    .btn:active,
+    .size-btn:active,
+    .problem-btn:active {
+        transform: scale(0.95);
+        opacity: 0.9;
+    }
+
+    /* タッチターゲット拡大 */
+    .btn,
+    .size-btn,
+    .problem-btn,
+    .page-number-btn {
+        min-height: 48px;
+    }
+
+    /* タップハイライト色の設定 */
+    * {
+        -webkit-tap-highlight-color: rgba(52, 152, 219, 0.2);
+    }
+}
+
+/* ========================================
+   マウス・トラックパッド対応
+   ======================================== */
+
+/* マウス操作可能なデバイス */
+@media (hover: hover) and (pointer: fine) {
+    /* ホバー効果を有効化 */
+    .btn:hover {
+        transform: translateY(-4px) scale(1.02);
+    }
+
+    .size-btn:hover,
+    .problem-btn:hover {
+        transform: translateY(-5px) scale(1.05);
+    }
+
+    .gallery-item:hover {
+        transform: translateY(-8px) scale(1.05);
+    }
+
+    .puzzle-piece:hover:not(.empty) {
+        transform: scale(1.03);
+        cursor: pointer;
+    }
+
+    /* ページネーションボタンのホバー */
+    .page-number-btn:hover {
+        transform: translateY(-2px);
+    }
+
+    /* モーダルクローズボタンのホバー */
+    .modal-close:hover {
+        transform: scale(1.2) rotate(90deg);
+        transition: all 0.3s ease;
+    }
+
+    /* ギャラリータブのホバー */
+    .gallery-tab-btn:hover {
+        transform: translateY(-2px);
+    }
+}
+
+/* ========================================
+   キーボードフォーカス表示
+   デスクトップ環境でのアクセシビリティ向上
+   ======================================== */
+
+/* キーボードフォーカス時のアウトライン */
+.btn:focus-visible,
+.size-btn:focus-visible,
+.problem-btn:focus-visible,
+.page-number-btn:focus-visible,
+.gallery-tab-btn:focus-visible {
+    outline: 3px solid #3498DB;
+    outline-offset: 4px;
+    border-radius: var(--radius-md);
+}
+
+.puzzle-piece:focus-visible {
+    outline: 3px solid #F39C12;
+    outline-offset: 2px;
+}
+
+/* マウスクリック時はアウトラインを非表示 */
+.btn:focus:not(:focus-visible),
+.size-btn:focus:not(:focus-visible),
+.problem-btn:focus:not(:focus-visible) {
+    outline: none;
+}
+
+/* ========================================
+   ハイブリッドデバイス対応
+   タッチスクリーン付きノートPC等
+   ======================================== */
+
+@media (min-width: 768px) {
+    /* タッチとマウスの両方に対応 */
+    .btn,
+    .size-btn,
+    .problem-btn {
+        /* タッチターゲットサイズを確保 */
+        min-height: 48px;
+    }
+
+    /* ホバー効果は保持 */
+    .btn:hover {
+        cursor: pointer;
+    }
+}
+
+/* ========================================
+   画面サイズによる最適化
+   ======================================== */
+
+/* 極小画面（320px未満）の対応 */
+@media (max-width: 319px) {
+    body {
+        padding: 4px;
+        font-size: 14px;
+    }
+
+    .screen {
+        padding: 12px;
+        border-radius: 12px;
+    }
+
+    h1 {
+        font-size: 1.8em;
+    }
+
+    h2 {
+        font-size: 1.4em;
+    }
+
+    .btn {
+        min-height: 48px;
+        padding: 14px 20px;
+        font-size: 1.1em;
+    }
+}
+
+/* 大型デスクトップ（1440px以上） */
+@media (min-width: 1440px) {
+    .screen {
+        max-width: 1000px;
+        padding: var(--spacing-xxl) 60px;
+    }
+
+    #puzzle-grid {
+        width: 540px;
+        height: 540px;
+    }
+
+    #puzzle-grid.size-4 {
+        width: 580px;
+        height: 580px;
+    }
+
+    #puzzle-grid.size-5 {
+        width: 620px;
+        height: 620px;
+    }
+
+    .size-3 .puzzle-piece {
+        background-size: 540px 540px;
+    }
+
+    .size-4 .puzzle-piece {
+        background-size: 580px 580px;
+    }
+
+    .size-5 .puzzle-piece {
+        background-size: 620px 620px;
+    }
+
+    .gallery-grid {
+        grid-template-columns: repeat(5, 1fr);
+    }
+}
+
+/* ウルトラワイド（1920px以上） */
+@media (min-width: 1920px) {
+    .screen {
+        max-width: 1200px;
+    }
+
+    .gallery-grid {
+        grid-template-columns: repeat(6, 1fr);
+        gap: 32px;
+    }
+
+    .problem-buttons {
+        grid-template-columns: repeat(5, 1fr);
+    }
+}
+
+/* ========================================
+   印刷対応
+   ======================================== */
+
+@media print {
+    body {
+        background: white;
+        padding: 0;
+    }
+
+    .screen {
+        box-shadow: none;
+        border: 1px solid #ccc;
+    }
+
+    /* 印刷時に不要な要素を非表示 */
+    .btn,
+    .size-btn,
+    .problem-btn,
+    .gallery-tab-btn,
+    .modal-close,
+    #timer-display {
+        display: none !important;
+    }
+
+    /* パズル画像を大きく表示 */
+    #puzzle-grid,
+    #clear-image,
+    .gallery-item img {
+        max-width: 100%;
+        page-break-inside: avoid;
+    }
+}
+
+/* ========================================
+   プリファードモーション対応
+   アクセシビリティ: アニメーション削減
+   ======================================== */
+
+@media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+        scroll-behavior: auto !important;
+    }
+
+    /* ホバー効果を最小限に */
+    .btn:hover,
+    .size-btn:hover,
+    .problem-btn:hover,
+    .gallery-item:hover {
+        transform: none;
+    }
+}
+
+/* ========================================
+   高コントラストモード対応
+   アクセシビリティ向上
+   ======================================== */
+
+@media (prefers-contrast: high) {
+    .btn,
+    .size-btn,
+    .problem-btn {
+        border: 2px solid currentColor;
+    }
+
+    .puzzle-piece {
+        border: 3px solid #000;
+    }
+
+    #timer-display,
+    .time-card {
+        border: 2px solid currentColor;
+    }
+}
+
+/* ========================================
+   スマートフォン画面回転対応
+   縦持ち（Portrait）と横持ち（Landscape）
+   ======================================== */
+
+/* セーフエリア対応（ノッチ・ナビゲーションバー） */
+body {
+    padding-left: env(safe-area-inset-left);
+    padding-right: env(safe-area-inset-right);
+    padding-top: env(safe-area-inset-top);
+    padding-bottom: env(safe-area-inset-bottom);
+}
+
+/* ========================================
+   縦持ち（Portrait）モード
+   スマートフォン専用（767px以下）
+   ======================================== */
+
+@media (max-width: 767px) and (orientation: portrait) {
+    body {
+        padding: 0 !important;
+        min-height: 100vh;
+        display: flex;
+        flex-direction: column;
+        justify-content: flex-start;
+        align-items: center;
+    }
+
+    .screen {
+        width: 100% !important;
+        max-width: 100% !important;
+        padding: 16px;
+        display: flex;
+        flex-direction: column;
+        align-items: stretch;
+        overflow-y: auto;
+        max-height: 98vh;
+        border-radius: 0 !important;
+    }
+
+    /* ========================================
+       ゲーム画面の縦持ちレイアウト
+       ======================================== */
+
+    #game-screen {
+        display: flex;
+        flex-direction: column;
+        height: 100vh;
+        max-height: 100vh;
+        padding: 12px;
+    }
+
+    /* 情報表示を最上部に固定 */
+    #game-screen .game-info-area {
+        position: sticky;
+        top: 0;
+        z-index: 100;
+        background: linear-gradient(135deg, rgba(93, 173, 226, 0.95), rgba(52, 152, 219, 0.95));
+        backdrop-filter: blur(10px);
+        margin-bottom: 12px;
+        padding: 14px;
+        border-radius: 12px;
+        box-shadow: 0 4px 15px rgba(52, 152, 219, 0.25);
+    }
+
+    /* ゲーム画面を上部70%に配置 */
+    #game-screen #puzzle-container {
+        flex: 0 0 auto;
+        height: auto;
+        max-height: 60vh;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        margin: 12px 0;
+    }
+
+    #game-screen #puzzle-grid {
+        width: min(85vw, 360px);
+        height: min(85vw, 360px);
+    }
+
+    #game-screen #puzzle-grid.size-4 {
+        width: min(88vw, 380px);
+        height: min(88vw, 380px);
+    }
+
+    #game-screen #puzzle-grid.size-5 {
+        width: min(90vw, 400px);
+        height: min(90vw, 400px);
+    }
+
+    /* 操作ボタンを下部に配置 */
+    #game-screen .game-controls {
+        margin-top: auto;
+        padding-top: 16px;
+        padding-bottom: 16px;
+        border-top: 2px solid rgba(0, 0, 0, 0.1);
+        flex-shrink: 0;
+    }
+
+    /* タイトル画面の縦持ちレイアウト - スクロール不要 */
+    #title-screen {
+        justify-content: center !important;
+        gap: 4px;
+        padding: 4px !important;
+        height: 100vh !important;
+        max-height: 100vh !important;
+        min-height: unset !important;
+        display: flex !important;
+        flex-direction: column !important;
+        align-items: center !important;
+        overflow: hidden !important;
+        box-sizing: border-box !important;
+    }
+
+    #title-screen .title-image {
+        max-width: 100%;
+        max-height: 70vh;
+        width: 100%;
+        object-fit: contain;
+        margin-bottom: 0;
+        margin-top: 0;
+        flex-shrink: 1;
+    }
+
+    #title-screen .title-buttons {
+        width: 100%;
+        max-width: 100%;
+        padding: 0 4px;
+        gap: 5px;
+        flex-shrink: 0;
+        align-items: center;
+    }
+
+    #title-screen .title-buttons .btn {
+        width: auto;
+        min-width: 200px;
+        max-width: 280px;
+        min-height: 48px;
+        padding: 12px 28px;
+        font-size: 1.15em;
+    }
+
+    /* サイズ選択画面の縦持ちレイアウト - スクロール不要 */
+    #select-screen {
+        overflow-y: visible !important;
+        height: 100vh !important;
+        max-height: 100vh !important;
+        min-height: unset !important;
+        display: flex !important;
+        flex-direction: column !important;
+        justify-content: center !important;
+        padding: 12px !important;
+        box-sizing: border-box !important;
+    }
+
+    #select-screen h2 {
+        font-size: 1.4em;
+        margin-bottom: 12px;
+        flex-shrink: 0;
+    }
+
+    #select-screen .size-buttons {
+        gap: 10px;
+        margin-bottom: 12px;
+        flex-shrink: 0;
+    }
+
+    #select-screen .size-btn {
+        min-height: 70px;
+        padding: 12px 14px;
+    }
+
+    #select-screen .size-title {
+        font-size: 1.3em;
+        margin-bottom: 4px;
+    }
+
+    #select-screen .size-desc {
+        font-size: 0.95em;
+    }
+
+    #select-screen .btn.secondary {
+        margin-top: 0;
+        padding: 12px 20px;
+        min-height: 48px;
+        flex-shrink: 0;
+    }
+
+    /* 問題選択画面はスクロール可能 */
+    #problem-select-screen {
+        overflow-y: auto;
+        -webkit-overflow-scrolling: touch;
+    }
+
+    #problem-select-screen .problem-buttons {
+        margin-bottom: 20px;
+    }
+
+    /* クリア画面の縦持ちレイアウト */
+    #clear-screen {
+        overflow-y: auto;
+        -webkit-overflow-scrolling: touch;
+        flex-direction: column !important;
+    }
+
+    /* 縦持ち時はパネル分けを解除して通常の縦並び */
+    #clear-screen .clear-left-panel,
+    #clear-screen .clear-right-panel {
+        flex: none;
+        width: 100%;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+    }
+
+    #clear-screen #cg-container {
+        margin: 20px 0;
+    }
+
+    #clear-screen #clear-image {
+        max-width: 100%;
+        max-height: 40vh;
+        object-fit: contain;
+    }
+
+    #clear-screen .time-display-container {
+        flex-direction: row;
+        justify-content: center;
+        gap: 12px;
+        flex-wrap: wrap;
+    }
+
+    #clear-screen .clear-buttons {
+        margin-top: 20px;
+        width: 100%;
+    }
+
+    /* ギャラリー画面の縦持ちレイアウト */
+    #gallery-screen {
+        overflow-y: auto;
+        -webkit-overflow-scrolling: touch;
+    }
+
+    #gallery-screen .gallery-grid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 12px;
+    }
+}
+
+/* ========================================
+   横持ち（Landscape）モード
+   スマートフォン専用（767px以下）
+   ======================================== */
+
+@media (max-width: 767px) and (orientation: landscape) {
+    body {
+        padding: 0 !important;
+        min-height: 100vh;
+        display: flex;
+        flex-direction: row;
+        justify-content: center;
+        align-items: center;
+    }
+
+    .screen {
+        width: 100% !important;
+        max-width: 100% !important;
+        height: 100vh;
+        max-height: 100vh;
+        padding: 12px;
+        display: flex;
+        overflow: hidden;
+        border-radius: 0 !important;
+    }
+
+    /* ========================================
+       ゲーム画面の横持ちレイアウト
+       ======================================== */
+
+    #game-screen {
+        flex-direction: row;
+        gap: 12px;
+        padding: 8px;
+    }
+
+    /* ゲーム画面を左側70%に配置 */
+    #game-screen #puzzle-container {
+        flex: 0 0 70%;
+        width: 70%;
+        height: 100%;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        margin: 0;
+    }
+
+    #game-screen #puzzle-grid {
+        width: min(65vh, 400px);
+        height: min(65vh, 400px);
+    }
+
+    #game-screen #puzzle-grid.size-4 {
+        width: min(68vh, 420px);
+        height: min(68vh, 420px);
+    }
+
+    #game-screen #puzzle-grid.size-5 {
+        width: min(70vh, 440px);
+        height: min(70vh, 440px);
+    }
+
+    /* 操作・情報を右側30%に配置 */
+    #game-screen .game-side-panel {
+        flex: 0 0 30%;
+        width: 30%;
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+        overflow-y: auto;
+        -webkit-overflow-scrolling: touch;
+    }
+
+    /* サイドパネル用のコンテナを作成 */
+    #game-screen .game-info-area {
+        margin-bottom: 8px;
+        padding: 12px;
+        position: static;
+    }
+
+    #game-screen .game-info-area h2 {
+        font-size: 1.2em;
+        margin-bottom: 8px;
+    }
+
+    #game-screen #timer-display {
+        font-size: 1.1em;
+        padding: 10px 14px;
+    }
+
+    #game-screen .game-controls {
+        margin-top: auto;
+        padding-top: 12px;
+        border-top: 2px solid rgba(0, 0, 0, 0.1);
+    }
+
+    #game-screen .game-controls .btn {
+        min-height: 44px;
+        padding: 12px 16px;
+        font-size: 1em;
+    }
+
+    /* タイトル画面の横持ちレイアウト - スクロール不要 */
+    #title-screen {
+        flex-direction: row !important;
+        gap: 8px;
+        align-items: center !important;
+        justify-content: center !important;
+        height: 100vh !important;
+        max-height: 100vh !important;
+        padding: 6px !important;
+        overflow: hidden !important;
+        box-sizing: border-box !important;
+    }
+
+    #title-screen .title-image {
+        flex: 0 0 65%;
+        max-width: 65%;
+        max-height: 96vh;
+        width: 65%;
+        object-fit: contain;
+        margin-bottom: 0;
+    }
+
+    #title-screen .title-buttons {
+        flex: 0 0 32%;
+        max-width: 32%;
+        padding: 0 6px;
+        gap: 8px;
+        align-items: center;
+    }
+
+    #title-screen .title-buttons .btn {
+        width: auto;
+        min-width: 160px;
+        max-width: 200px;
+        min-height: 48px;
+        padding: 12px 24px;
+        font-size: 1.1em;
+    }
+
+    /* サイズ選択画面の横持ちレイアウト - スクロール不要 */
+    #select-screen {
+        flex-direction: column !important;
+        overflow: hidden !important;
+        height: 100vh !important;
+        max-height: 100vh !important;
+        min-height: unset !important;
+        justify-content: center !important;
+        padding: 10px !important;
+        box-sizing: border-box !important;
+        display: flex !important;
+    }
+
+    #select-screen h2 {
+        font-size: 1.2em;
+        margin-bottom: 10px;
+        flex-shrink: 0;
+    }
+
+    #select-screen .size-buttons {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 8px;
+        margin-bottom: 10px;
+        flex-shrink: 0;
+    }
+
+    #select-screen .size-btn {
+        min-height: 70px;
+        padding: 10px 8px;
+    }
+
+    #select-screen .size-title {
+        font-size: 1.1em;
+        margin-bottom: 3px;
+    }
+
+    #select-screen .size-desc {
+        font-size: 0.9em;
+    }
+
+    #select-screen .btn.secondary {
+        min-height: 42px;
+        padding: 10px 18px;
+        font-size: 0.95em;
+        margin-top: 0;
+        flex-shrink: 0;
+    }
+
+    /* 問題選択画面の横持ちレイアウト */
+    #problem-select-screen {
+        flex-direction: column;
+        overflow-y: auto;
+        -webkit-overflow-scrolling: touch;
+    }
+
+    #problem-select-screen h2 {
+        font-size: 1.4em;
+        margin-bottom: 12px;
+    }
+
+    #problem-select-screen .pagination-info {
+        margin-bottom: 12px;
+    }
+
+    #problem-select-screen .problem-buttons {
+        grid-template-columns: repeat(4, 1fr);
+        gap: 10px;
+        margin-bottom: 16px;
+    }
+
+    #problem-select-screen .problem-btn {
+        min-height: 80px;
+        padding: 12px 8px;
+    }
+
+    #problem-select-screen .problem-title {
+        font-size: 1.2em;
+    }
+
+    #problem-select-screen .problem-best-time {
+        font-size: 0.9em;
+    }
+
+    #problem-select-screen .pagination-controls {
+        gap: 8px;
+        margin-bottom: 12px;
+    }
+
+    #problem-select-screen .btn.pagination-btn {
+        min-height: 42px;
+        padding: 10px 16px;
+        font-size: 1em;
+        min-width: 70px;
+    }
+
+    #problem-select-screen .page-number-btn {
+        min-width: 38px;
+        min-height: 38px;
+        padding: 8px 12px;
+        font-size: 0.95em;
+    }
+
+    #problem-select-screen .problem-control-buttons {
+        flex-direction: row;
+        gap: 12px;
+    }
+
+    #problem-select-screen .problem-control-buttons .btn {
+        min-height: 44px;
+        font-size: 1em;
+    }
+
+    /* クリア画面の横持ちレイアウト */
+    #clear-screen {
+        flex-direction: row;
+        gap: 16px;
+        overflow: hidden;
+    }
+
+    #clear-screen .clear-left-panel {
+        flex: 0 0 60%;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        overflow-y: auto;
+        -webkit-overflow-scrolling: touch;
+    }
+
+    #clear-screen .clear-right-panel {
+        flex: 0 0 40%;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        gap: 12px;
+    }
+
+    #clear-screen h2 {
+        font-size: 1.6em;
+        margin-bottom: 12px;
+    }
+
+    #clear-screen .time-display-container {
+        flex-direction: column;
+        gap: 10px;
+        margin: 12px 0;
+    }
+
+    #clear-screen .time-card {
+        min-width: 100%;
+        padding: 16px;
+    }
+
+    #clear-screen #new-record-badge {
+        font-size: 1.2em;
+        margin: 8px 0;
+    }
+
+    #clear-screen #cg-container {
+        margin: 0;
+        flex: 1;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    #clear-screen #clear-image {
+        max-width: 100%;
+        max-height: 70vh;
+        object-fit: contain;
+    }
+
+    #clear-screen .clear-buttons {
+        margin-top: 12px;
+        gap: 10px;
+    }
+
+    #clear-screen .clear-buttons .btn {
+        min-height: 44px;
+        padding: 12px 16px;
+        font-size: 1em;
+    }
+
+    /* ギャラリー画面の横持ちレイアウト */
+    #gallery-screen {
+        flex-direction: column;
+        overflow-y: auto;
+        -webkit-overflow-scrolling: touch;
+    }
+
+    #gallery-screen h2 {
+        font-size: 1.4em;
+        margin-bottom: 12px;
+    }
+
+    #gallery-screen .gallery-size-tabs {
+        margin-bottom: 16px;
+        gap: 8px;
+    }
+
+    #gallery-screen .gallery-tab-btn {
+        padding: 10px 16px;
+        font-size: 1em;
+    }
+
+    #gallery-screen .gallery-grid {
+        grid-template-columns: repeat(4, 1fr);
+        gap: 12px;
+        margin-bottom: 16px;
+    }
+
+    #gallery-screen .gallery-item img {
+        height: 100px;
+    }
+
+    #gallery-screen .gallery-item-info {
+        padding: 10px;
+    }
+}
+
+/* ========================================
+   タブレット画面回転対応（768px-1023px）
+   ======================================== */
+
+@media (min-width: 768px) and (max-width: 1023px) and (orientation: portrait) {
+    /* 縦持ちタブレット */
+    .screen {
+        max-width: 650px;
+    }
+
+    /* タイトル画面 - スクロール不要 */
+    #title-screen {
+        height: 100vh !important;
+        max-height: 100vh !important;
+        min-height: unset !important;
+        display: flex !important;
+        flex-direction: column !important;
+        justify-content: center !important;
+        overflow: hidden !important;
+        padding: 10px !important;
+        gap: 8px;
+    }
+
+    #title-screen .title-image {
+        max-width: 95%;
+        max-height: 62vh;
+        width: 95%;
+        object-fit: contain;
+    }
+
+    #title-screen .title-buttons {
+        gap: 8px;
+        width: 100%;
+        padding: 0 6px;
+        align-items: center;
+    }
+
+    #title-screen .title-buttons .btn {
+        width: auto;
+        min-width: 220px;
+        max-width: 320px;
+    }
+
+    /* サイズ選択画面 - スクロール不要 */
+    #select-screen {
+        height: 100vh !important;
+        max-height: 100vh !important;
+        min-height: unset !important;
+        display: flex !important;
+        flex-direction: column !important;
+        justify-content: center !important;
+        overflow: hidden !important;
+        padding: 16px !important;
+    }
+
+    #select-screen .size-buttons {
+        gap: 18px;
+    }
+
+    #select-screen .size-btn {
+        min-height: 100px;
+    }
+
+    #game-screen {
+        display: flex;
+        flex-direction: column;
+    }
+
+    #puzzle-container {
+        flex: 0 0 auto;
+        margin: 20px 0;
+    }
+}
+
+@media (min-width: 768px) and (max-width: 1023px) and (orientation: landscape) {
+    /* 横持ちタブレット */
+    .screen {
+        max-width: 90%;
+    }
+
+    /* タイトル画面 - スクロール不要 */
+    #title-screen {
+        height: 100vh !important;
+        max-height: 100vh !important;
+        min-height: unset !important;
+        overflow: hidden !important;
+        flex-direction: row !important;
+        padding: 8px !important;
+        gap: 12px;
+    }
+
+    #title-screen .title-image {
+        flex: 0 0 63%;
+        max-width: 63%;
+        width: 63%;
+        max-height: 94vh;
+        object-fit: contain;
+    }
+
+    #title-screen .title-buttons {
+        flex: 0 0 34%;
+        max-width: 34%;
+        padding: 0 6px;
+        align-items: center;
+    }
+
+    #title-screen .title-buttons .btn {
+        width: auto;
+        min-width: 180px;
+        max-width: 240px;
+    }
+
+    /* サイズ選択画面 - スクロール不要 */
+    #select-screen {
+        height: 100vh !important;
+        max-height: 100vh !important;
+        min-height: unset !important;
+        overflow: hidden !important;
+        justify-content: center !important;
+        padding: 14px !important;
+    }
+
+    #select-screen .size-buttons {
+        grid-template-columns: repeat(3, 1fr);
+    }
+
+    #game-screen {
+        display: flex;
+        flex-direction: row;
+        gap: 24px;
+    }
+
+    #game-screen #puzzle-container {
+        flex: 0 0 65%;
+    }
+
+    #game-screen .game-side-panel {
+        flex: 0 0 35%;
+        display: flex;
+        flex-direction: column;
+        gap: 16px;
+    }
+}
+
+/* ========================================
+   フルスクリーンオプション
+   ゲーム中の没入感向上
+   ======================================== */
+
+.fullscreen-mode {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    z-index: 9999;
+    background: linear-gradient(135deg, #667EEA 0%, #764BA2 50%, #F093FB 100%);
+    padding: 0;
+    margin: 0;
+    border-radius: 0;
+}
+
+.fullscreen-mode #puzzle-container {
+    height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+/* フルスクリーン切り替えボタン */
+.fullscreen-toggle {
+    position: fixed;
+    top: env(safe-area-inset-top, 10px);
+    right: env(safe-area-inset-right, 10px);
+    z-index: 10000;
+    background: rgba(52, 152, 219, 0.9);
+    color: white;
+    border: none;
+    padding: 10px 16px;
+    border-radius: 20px;
+    cursor: pointer;
+    font-size: 1em;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+    backdrop-filter: blur(10px);
+}
+
+.fullscreen-toggle:hover {
+    background: rgba(52, 152, 219, 1);
+    transform: scale(1.05);
+}
+
+.fullscreen-toggle:active {
+    transform: scale(0.95);
+}
