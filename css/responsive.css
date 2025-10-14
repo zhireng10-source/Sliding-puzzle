@@ -334,7 +334,7 @@ body {
         align-items: stretch;
         overflow-y: auto;
         max-height: none;
-        min-height: 100vh;
+        min-height: auto;
         border-radius: 0 !important;
         margin: 0 !important;
     }
@@ -406,7 +406,7 @@ body {
         padding: 16px 8px !important;
         height: auto !important;
         max-height: none !important;
-        min-height: 100vh !important;
+        min-height: auto !important;
         display: flex !important;
         flex-direction: column !important;
         align-items: center !important;
@@ -446,12 +446,12 @@ body {
     /* サイズ選択画面の縦持ちレイアウト - スクロール不要 */
     #select-screen {
         overflow-y: visible !important;
-        height: 100vh !important;
-        max-height: 100vh !important;
-        min-height: unset !important;
+        height: auto !important;
+        max-height: none !important;
+        min-height: auto !important;
         display: flex !important;
         flex-direction: column !important;
-        justify-content: center !important;
+        justify-content: flex-start !important;
         padding: 12px !important;
         box-sizing: border-box !important;
     }
@@ -948,13 +948,13 @@ body {
 
     /* タイトル画面 - スクロール不要 */
     #title-screen {
-        height: 100vh !important;
-        max-height: 100vh !important;
-        min-height: unset !important;
+        height: auto !important;
+        max-height: none !important;
+        min-height: auto !important;
         display: flex !important;
         flex-direction: column !important;
-        justify-content: center !important;
-        overflow: hidden !important;
+        justify-content: flex-start !important;
+        overflow: visible !important;
         padding: 10px !important;
         gap: 8px;
     }
@@ -981,13 +981,13 @@ body {
 
     /* サイズ選択画面 - スクロール不要 */
     #select-screen {
-        height: 100vh !important;
-        max-height: 100vh !important;
-        min-height: unset !important;
+        height: auto !important;
+        max-height: none !important;
+        min-height: auto !important;
         display: flex !important;
         flex-direction: column !important;
-        justify-content: center !important;
-        overflow: hidden !important;
+        justify-content: flex-start !important;
+        overflow: visible !important;
         padding: 16px !important;
     }
 
@@ -1018,10 +1018,10 @@ body {
 
     /* タイトル画面 - スクロール不要 */
     #title-screen {
-        height: 100vh !important;
-        max-height: 100vh !important;
-        min-height: unset !important;
-        overflow: hidden !important;
+        height: auto !important;
+        max-height: none !important;
+        min-height: auto !important;
+        overflow: visible !important;
         flex-direction: row !important;
         padding: 8px !important;
         gap: 12px;
@@ -1050,11 +1050,11 @@ body {
 
     /* サイズ選択画面 - スクロール不要 */
     #select-screen {
-        height: 100vh !important;
-        max-height: 100vh !important;
-        min-height: unset !important;
-        overflow: hidden !important;
-        justify-content: center !important;
+        height: auto !important;
+        max-height: none !important;
+        min-height: auto !important;
+        overflow: visible !important;
+        justify-content: flex-start !important;
         padding: 14px !important;
     }
 

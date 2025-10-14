@@ -121,7 +121,7 @@ body {
     margin: 0;
     display: flex;
     justify-content: center;
-    align-items: center;
+    align-items: flex-start;
 }
 
 .screen {
@@ -144,7 +144,7 @@ body {
     border: 2px solid rgba(255, 255, 255, 0.6);
     /* 画面遷移時の位置固定 - 固定幅で中央配置 */
     position: relative;
-    margin: 0;
+    margin: 20px 0;
     /* スクロールは.screen内でのみ有効 */
     overflow-y: auto;
     overflow-x: hidden;
