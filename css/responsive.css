@@ -611,6 +611,19 @@ body {
         height: min(65vh, 400px);
     }
 
+    /* スマホ横画面用のパズルピース背景サイズ */
+    #game-screen .size-3 .puzzle-piece {
+        background-size: 360px 360px;
+    }
+
+    #game-screen .size-4 .puzzle-piece {
+        background-size: 380px 380px;
+    }
+
+    #game-screen .size-5 .puzzle-piece {
+        background-size: 400px 400px;
+    }
+
     /* 操作・情報を右側38%に配置（余裕を持たせて見切れないように） */
     #game-screen .game-side-panel {
         flex: 0 0 38%;
