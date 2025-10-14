@@ -117,7 +117,9 @@ body {
     /* かわいいピンク系グラデーション背景 */
     background: linear-gradient(135deg, #FFB6C1 0%, #FFC0CB 25%, #FFD1DC 50%, #FFB3D9 75%, #FFA6C9 100%);
     min-height: 100vh;
-    display: block; /* flex から block に変更してスクロール問題を解決 */
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
     padding: 0;
     margin: 0;
     /* スクロールを無効化 */
@@ -146,6 +148,9 @@ body {
     position: relative;
     top: 0;
     left: 0;
+    /* PC表示時の上部マージン */
+    margin-top: var(--spacing-xxl);
+    margin-bottom: var(--spacing-xxl);
 }
 
 .hidden {
