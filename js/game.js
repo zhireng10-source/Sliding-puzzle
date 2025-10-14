@@ -447,8 +447,23 @@ class SlidePuzzleGame {
             window.animationController.fadeInUp(targetScreen);
         }
 
-        // 画面遷移時に必ずページトップにスクロール
-        window.scrollTo(0, 0);
+        // 画面遷移時に必ずページトップにスクロール（複数の方法で確実に）
+        window.scrollTo({
+            top: 0,
+            left: 0,
+            behavior: 'instant' // 即座にスクロール
+        });
+
+        // body要素のスクロール位置もリセット
+        document.body.scrollTop = 0;
+        document.documentElement.scrollTop = 0;
+
+        // 念のため、次のフレームでも実行
+        requestAnimationFrame(() => {
+            window.scrollTo(0, 0);
+            document.body.scrollTop = 0;
+            document.documentElement.scrollTop = 0;
+        });
 
         // BGM管理: 画面ごとに適切なBGMを再生
         if (window.soundManager) {
