@@ -597,37 +597,37 @@ body {
     }
 
     #game-screen #puzzle-grid {
-        width: min(60vh, 360px);
-        height: min(60vh, 360px);
-        gap: 3px;
-        padding: 8px;
+        width: min(75vh, 340px);
+        height: min(75vh, 340px);
+        gap: 2px;
+        padding: 6px;
     }
 
     #game-screen #puzzle-grid.size-4 {
-        width: min(63vh, 380px);
-        height: min(63vh, 380px);
-        gap: 3px;
-        padding: 8px;
+        width: min(78vh, 360px);
+        height: min(78vh, 360px);
+        gap: 2px;
+        padding: 6px;
     }
 
     #game-screen #puzzle-grid.size-5 {
-        width: min(68vh, 425px);
-        height: min(68vh, 425px);
+        width: min(82vh, 380px);
+        height: min(82vh, 380px);
         gap: 2px;
-        padding: 8px;
+        padding: 6px;
     }
 
-    /* スマホ横画面用のパズルピース背景サイズ */
+    /* スマホ横画面用のパズルピース背景サイズ（グリッドサイズと一致させる） */
     #game-screen .size-3 .puzzle-piece {
-        background-size: 360px 360px;
+        background-size: 340px 340px;
     }
 
     #game-screen .size-4 .puzzle-piece {
-        background-size: 380px 380px;
+        background-size: 360px 360px;
     }
 
     #game-screen .size-5 .puzzle-piece {
-        background-size: 425px 425px;
+        background-size: 380px 380px;
     }
 
     /* 操作・情報を右側38%に配置（余裕を持たせて見切れないように） */
