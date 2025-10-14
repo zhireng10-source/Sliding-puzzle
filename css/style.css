@@ -1719,6 +1719,9 @@ p, .body-text {
     border: 4px solid rgba(255, 192, 203, 0.9);
     position: relative;
     animation: titleImageFloat 3s ease-in-out infinite;
+    /* ボタンのクリックを妨げないように */
+    pointer-events: none;
+    z-index: 1;
 }
 
 @keyframes titleImageFloat {
@@ -1791,12 +1794,14 @@ p, .body-text {
     background-size: 100% 100%, 100% 100%, 100% 100%, 100% 100%, 300% 300%;
     animation: titleGradientShift 20s ease infinite;
     position: relative;
-    overflow: hidden;
+    overflow: visible; /* hidden から visible に変更 */
     /* タイトル画面の白背景を無効化 */
     box-shadow: none;
     border: none;
     backdrop-filter: none;
     max-width: 100%;
+    /* タッチイベントを確実に伝える */
+    touch-action: manipulation;
 }
 
 @keyframes titleGradientShift {

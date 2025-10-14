@@ -232,6 +232,9 @@ class SlidePuzzleGame {
 
         // ゲーム起動時にBGMを開始
         this.initBGM();
+
+        // デバッグ用: タッチイベントのログ
+        console.log('Game initialized. Touch events bound.');
     }
 
     initBGM() {
@@ -279,7 +282,14 @@ class SlidePuzzleGame {
 
         // スタートボタン: タッチイベントとクリックイベントの両方に対応
         const startBtn = document.getElementById('start-btn');
+
+        if (!startBtn) {
+            console.error('Start button not found!');
+            return;
+        }
+
         const startBtnHandler = () => {
+            console.log('Start button handler called');
             this.showScreen('select-screen');
         };
 
@@ -288,11 +298,13 @@ class SlidePuzzleGame {
 
         // touchstart でタッチ開始を記録
         startBtn.addEventListener('touchstart', (e) => {
+            console.log('Start button touchstart');
             // タッチフィードバック用
             startBtn.style.transform = 'scale(0.95)';
         }, { passive: true });
 
         startBtn.addEventListener('touchend', (e) => {
+            console.log('Start button touchend');
             e.preventDefault(); // デフォルトのタッチ動作を防止
             e.stopPropagation(); // イベントの伝播を停止
             touchHandled = true;
@@ -304,11 +316,14 @@ class SlidePuzzleGame {
 
         // クリックイベント（デスクトップ用、またはタッチイベントが処理されなかった場合）
         startBtn.addEventListener('click', (e) => {
+            console.log('Start button click, touchHandled:', touchHandled);
             if (!touchHandled) {
                 e.preventDefault();
                 startBtnHandler();
             }
         });
+
+        console.log('Start button events bound');
 
         // サイズ選択ボタン
         document.querySelectorAll('.size-btn').forEach(btn => {
