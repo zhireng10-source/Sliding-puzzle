@@ -1514,32 +1514,32 @@ p, .body-text {
 
     /* パズルサイズ - デスクトップ最適化 */
     #puzzle-grid {
-        width: 480px;
-        height: 480px;
+        width: 400px;
+        height: 400px;
         gap: 4px;
-        padding: 14px;
+        padding: 12px;
     }
 
     #puzzle-grid.size-4 {
-        width: 520px;
-        height: 520px;
+        width: 420px;
+        height: 420px;
     }
 
     #puzzle-grid.size-5 {
-        width: 560px;
-        height: 560px;
+        width: 440px;
+        height: 440px;
     }
 
     .size-3 .puzzle-piece {
-        background-size: 480px 480px;
+        background-size: 400px 400px;
     }
 
     .size-4 .puzzle-piece {
-        background-size: 520px 520px;
+        background-size: 420px 420px;
     }
 
     .size-5 .puzzle-piece {
-        background-size: 560px 560px;
+        background-size: 440px 440px;
     }
 
     /* マウスホバー効果強化 */

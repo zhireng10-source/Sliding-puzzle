@@ -172,30 +172,30 @@
     }
 
     #puzzle-grid {
-        width: 540px;
-        height: 540px;
+        width: 450px;
+        height: 450px;
     }
 
     #puzzle-grid.size-4 {
-        width: 580px;
-        height: 580px;
+        width: 480px;
+        height: 480px;
     }
 
     #puzzle-grid.size-5 {
-        width: 620px;
-        height: 620px;
+        width: 510px;
+        height: 510px;
     }
 
     .size-3 .puzzle-piece {
-        background-size: 540px 540px;
+        background-size: 450px 450px;
     }
 
     .size-4 .puzzle-piece {
-        background-size: 580px 580px;
+        background-size: 480px 480px;
     }
 
     .size-5 .puzzle-piece {
-        background-size: 620px 620px;
+        background-size: 510px 510px;
     }
 
     .gallery-grid {
