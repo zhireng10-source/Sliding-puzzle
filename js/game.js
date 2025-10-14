@@ -285,17 +285,27 @@ class SlidePuzzleGame {
 
         // タッチイベントを優先的に処理
         let touchHandled = false;
+
+        // touchstart でタッチ開始を記録
+        startBtn.addEventListener('touchstart', (e) => {
+            // タッチフィードバック用
+            startBtn.style.transform = 'scale(0.95)';
+        }, { passive: true });
+
         startBtn.addEventListener('touchend', (e) => {
             e.preventDefault(); // デフォルトのタッチ動作を防止
+            e.stopPropagation(); // イベントの伝播を停止
             touchHandled = true;
+            startBtn.style.transform = ''; // スタイルをリセット
             startBtnHandler();
             // タッチイベント処理後、フラグをリセット
-            setTimeout(() => { touchHandled = false; }, 300);
+            setTimeout(() => { touchHandled = false; }, 500);
         }, { passive: false });
 
         // クリックイベント（デスクトップ用、またはタッチイベントが処理されなかった場合）
         startBtn.addEventListener('click', (e) => {
             if (!touchHandled) {
+                e.preventDefault();
                 startBtnHandler();
             }
         });
@@ -347,15 +357,23 @@ class SlidePuzzleGame {
         };
 
         let galleryTouchHandled = false;
+
+        galleryBtn.addEventListener('touchstart', (e) => {
+            galleryBtn.style.transform = 'scale(0.95)';
+        }, { passive: true });
+
         galleryBtn.addEventListener('touchend', (e) => {
             e.preventDefault();
+            e.stopPropagation();
             galleryTouchHandled = true;
+            galleryBtn.style.transform = '';
             galleryBtnHandler();
-            setTimeout(() => { galleryTouchHandled = false; }, 300);
+            setTimeout(() => { galleryTouchHandled = false; }, 500);
         }, { passive: false });
 
         galleryBtn.addEventListener('click', (e) => {
             if (!galleryTouchHandled) {
+                e.preventDefault();
                 galleryBtnHandler();
             }
         });

@@ -1815,7 +1815,15 @@ p, .body-text {
 /* タイトル画面のコンテンツは装飾の上に */
 #title-screen > * {
     position: relative;
-    z-index: 1;
+    z-index: 10;
+}
+
+/* タイトル画面のボタンは確実にクリック可能に */
+.title-buttons,
+.title-buttons .btn {
+    position: relative;
+    z-index: 100;
+    pointer-events: auto;
 }
 
 /* タイトル画面のメインコンテナ */
