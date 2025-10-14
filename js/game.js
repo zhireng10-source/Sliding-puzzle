@@ -852,17 +852,32 @@ class SlidePuzzleGame {
     }
 
     getTileSize() {
-        // デスクトップサイズとモバイルサイズを考慮
-        const isMobile = window.innerWidth <= 480;
+        // 画面サイズと向きを考慮
+        const width = window.innerWidth;
+        const height = window.innerHeight;
+        const isLandscape = width > height;
+        const isMobileWidth = width <= 767;
 
-        if (isMobile) {
+        // スマホ横画面（767px以下でlandscape）
+        if (isMobileWidth && isLandscape) {
             switch (this.gridSize) {
-                case 3: return 300 / 3;  // モバイル最適化サイズに合わせて更新
-                case 4: return 320 / 4;
-                case 5: return 340 / 5;
+                case 3: return 360 / 3;  // 横画面用: 360px
+                case 4: return 380 / 4;  // 横画面用: 380px
+                case 5: return 400 / 5;  // 横画面用: 400px
+                default: return 360 / 3;
+            }
+        }
+        // スマホ縦画面（767px以下でportrait）
+        else if (isMobileWidth && !isLandscape) {
+            switch (this.gridSize) {
+                case 3: return 300 / 3;  // 縦画面用: 300px
+                case 4: return 320 / 4;  // 縦画面用: 320px
+                case 5: return 340 / 5;  // 縦画面用: 340px
                 default: return 300 / 3;
             }
-        } else {
+        }
+        // デスクトップ・タブレット
+        else {
             switch (this.gridSize) {
                 case 3: return 420 / 3;
                 case 4: return 440 / 4;
