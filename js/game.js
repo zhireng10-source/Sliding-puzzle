@@ -225,6 +225,9 @@ class SlidePuzzleGame {
             history.scrollRestoration = 'manual';
         }
 
+        // タイトルをテキストファイルから読み込む
+        this.loadTitle();
+
         this.setGridSize(3); // デフォルトは3x3
         this.bindEvents();
         this.showScreen('title-screen');
@@ -240,6 +243,32 @@ class SlidePuzzleGame {
 
         // デバッグ用: タッチイベントのログ
         console.log('Game initialized. Touch events bound.');
+    }
+
+    loadTitle() {
+        // タイトルをテキストファイルから読み込む
+        fetch('assets/title.txt')
+            .then(response => {
+                console.log('Title file fetch response:', response);
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                return response.text();
+            })
+            .then(title => {
+                console.log('Title loaded from file:', title);
+                // タイトルの前後の空白を削除
+                const trimmedTitle = title.trim();
+                console.log('Setting document.title to:', trimmedTitle);
+                // HTMLのtitleタグを更新
+                document.title = trimmedTitle;
+                console.log('document.title is now:', document.title);
+            })
+            .catch(error => {
+                console.error('Failed to load title:', error);
+                console.error('Error details:', error.message, error.stack);
+                // エラー時はデフォルトのタイトルを維持
+            });
     }
 
     initBGM() {
