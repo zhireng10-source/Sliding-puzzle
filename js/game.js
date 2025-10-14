@@ -861,9 +861,9 @@ class SlidePuzzleGame {
         // スマホ横画面（767px以下でlandscape）
         if (isMobileWidth && isLandscape) {
             switch (this.gridSize) {
-                case 3: return 360 / 3;  // 横画面用: 360px
-                case 4: return 380 / 4;  // 横画面用: 380px
-                case 5: return 400 / 5;  // 横画面用: 400px
+                case 3: return 360 / 3;  // 横画面用: 360px (120px/tile)
+                case 4: return 380 / 4;  // 横画面用: 380px (95px/tile)
+                case 5: return 425 / 5;  // 横画面用: 425px (85px/tile)
                 default: return 360 / 3;
             }
         }

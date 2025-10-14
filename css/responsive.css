@@ -599,16 +599,22 @@ body {
     #game-screen #puzzle-grid {
         width: min(60vh, 360px);
         height: min(60vh, 360px);
+        gap: 3px;
+        padding: 8px;
     }
 
     #game-screen #puzzle-grid.size-4 {
         width: min(63vh, 380px);
         height: min(63vh, 380px);
+        gap: 3px;
+        padding: 8px;
     }
 
     #game-screen #puzzle-grid.size-5 {
-        width: min(65vh, 400px);
-        height: min(65vh, 400px);
+        width: min(68vh, 425px);
+        height: min(68vh, 425px);
+        gap: 2px;
+        padding: 8px;
     }
 
     /* スマホ横画面用のパズルピース背景サイズ */
@@ -621,7 +627,7 @@ body {
     }
 
     #game-screen .size-5 .puzzle-piece {
-        background-size: 400px 400px;
+        background-size: 425px 425px;
     }
 
     /* 操作・情報を右側38%に配置（余裕を持たせて見切れないように） */
