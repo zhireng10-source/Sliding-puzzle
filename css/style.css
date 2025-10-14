@@ -148,9 +148,9 @@ body {
     position: relative;
     top: 0;
     left: 0;
-    /* PC表示時の上部マージン */
-    margin-top: var(--spacing-xxl);
-    margin-bottom: var(--spacing-xxl);
+    /* PC表示時の上下マージン */
+    margin-top: var(--spacing-md);
+    margin-bottom: var(--spacing-md);
 }
 
 .hidden {
@@ -1726,10 +1726,10 @@ p, .body-text {
 /* タイトル画像 */
 .title-image {
     max-width: 100%;
-    max-height: 70vh;
+    max-height: 55vh;
     width: 100%;
     height: auto;
-    margin-bottom: 24px;
+    margin-bottom: 16px;
     margin-top: 0;
     border-radius: var(--radius-lg);
     box-shadow: 0 12px 40px rgba(255, 182, 193, 0.5), 0 4px 20px rgba(255, 192, 203, 0.4), 0 0 20px rgba(255, 105, 180, 0.3);
@@ -1760,13 +1760,13 @@ p, .body-text {
 .title-buttons {
     display: flex;
     flex-direction: column;
-    gap: 16px;
+    gap: 12px;
     /* 視線の流れ: 中央から下への自然な流れ */
     align-items: center;
     width: 100%;
     max-width: 100%;
     margin: 0;
-    padding: 20px 16px;
+    padding: 16px 16px;
     background: linear-gradient(135deg, rgba(255, 255, 255, 0.95), rgba(255, 240, 245, 0.9));
     border-radius: var(--radius-xl);
     box-shadow: 0 8px 32px rgba(255, 182, 193, 0.3);
@@ -1806,7 +1806,7 @@ p, .body-text {
     justify-content: center;
     align-items: center;
     min-height: 100vh;
-    padding: 24px;
+    padding: 12px;
     /* かわいいピンク系グラデーション背景 */
     background:
         radial-gradient(circle at 20% 80%, rgba(255, 192, 203, 0.4) 0%, transparent 50%),
@@ -1825,6 +1825,9 @@ p, .body-text {
     max-width: 100%;
     /* タッチイベントを確実に伝える */
     touch-action: manipulation;
+    /* タイトル画面専用のマージン調整 */
+    margin-top: 0;
+    margin-bottom: 0;
 }
 
 @keyframes titleGradientShift {
