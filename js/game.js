@@ -220,6 +220,11 @@ class SlidePuzzleGame {
     }
 
     init() {
+        // ブラウザの自動スクロール復元を無効化（モバイル対応）
+        if ('scrollRestoration' in history) {
+            history.scrollRestoration = 'manual';
+        }
+
         this.setGridSize(3); // デフォルトは3x3
         this.bindEvents();
         this.showScreen('title-screen');
@@ -433,6 +438,9 @@ class SlidePuzzleGame {
     }
 
     showScreen(screenId) {
+        // スクロールを即座にリセット（画面切り替え前）
+        this.resetScroll();
+
         const screens = document.querySelectorAll('.screen');
         screens.forEach(screen => screen.classList.add('hidden'));
 
@@ -447,23 +455,18 @@ class SlidePuzzleGame {
             window.animationController.fadeInUp(targetScreen);
         }
 
-        // 画面遷移時に必ずページトップにスクロール（複数の方法で確実に）
-        window.scrollTo({
-            top: 0,
-            left: 0,
-            behavior: 'instant' // 即座にスクロール
-        });
+        // 画面切り替え後にもスクロールリセット（複数のタイミングで実行）
+        setTimeout(() => {
+            this.resetScroll();
+        }, 0);
 
-        // body要素のスクロール位置もリセット
-        document.body.scrollTop = 0;
-        document.documentElement.scrollTop = 0;
+        setTimeout(() => {
+            this.resetScroll();
+        }, 50);
 
-        // 念のため、次のフレームでも実行
-        requestAnimationFrame(() => {
-            window.scrollTo(0, 0);
-            document.body.scrollTop = 0;
-            document.documentElement.scrollTop = 0;
-        });
+        setTimeout(() => {
+            this.resetScroll();
+        }, 100);
 
         // BGM管理: 画面ごとに適切なBGMを再生
         if (window.soundManager) {
@@ -474,6 +477,44 @@ class SlidePuzzleGame {
             } else if (screenId === 'clear-screen') {
                 window.soundManager.switchToClearBGM();
             }
+        }
+    }
+
+    resetScroll() {
+        // 複数の方法でスクロールを確実にリセット
+        try {
+            // 方法1: window.scrollTo (即座にスクロール)
+            window.scrollTo({
+                top: 0,
+                left: 0,
+                behavior: 'instant' // アニメーションなしで即座に
+            });
+
+            // 方法2: body と documentElement の scrollTop を直接設定
+            if (document.body) {
+                document.body.scrollTop = 0;
+                document.body.scrollLeft = 0;
+            }
+            if (document.documentElement) {
+                document.documentElement.scrollTop = 0;
+                document.documentElement.scrollLeft = 0;
+            }
+
+            // 方法3: すべての .screen 要素の scrollTop をリセット
+            document.querySelectorAll('.screen').forEach(screen => {
+                if (screen.scrollTop !== undefined) {
+                    screen.scrollTop = 0;
+                }
+                if (screen.scrollLeft !== undefined) {
+                    screen.scrollLeft = 0;
+                }
+            });
+
+            // 方法4: レイアウトを強制的に再計算させる（モバイル向け）
+            document.body.offsetHeight;
+
+        } catch (e) {
+            console.error('Scroll reset error:', e);
         }
     }
 
