@@ -321,10 +321,8 @@ body {
     body {
         padding: 0 !important;
         min-height: 100vh;
-        display: flex;
-        flex-direction: column;
-        justify-content: flex-start;
-        align-items: center;
+        height: auto !important;
+        display: block;
     }
 
     .screen {
@@ -335,7 +333,8 @@ body {
         flex-direction: column;
         align-items: stretch;
         overflow-y: auto;
-        max-height: 98vh;
+        max-height: none;
+        min-height: 100vh;
         border-radius: 0 !important;
         margin: 0 !important;
     }
@@ -402,12 +401,12 @@ body {
 
     /* タイトル画面の縦持ちレイアウト - スクロール不要 */
     #title-screen {
-        justify-content: center !important;
-        gap: 8px;
-        padding: 8px !important;
+        justify-content: flex-start !important;
+        gap: 12px;
+        padding: 16px 8px !important;
         height: auto !important;
         max-height: none !important;
-        min-height: auto !important;
+        min-height: 100vh !important;
         display: flex !important;
         flex-direction: column !important;
         align-items: center !important;
