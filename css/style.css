@@ -153,14 +153,20 @@ body {
 /* レスポンシブ対応: スマホでは幅を100%に */
 @media (max-width: 767px) {
     body {
-        padding: 0;
+        padding: 0 !important;
+        margin: 0 !important;
         overflow: visible;
+        align-items: flex-start !important;
     }
 
     .screen {
-        width: 100%;
-        max-width: 100%;
-        border-radius: 0;
+        width: 100% !important;
+        max-width: 100% !important;
+        border-radius: 0 !important;
+        margin: 0 !important;
+        padding: 16px !important;
+        min-height: auto !important;
+        max-height: none !important;
     }
 }
 
