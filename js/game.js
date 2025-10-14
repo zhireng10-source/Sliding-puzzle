@@ -1376,16 +1376,6 @@ document.addEventListener('DOMContentLoaded', () => {
             if (resetBtn) {
                 window.feedbackManager.bindTooltip(resetBtn, '全ての記録をリセット', 'top');
             }
-
-            const prevPageBtn = document.getElementById('prev-page-btn');
-            if (prevPageBtn) {
-                window.feedbackManager.bindTooltip(prevPageBtn, '前のページへ', 'bottom');
-            }
-
-            const nextPageBtn = document.getElementById('next-page-btn');
-            if (nextPageBtn) {
-                window.feedbackManager.bindTooltip(nextPageBtn, '次のページへ', 'bottom');
-            }
         }, 500);
     }
 });

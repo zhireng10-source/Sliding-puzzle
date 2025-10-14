@@ -938,6 +938,45 @@ body {
     #gallery-screen .gallery-item-info {
         padding: 10px;
     }
+
+    /* モーダル - スマホ横画面最適化 */
+    .modal-content {
+        max-width: 96%;
+        max-height: 96%;
+        padding: 8px;
+        overflow-y: auto;
+        -webkit-overflow-scrolling: touch;
+    }
+
+    #modal-image {
+        max-width: 90%;
+        max-height: 65vh;
+        width: auto;
+        height: auto;
+        object-fit: contain;
+        margin-bottom: 8px;
+    }
+
+    #modal-info {
+        flex-shrink: 0;
+    }
+
+    #modal-title {
+        font-size: 1.1em;
+        margin-bottom: 6px;
+    }
+
+    #modal-time {
+        font-size: 0.95em;
+    }
+
+    .modal-close {
+        font-size: 28px;
+        width: 40px;
+        height: 40px;
+        top: 6px;
+        right: 6px;
+    }
 }
 
 /* ========================================
