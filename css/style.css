@@ -117,15 +117,14 @@ body {
     /* かわいいピンク系グラデーション背景 */
     background: linear-gradient(135deg, #FFB6C1 0%, #FFC0CB 25%, #FFD1DC 50%, #FFB3D9 75%, #FFA6C9 100%);
     min-height: 100vh;
+    height: 100vh;
     padding: 20px;
     margin: 0;
-    /* スクロールを無効化 */
-    overflow-x: hidden;
-    overflow-y: auto;
-    /* 画面コンテナの基準点 */
+    /* スクロールを完全に無効化 */
+    overflow: hidden;
     display: flex;
     justify-content: center;
-    align-items: flex-start;
+    align-items: center;
 }
 
 .screen {
@@ -138,19 +137,20 @@ body {
     /* 鮮やかな影で浮き上がる感じ */
     box-shadow: 0 16px 48px rgba(0, 0, 0, 0.2), 0 8px 24px rgba(102, 126, 234, 0.3);
     max-width: 540px;
-    width: 100%;
+    width: 540px;
+    max-height: calc(100vh - 40px);
     /* グリッドベースの内部配置 */
     display: flex;
     flex-direction: column;
     align-items: stretch;
     /* 装飾的な枠線 */
     border: 2px solid rgba(255, 255, 255, 0.6);
-    /* 画面遷移時の位置固定 */
+    /* 画面遷移時の位置固定 - 固定幅で中央配置 */
     position: relative;
     margin: 0;
-    /* 表示時の即座の配置を保証 */
-    opacity: 1;
-    visibility: visible;
+    /* スクロールは.screen内でのみ有効 */
+    overflow-y: auto;
+    overflow-x: hidden;
 }
 
 .hidden {
@@ -235,6 +235,10 @@ p, .body-text {
     /* クリック効果の準備 */
     position: relative;
     overflow: hidden;
+    /* テキストを垂直中央に配置 */
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
 .btn:hover {
@@ -1421,13 +1425,16 @@ p, .body-text {
    ======================================== */
 @media (min-width: 1024px) {
     body {
-        padding: var(--spacing-xxl);
+        padding: 20px;
         font-size: 18px;
     }
 
     .screen {
+        width: 900px;
         max-width: 900px;
+        max-height: calc(100vh - 40px);
         padding: var(--spacing-xxl) 50px;
+        overflow-y: auto;
     }
 
     /* タイトル画面レイアウト */
@@ -1803,18 +1810,11 @@ p, .body-text {
     align-items: center;
     min-height: auto;
     padding: 24px;
-    /* かわいいピンク系グラデーション背景 */
-    background:
-        radial-gradient(circle at 20% 80%, rgba(255, 192, 203, 0.4) 0%, transparent 50%),
-        radial-gradient(circle at 80% 20%, rgba(255, 182, 193, 0.4) 0%, transparent 50%),
-        radial-gradient(circle at 40% 40%, rgba(255, 209, 220, 0.35) 0%, transparent 50%),
-        radial-gradient(circle at 60% 70%, rgba(255, 240, 245, 0.3) 0%, transparent 50%),
-        linear-gradient(135deg, #FFB6C1 0%, #FFC0CB 20%, #FFD1DC 40%, #FFF0F5 60%, #FFB3D9 80%, #FFA6C9 100%);
-    background-size: 100% 100%, 100% 100%, 100% 100%, 100% 100%, 300% 300%;
-    animation: titleGradientShift 20s ease infinite;
+    /* タイトル画面は背景を透明に */
+    background: transparent;
     position: relative;
-    overflow: visible; /* hidden から visible に変更 */
-    /* タイトル画面の白背景を無効化 */
+    overflow: visible;
+    /* タイトル画面の白背景と枠線を無効化 */
     box-shadow: none;
     border: none;
     backdrop-filter: none;
@@ -1822,19 +1822,6 @@ p, .body-text {
     /* タッチイベントを確実に伝える */
     touch-action: manipulation;
 }
-
-@keyframes titleGradientShift {
-    0% {
-        background-position: 0% 0%, 0% 0%, 0% 0%, 0% 0%, 0% 50%;
-    }
-    50% {
-        background-position: 0% 0%, 0% 0%, 0% 0%, 0% 0%, 100% 50%;
-    }
-    100% {
-        background-position: 0% 0%, 0% 0%, 0% 0%, 0% 0%, 0% 50%;
-    }
-}
-
 
 /* タイトル画面のコンテンツは装飾の上に */
 #title-screen > * {

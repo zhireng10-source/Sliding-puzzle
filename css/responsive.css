@@ -337,6 +337,7 @@ body {
         overflow-y: auto;
         max-height: 98vh;
         border-radius: 0 !important;
+        margin: 0 !important;
     }
 
     /* ========================================
@@ -573,6 +574,7 @@ body {
         display: flex;
         overflow: hidden;
         border-radius: 0 !important;
+        margin: 0 !important;
     }
 
     /* ========================================
