@@ -476,6 +476,10 @@ class SlidePuzzleGame {
         const targetScreen = document.getElementById(screenId);
         targetScreen.classList.remove('hidden');
 
+        // 表示した画面自体のスクロールを確実にリセット
+        targetScreen.scrollTop = 0;
+        targetScreen.scrollLeft = 0;
+
         // 画面出現アニメーション（特定の画面のみ）
         // アニメーションなし: title-screen, select-screen, problem-select-screen, game-screen, gallery-screen
         const noAnimationScreens = ['title-screen', 'select-screen', 'problem-select-screen', 'game-screen', 'gallery-screen'];
@@ -487,14 +491,20 @@ class SlidePuzzleGame {
         // 画面切り替え後にもスクロールリセット（複数のタイミングで実行）
         setTimeout(() => {
             this.resetScroll();
+            targetScreen.scrollTop = 0;
+            targetScreen.scrollLeft = 0;
         }, 0);
 
         setTimeout(() => {
             this.resetScroll();
+            targetScreen.scrollTop = 0;
+            targetScreen.scrollLeft = 0;
         }, 50);
 
         setTimeout(() => {
             this.resetScroll();
+            targetScreen.scrollTop = 0;
+            targetScreen.scrollLeft = 0;
         }, 100);
 
         // BGM管理: 画面ごとに適切なBGMを再生
