@@ -117,11 +117,8 @@ body {
     /* かわいいピンク系グラデーション背景 */
     background: linear-gradient(135deg, #FFB6C1 0%, #FFC0CB 25%, #FFD1DC 50%, #FFB3D9 75%, #FFA6C9 100%);
     min-height: 100vh;
-    height: 100vh;
     padding: 20px;
     margin: 0;
-    /* スクロールを完全に無効化 */
-    overflow: hidden;
     display: flex;
     justify-content: center;
     align-items: center;
@@ -151,6 +148,20 @@ body {
     /* スクロールは.screen内でのみ有効 */
     overflow-y: auto;
     overflow-x: hidden;
+}
+
+/* レスポンシブ対応: スマホでは幅を100%に */
+@media (max-width: 767px) {
+    body {
+        padding: 0;
+        overflow: visible;
+    }
+
+    .screen {
+        width: 100%;
+        max-width: 100%;
+        border-radius: 0;
+    }
 }
 
 .hidden {
