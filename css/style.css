@@ -117,14 +117,15 @@ body {
     /* かわいいピンク系グラデーション背景 */
     background: linear-gradient(135deg, #FFB6C1 0%, #FFC0CB 25%, #FFD1DC 50%, #FFB3D9 75%, #FFA6C9 100%);
     min-height: 100vh;
-    display: flex;
-    justify-content: center;
-    align-items: flex-start;
     padding: 20px;
     margin: 0;
     /* スクロールを無効化 */
     overflow-x: hidden;
     overflow-y: auto;
+    /* 画面コンテナの基準点 */
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
 }
 
 .screen {
@@ -144,20 +145,18 @@ body {
     align-items: stretch;
     /* 装飾的な枠線 */
     border: 2px solid rgba(255, 255, 255, 0.6);
-    /* 画面遷移時にスクロール位置をリセット */
+    /* 画面遷移時の位置固定 */
     position: relative;
-    top: 0;
-    left: 0;
+    margin: 0;
+    /* 表示時の即座の配置を保証 */
+    opacity: 1;
+    visibility: visible;
 }
 
 .hidden {
     display: none !important;
-    visibility: hidden !important;
     opacity: 0 !important;
-    position: absolute !important;
-    top: -9999px !important;
-    left: -9999px !important;
-    pointer-events: none !important;
+    visibility: hidden !important;
 }
 
 h1, h2 {
