@@ -337,6 +337,9 @@ body {
         overflow-y: auto;
         max-height: 98vh;
         border-radius: 0 !important;
+        /* スマホ縦画面では上下マージンをゼロに */
+        margin-top: 0 !important;
+        margin-bottom: 0 !important;
     }
 
     /* ========================================
@@ -573,6 +576,9 @@ body {
         display: flex;
         overflow: hidden;
         border-radius: 0 !important;
+        /* スマホ横画面では上下マージンをゼロに */
+        margin-top: 0 !important;
+        margin-bottom: 0 !important;
     }
 
     /* ========================================

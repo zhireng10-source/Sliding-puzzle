@@ -938,7 +938,7 @@ p, .body-text {
    ======================================== */
 @media (max-width: 767px) {
     body {
-        padding: 8px;
+        padding: 0;
         font-size: 16px;
     }
 
@@ -948,6 +948,9 @@ p, .body-text {
         border-radius: 16px;
         /* モバイルでも整列を維持 */
         align-items: stretch;
+        /* モバイルでは上下マージンをゼロに */
+        margin-top: 0 !important;
+        margin-bottom: 0 !important;
     }
 
     /* ========================================
