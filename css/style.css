@@ -117,11 +117,12 @@ body {
     /* かわいいピンク系グラデーション背景 */
     background: linear-gradient(135deg, #FFB6C1 0%, #FFC0CB 25%, #FFD1DC 50%, #FFB3D9 75%, #FFA6C9 100%);
     min-height: 100vh;
-    padding: 20px;
+    display: block; /* flex から block に変更してスクロール問題を解決 */
+    padding: 0;
     margin: 0;
-    display: flex;
-    justify-content: center;
-    align-items: flex-start;
+    /* スクロールを無効化 */
+    overflow-x: hidden;
+    overflow-y: auto;
 }
 
 .screen {
@@ -134,46 +135,27 @@ body {
     /* 鮮やかな影で浮き上がる感じ */
     box-shadow: 0 16px 48px rgba(0, 0, 0, 0.2), 0 8px 24px rgba(102, 126, 234, 0.3);
     max-width: 540px;
-    width: 540px;
-    max-height: calc(100vh - 40px);
+    width: 100%;
     /* グリッドベースの内部配置 */
     display: flex;
     flex-direction: column;
     align-items: stretch;
     /* 装飾的な枠線 */
     border: 2px solid rgba(255, 255, 255, 0.6);
-    /* 画面遷移時の位置固定 - 固定幅で中央配置 */
+    /* 画面遷移時にスクロール位置をリセット */
     position: relative;
-    margin: 20px 0;
-    /* スクロールは.screen内でのみ有効 */
-    overflow-y: auto;
-    overflow-x: hidden;
-}
-
-/* レスポンシブ対応: スマホでは幅を100%に */
-@media (max-width: 767px) {
-    body {
-        padding: 0 !important;
-        margin: 0 !important;
-        overflow: visible;
-        align-items: flex-start !important;
-    }
-
-    .screen {
-        width: 100% !important;
-        max-width: 100% !important;
-        border-radius: 0 !important;
-        margin: 0 !important;
-        padding: 16px !important;
-        min-height: auto !important;
-        max-height: none !important;
-    }
+    top: 0;
+    left: 0;
 }
 
 .hidden {
     display: none !important;
-    opacity: 0 !important;
     visibility: hidden !important;
+    opacity: 0 !important;
+    position: absolute !important;
+    top: -9999px !important;
+    left: -9999px !important;
+    pointer-events: none !important;
 }
 
 h1, h2 {
@@ -252,10 +234,6 @@ p, .body-text {
     /* クリック効果の準備 */
     position: relative;
     overflow: hidden;
-    /* テキストを垂直中央に配置 */
-    display: flex;
-    align-items: center;
-    justify-content: center;
 }
 
 .btn:hover {
@@ -1442,16 +1420,13 @@ p, .body-text {
    ======================================== */
 @media (min-width: 1024px) {
     body {
-        padding: 20px;
+        padding: var(--spacing-xxl);
         font-size: 18px;
     }
 
     .screen {
-        width: 900px;
         max-width: 900px;
-        max-height: calc(100vh - 40px);
         padding: var(--spacing-xxl) 50px;
-        overflow-y: auto;
     }
 
     /* タイトル画面レイアウト */
@@ -1825,13 +1800,20 @@ p, .body-text {
     flex-direction: column;
     justify-content: center;
     align-items: center;
-    min-height: auto;
+    min-height: 100vh;
     padding: 24px;
-    /* タイトル画面は背景を透明に */
-    background: transparent;
+    /* かわいいピンク系グラデーション背景 */
+    background:
+        radial-gradient(circle at 20% 80%, rgba(255, 192, 203, 0.4) 0%, transparent 50%),
+        radial-gradient(circle at 80% 20%, rgba(255, 182, 193, 0.4) 0%, transparent 50%),
+        radial-gradient(circle at 40% 40%, rgba(255, 209, 220, 0.35) 0%, transparent 50%),
+        radial-gradient(circle at 60% 70%, rgba(255, 240, 245, 0.3) 0%, transparent 50%),
+        linear-gradient(135deg, #FFB6C1 0%, #FFC0CB 20%, #FFD1DC 40%, #FFF0F5 60%, #FFB3D9 80%, #FFA6C9 100%);
+    background-size: 100% 100%, 100% 100%, 100% 100%, 100% 100%, 300% 300%;
+    animation: titleGradientShift 20s ease infinite;
     position: relative;
-    overflow: visible;
-    /* タイトル画面の白背景と枠線を無効化 */
+    overflow: visible; /* hidden から visible に変更 */
+    /* タイトル画面の白背景を無効化 */
     box-shadow: none;
     border: none;
     backdrop-filter: none;
@@ -1839,6 +1821,19 @@ p, .body-text {
     /* タッチイベントを確実に伝える */
     touch-action: manipulation;
 }
+
+@keyframes titleGradientShift {
+    0% {
+        background-position: 0% 0%, 0% 0%, 0% 0%, 0% 0%, 0% 50%;
+    }
+    50% {
+        background-position: 0% 0%, 0% 0%, 0% 0%, 0% 0%, 100% 50%;
+    }
+    100% {
+        background-position: 0% 0%, 0% 0%, 0% 0%, 0% 0%, 0% 50%;
+    }
+}
+
 
 /* タイトル画面のコンテンツは装飾の上に */
 #title-screen > * {
@@ -1867,7 +1862,7 @@ p, .body-text {
     display: flex;
     flex-direction: column;
     justify-content: center;
-    min-height: auto;
+    min-height: 100vh;
 }
 
 /* ギャラリー画面 */

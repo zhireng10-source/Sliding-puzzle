@@ -225,9 +225,6 @@ class SlidePuzzleGame {
             history.scrollRestoration = 'manual';
         }
 
-        // タイトルをテキストファイルから読み込む
-        this.loadTitle();
-
         this.setGridSize(3); // デフォルトは3x3
         this.bindEvents();
         this.showScreen('title-screen');
@@ -243,32 +240,6 @@ class SlidePuzzleGame {
 
         // デバッグ用: タッチイベントのログ
         console.log('Game initialized. Touch events bound.');
-    }
-
-    loadTitle() {
-        // タイトルをテキストファイルから読み込む
-        fetch('assets/title.txt')
-            .then(response => {
-                console.log('Title file fetch response:', response);
-                if (!response.ok) {
-                    throw new Error(`HTTP error! status: ${response.status}`);
-                }
-                return response.text();
-            })
-            .then(title => {
-                console.log('Title loaded from file:', title);
-                // タイトルの前後の空白を削除
-                const trimmedTitle = title.trim();
-                console.log('Setting document.title to:', trimmedTitle);
-                // HTMLのtitleタグを更新
-                document.title = trimmedTitle;
-                console.log('document.title is now:', document.title);
-            })
-            .catch(error => {
-                console.error('Failed to load title:', error);
-                console.error('Error details:', error.message, error.stack);
-                // エラー時はデフォルトのタイトルを維持
-            });
     }
 
     initBGM() {
@@ -476,10 +447,6 @@ class SlidePuzzleGame {
         const targetScreen = document.getElementById(screenId);
         targetScreen.classList.remove('hidden');
 
-        // 表示した画面自体のスクロールを確実にリセット
-        targetScreen.scrollTop = 0;
-        targetScreen.scrollLeft = 0;
-
         // 画面出現アニメーション（特定の画面のみ）
         // アニメーションなし: title-screen, select-screen, problem-select-screen, game-screen, gallery-screen
         const noAnimationScreens = ['title-screen', 'select-screen', 'problem-select-screen', 'game-screen', 'gallery-screen'];
@@ -491,20 +458,14 @@ class SlidePuzzleGame {
         // 画面切り替え後にもスクロールリセット（複数のタイミングで実行）
         setTimeout(() => {
             this.resetScroll();
-            targetScreen.scrollTop = 0;
-            targetScreen.scrollLeft = 0;
         }, 0);
 
         setTimeout(() => {
             this.resetScroll();
-            targetScreen.scrollTop = 0;
-            targetScreen.scrollLeft = 0;
         }, 50);
 
         setTimeout(() => {
             this.resetScroll();
-            targetScreen.scrollTop = 0;
-            targetScreen.scrollLeft = 0;
         }, 100);
 
         // BGM管理: 画面ごとに適切なBGMを再生
