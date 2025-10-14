@@ -813,35 +813,56 @@ class SlidePuzzleGame {
                 numberElement.textContent = displayNumber; // そのまま表示
                 tile.appendChild(numberElement);
 
-                // クリックイベント
-                tile.addEventListener('click', () => {
-                    this.handleTileClick(i);
-                });
-
-                // タッチイベント（長押し防止とタッチフィードバック）
+                // タッチイベント処理用のフラグ
+                let touchHandled = false;
                 let touchStartTime = 0;
                 let touchMoved = false;
+                let touchStartX = 0;
+                let touchStartY = 0;
 
+                // タッチイベント（長押し防止とタッチフィードバック）
                 tile.addEventListener('touchstart', (e) => {
                     touchStartTime = Date.now();
                     touchMoved = false;
+                    touchHandled = false;
+                    touchStartX = e.touches[0].clientX;
+                    touchStartY = e.touches[0].clientY;
                     tile.style.opacity = '0.8';  // タッチフィードバック
                 }, { passive: true });
 
-                tile.addEventListener('touchmove', () => {
-                    touchMoved = true;
+                tile.addEventListener('touchmove', (e) => {
+                    // タッチ位置が大きく移動した場合のみmoveと判定
+                    const deltaX = Math.abs(e.touches[0].clientX - touchStartX);
+                    const deltaY = Math.abs(e.touches[0].clientY - touchStartY);
+                    if (deltaX > 10 || deltaY > 10) {
+                        touchMoved = true;
+                    }
                 }, { passive: true });
 
                 tile.addEventListener('touchend', (e) => {
                     tile.style.opacity = '1';  // 元に戻す
                     const touchDuration = Date.now() - touchStartTime;
 
-                    // 短いタップのみ処理（誤タップ防止）
-                    if (!touchMoved && touchDuration < 500) {
+                    // タップと判定（移動が少なく、1秒以内）
+                    if (!touchMoved && touchDuration < 1000) {
                         e.preventDefault();  // クリックイベントとの重複を防ぐ
+                        e.stopPropagation();
+                        touchHandled = true;
                         this.handleTileClick(i);
+
+                        // タッチハンドラフラグをリセット
+                        setTimeout(() => {
+                            touchHandled = false;
+                        }, 300);
                     }
                 }, { passive: false });
+
+                // クリックイベント（デスクトップ用、タッチイベントが処理されなかった場合のみ）
+                tile.addEventListener('click', (e) => {
+                    if (!touchHandled) {
+                        this.handleTileClick(i);
+                    }
+                });
             }
 
             puzzleGrid.appendChild(tile);
@@ -861,10 +882,10 @@ class SlidePuzzleGame {
         // スマホ横画面（767px以下でlandscape）
         if (isMobileWidth && isLandscape) {
             switch (this.gridSize) {
-                case 3: return 360 / 3;  // 横画面用: 360px (120px/tile)
-                case 4: return 380 / 4;  // 横画面用: 380px (95px/tile)
-                case 5: return 425 / 5;  // 横画面用: 425px (85px/tile)
-                default: return 360 / 3;
+                case 3: return 340 / 3;  // 横画面用: 340px (113.3px/tile) - CSSと一致
+                case 4: return 360 / 4;  // 横画面用: 360px (90px/tile) - CSSと一致
+                case 5: return 380 / 5;  // 横画面用: 380px (76px/tile) - CSSと一致
+                default: return 340 / 3;
             }
         }
         // スマホ縦画面（767px以下でportrait）
