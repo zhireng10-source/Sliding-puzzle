@@ -835,47 +835,61 @@ body {
     /* クリア画面の横持ちレイアウト */
     #clear-screen {
         flex-direction: row;
-        gap: 16px;
+        gap: 8px;
         overflow: hidden;
+        padding: 6px !important;
     }
 
     #clear-screen .clear-left-panel {
-        flex: 0 0 60%;
+        flex: 0 0 58%;
         display: flex;
         flex-direction: column;
         justify-content: center;
         align-items: center;
         overflow-y: auto;
         -webkit-overflow-scrolling: touch;
+        padding-right: 4px;
     }
 
     #clear-screen .clear-right-panel {
-        flex: 0 0 40%;
+        flex: 0 0 42%;
         display: flex;
         flex-direction: column;
         justify-content: center;
-        gap: 12px;
+        gap: 8px;
+        overflow-y: auto;
+        -webkit-overflow-scrolling: touch;
+        padding: 0 4px;
     }
 
     #clear-screen h2 {
-        font-size: 1.6em;
-        margin-bottom: 12px;
+        font-size: 1.3em;
+        margin-bottom: 8px;
+        line-height: 1.3;
     }
 
     #clear-screen .time-display-container {
         flex-direction: column;
-        gap: 10px;
-        margin: 12px 0;
+        gap: 8px;
+        margin: 8px 0;
     }
 
     #clear-screen .time-card {
         min-width: 100%;
-        padding: 16px;
+        padding: 12px;
+    }
+
+    #clear-screen .time-label {
+        font-size: 0.75em;
+    }
+
+    #clear-screen .time-value {
+        font-size: 1.3em;
     }
 
     #clear-screen #new-record-badge {
-        font-size: 1.2em;
-        margin: 8px 0;
+        font-size: 1em;
+        margin: 6px 0;
     }
 
     #clear-screen #cg-container {
@@ -888,19 +902,21 @@ body {
 
     #clear-screen #clear-image {
         max-width: 100%;
-        max-height: 70vh;
+        max-height: 65vh;
         object-fit: contain;
     }
 
     #clear-screen .clear-buttons {
-        margin-top: 12px;
-        gap: 10px;
+        margin-top: 8px;
+        gap: 8px;
     }
 
     #clear-screen .clear-buttons .btn {
-        min-height: 44px;
-        padding: 12px 16px;
-        font-size: 1em;
+        min-height: 40px;
+        padding: 10px 12px;
+        font-size: 0.9em;
+        line-height: 1.3;
+        white-space: normal;
     }
 
     /* ギャラリー画面の横持ちレイアウト */
