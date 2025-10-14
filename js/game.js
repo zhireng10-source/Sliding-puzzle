@@ -277,8 +277,27 @@ class SlidePuzzleGame {
             });
         });
 
-        document.getElementById('start-btn').addEventListener('click', () => {
+        // スタートボタン: タッチイベントとクリックイベントの両方に対応
+        const startBtn = document.getElementById('start-btn');
+        const startBtnHandler = () => {
             this.showScreen('select-screen');
+        };
+
+        // タッチイベントを優先的に処理
+        let touchHandled = false;
+        startBtn.addEventListener('touchend', (e) => {
+            e.preventDefault(); // デフォルトのタッチ動作を防止
+            touchHandled = true;
+            startBtnHandler();
+            // タッチイベント処理後、フラグをリセット
+            setTimeout(() => { touchHandled = false; }, 300);
+        }, { passive: false });
+
+        // クリックイベント（デスクトップ用、またはタッチイベントが処理されなかった場合）
+        startBtn.addEventListener('click', (e) => {
+            if (!touchHandled) {
+                startBtnHandler();
+            }
         });
 
         // サイズ選択ボタン
@@ -321,9 +340,24 @@ class SlidePuzzleGame {
             this.resetAllTimes();
         });
 
-        // ギャラリーボタン
-        document.getElementById('gallery-btn').addEventListener('click', () => {
+        // ギャラリーボタン: タッチイベントとクリックイベントの両方に対応
+        const galleryBtn = document.getElementById('gallery-btn');
+        const galleryBtnHandler = () => {
             this.showGallery();
+        };
+
+        let galleryTouchHandled = false;
+        galleryBtn.addEventListener('touchend', (e) => {
+            e.preventDefault();
+            galleryTouchHandled = true;
+            galleryBtnHandler();
+            setTimeout(() => { galleryTouchHandled = false; }, 300);
+        }, { passive: false });
+
+        galleryBtn.addEventListener('click', (e) => {
+            if (!galleryTouchHandled) {
+                galleryBtnHandler();
+            }
         });
 
         document.getElementById('back-to-title-gallery').addEventListener('click', () => {
