@@ -26,9 +26,15 @@ class SlidePuzzleGame {
         // 各サイズごとに50問分の画像パスを生成
         for (let size of [3, 4, 5]) {
             for (let i = 1; i <= 50; i++) {
-                this.problemImages[size][i] = `assets/img/${size}x${size}/problem${i}.jpg`;
+                // ゼロパディング（01, 02, ... 50）
+                const paddedNum = i.toString().padStart(2, '0');
+                this.problemImages[size][i] = `assets/img/${size}x${size}/problem${paddedNum}`;
             }
         }
+
+        // 画像の実際のファイル形式を検出するためのフラグ
+        this.imageExtensions = ['jpg', 'jpeg', 'png', 'webp'];
+        this.loadedImagePaths = {};
 
         this.init();
     }
@@ -164,7 +170,12 @@ class SlidePuzzleGame {
         }
 
         const img = document.createElement('img');
-        img.src = problem.imagePath;
+
+        // 画像パスを非同期で解決
+        this.detectImageExtension(problem.imagePath).then(fullPath => {
+            img.src = fullPath;
+        });
+
         img.alt = `${problem.size}×${problem.size} 第${problem.problemNum}問`;
 
         const info = document.createElement('div');
@@ -203,7 +214,11 @@ class SlidePuzzleGame {
         const modalTitle = document.getElementById('modal-title');
         const modalTime = document.getElementById('modal-time');
 
-        modalImage.src = problem.imagePath;
+        // 画像パスを非同期で解決
+        this.detectImageExtension(problem.imagePath).then(fullPath => {
+            modalImage.src = fullPath;
+        });
+
         modalTitle.textContent = `${problem.size}×${problem.size} 第${problem.problemNum}問`;
 
         if (problem.bestTime) {
@@ -217,6 +232,42 @@ class SlidePuzzleGame {
 
     closeModal() {
         document.getElementById('image-modal').classList.add('hidden');
+    }
+
+    async detectImageExtension(basePath) {
+        // キャッシュをチェック
+        if (this.loadedImagePaths[basePath]) {
+            return this.loadedImagePaths[basePath];
+        }
+
+        // 各拡張子を試して、存在する画像を見つける
+        for (let ext of this.imageExtensions) {
+            const fullPath = `${basePath}.${ext}`;
+            try {
+                const exists = await this.imageExists(fullPath);
+                if (exists) {
+                    this.loadedImagePaths[basePath] = fullPath;
+                    return fullPath;
+                }
+            } catch (e) {
+                // 次の拡張子を試す
+                continue;
+            }
+        }
+
+        // デフォルトは.jpg
+        const defaultPath = `${basePath}.jpg`;
+        this.loadedImagePaths[basePath] = defaultPath;
+        return defaultPath;
+    }
+
+    imageExists(url) {
+        return new Promise((resolve) => {
+            const img = new Image();
+            img.onload = () => resolve(true);
+            img.onerror = () => resolve(false);
+            img.src = url;
+        });
     }
 
     init() {
@@ -780,7 +831,7 @@ class SlidePuzzleGame {
         return moves;
     }
 
-    renderPuzzle() {
+    async renderPuzzle() {
         const puzzleGrid = document.getElementById('puzzle-grid');
         puzzleGrid.innerHTML = '';
 
@@ -788,6 +839,10 @@ class SlidePuzzleGame {
         puzzleGrid.className = `size-${this.gridSize}`;
 
         const tileSize = this.getTileSize();
+
+        // 画像パスを先に解決
+        const baseImagePath = this.getPuzzleImagePath();
+        const fullImagePath = await this.detectImageExtension(baseImagePath);
 
         for (let i = 0; i < this.totalTiles; i++) {
             const tile = document.createElement('div');
@@ -804,7 +859,7 @@ class SlidePuzzleGame {
                 const imageIndex = pieceNumber - 1; // 画像位置計算用（0から始まる）
                 const row = Math.floor(imageIndex / this.gridSize);
                 const col = imageIndex % this.gridSize;
-                tile.style.backgroundImage = `url(${this.getPuzzleImagePath()})`;
+                tile.style.backgroundImage = `url(${fullImagePath})`;
                 tile.style.backgroundPosition = `-${col * tileSize}px -${row * tileSize}px`;
 
                 // 番号を表示
@@ -1022,12 +1077,12 @@ class SlidePuzzleGame {
             return sizeImages[this.currentProblem];
         }
 
-        // フォールバック画像
+        // フォールバック画像（拡張子なし）
         switch (this.gridSize) {
-            case 3: return 'assets/img/puzzle3x3.jpg';
-            case 4: return 'assets/img/puzzle4x4.jpg';
-            case 5: return 'assets/img/puzzle5x5.jpg';
-            default: return 'assets/img/puzzle3x3.jpg';
+            case 3: return 'assets/img/puzzle3x3';
+            case 4: return 'assets/img/puzzle4x4';
+            case 5: return 'assets/img/puzzle5x5';
+            default: return 'assets/img/puzzle3x3';
         }
     }
 
@@ -1229,7 +1284,7 @@ class SlidePuzzleGame {
         } else {
             // 通常クリアの場合は画像を表示
             cgContainer.classList.remove('hidden');
-            const imagePath = this.getPuzzleImagePath();
+            const baseImagePath = this.getPuzzleImagePath();
 
             // 画像のloadedクラスを削除して初期化
             clearImage.classList.remove('loaded');
@@ -1238,24 +1293,27 @@ class SlidePuzzleGame {
             // 先に画面を表示してから画像を読み込む（点滅防止）
             this.showScreen('clear-screen');
 
-            // 画像を事前に読み込む
-            const preloadImage = new Image();
-            preloadImage.onload = () => {
-                // 画像が読み込まれたら設定
-                clearImage.src = imagePath;
-                // 少し遅延させてから画像を表示（スムーズな遷移）
-                setTimeout(() => {
-                    clearImage.classList.add('loaded');
-                }, 50);
-            };
-            preloadImage.onerror = () => {
-                // エラーの場合もとりあえず表示
-                clearImage.src = imagePath;
-                setTimeout(() => {
-                    clearImage.classList.add('loaded');
-                }, 50);
-            };
-            preloadImage.src = imagePath;
+            // 画像パスを解決してから画像を読み込む
+            this.detectImageExtension(baseImagePath).then(fullImagePath => {
+                // 画像を事前に読み込む
+                const preloadImage = new Image();
+                preloadImage.onload = () => {
+                    // 画像が読み込まれたら設定
+                    clearImage.src = fullImagePath;
+                    // 少し遅延させてから画像を表示（スムーズな遷移）
+                    setTimeout(() => {
+                        clearImage.classList.add('loaded');
+                    }, 50);
+                };
+                preloadImage.onerror = () => {
+                    // エラーの場合もとりあえず表示
+                    clearImage.src = fullImagePath;
+                    setTimeout(() => {
+                        clearImage.classList.add('loaded');
+                    }, 50);
+                };
+                preloadImage.src = fullImagePath;
+            });
         }
     }
 
