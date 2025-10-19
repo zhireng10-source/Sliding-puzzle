@@ -1439,13 +1439,18 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // NW.js環境でのウィンドウクローズ処理
     if (typeof nw !== 'undefined') {
-        nw.Window.get().on('close', function() {
+        const win = nw.Window.get();
+        win.on('close', function() {
             // タイマーをクリーンアップ
             if (game.timerInterval) {
                 clearInterval(game.timerInterval);
             }
-            // ウィンドウを閉じる
-            this.close(true);
+            // BGMを停止
+            if (window.soundManager) {
+                window.soundManager.stopAllSounds();
+            }
+            // 即座に強制終了（アプリケーションプロセス全体を終了）
+            nw.App.quit();
         });
     }
 });

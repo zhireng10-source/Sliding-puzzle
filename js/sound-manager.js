@@ -177,6 +177,22 @@ class SoundManager {
     }
 
     /**
+     * 全てのサウンド（効果音とBGM）を停止
+     */
+    stopAllSounds() {
+        // 全てのBGMを停止
+        this.stopBGM();
+
+        // 全ての効果音を停止
+        for (const sound of Object.values(this.sounds)) {
+            if (sound) {
+                sound.pause();
+                sound.currentTime = 0;
+            }
+        }
+    }
+
+    /**
      * BGMを一時停止
      */
     pauseBGM() {
