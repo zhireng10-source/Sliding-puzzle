@@ -1436,4 +1436,16 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         }, 500);
     }
+
+    // NW.js環境でのウィンドウクローズ処理
+    if (typeof nw !== 'undefined') {
+        nw.Window.get().on('close', function() {
+            // タイマーをクリーンアップ
+            if (game.timerInterval) {
+                clearInterval(game.timerInterval);
+            }
+            // ウィンドウを閉じる
+            this.close(true);
+        });
+    }
 });
