@@ -596,21 +596,21 @@ p, .body-text {
 }
 
 .btn.clear-btn {
-    /* 成功・完了アクション - やさしい緑 */
-    background: linear-gradient(135deg, var(--color-secondary), var(--color-secondary-dark));
+    /* 妖艶な色 - ピンクとパープルのグラデーション */
+    background: linear-gradient(135deg, #d946ef, #a855f7);
     font-size: var(--btn-size-primary);
     padding: 18px var(--spacing-xl);
     font-weight: var(--font-weight-semibold);
     /* 柔らかい丸みで成功を祝う */
     border-radius: var(--radius-round);
-    /* 控えめな緑の影 */
-    box-shadow: 0 4px 12px rgba(126, 211, 33, 0.2);
+    /* 妖艶なピンク・パープルの影 */
+    box-shadow: 0 4px 12px rgba(217, 70, 239, 0.3), 0 0 20px rgba(168, 85, 247, 0.2);
 }
 
 .btn.clear-btn:hover {
-    background: linear-gradient(135deg, var(--color-secondary-light), var(--color-secondary));
+    background: linear-gradient(135deg, #ec4899, #d946ef);
     transform: translateY(-2px);
-    box-shadow: 0 6px 20px rgba(126, 211, 33, 0.25);
+    box-shadow: 0 6px 20px rgba(236, 72, 153, 0.4), 0 0 30px rgba(217, 70, 239, 0.3);
 }
 
 /* ゲーム情報エリア - 鮮やかな配色 */

@@ -184,15 +184,17 @@ body {
         0 3px 6px rgba(74, 144, 226, 0.3);
 }
 
-/* クリアボタン - 緑の影 */
+/* クリアボタン - 妖艶なピンク・パープルの影 */
 .btn.clear-btn {
-    box-shadow: var(--shadow-secondary);
+    box-shadow:
+        0 4px 12px rgba(217, 70, 239, 0.3),
+        0 0 20px rgba(168, 85, 247, 0.2);
 }
 
 .btn.clear-btn:hover {
     box-shadow:
-        0 6px 16px rgba(126, 211, 33, 0.4),
-        0 3px 6px rgba(126, 211, 33, 0.3);
+        0 6px 20px rgba(236, 72, 153, 0.4),
+        0 0 30px rgba(217, 70, 239, 0.3);
 }
 
 /* リセットボタン - 赤の影 */

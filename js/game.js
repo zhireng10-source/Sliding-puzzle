@@ -191,7 +191,7 @@ class SlidePuzzleGame {
         if (problem.bestTime) {
             time.textContent = `ベスト: ${this.formatTime(problem.bestTime)}`;
         } else {
-            time.textContent = 'すぐクリアのみ';
+            time.textContent = '即堕ちのみ';
             time.classList.add('forced-clear-text');
         }
 
@@ -224,7 +224,7 @@ class SlidePuzzleGame {
         if (problem.bestTime) {
             modalTime.textContent = `ベストタイム: ${this.formatTime(problem.bestTime)}`;
         } else {
-            modalTime.textContent = 'すぐクリアのみ（正式なクリア記録なし）';
+            modalTime.textContent = '即堕ちのみ（正式なクリア記録なし）';
         }
 
         modal.classList.remove('hidden');
@@ -628,7 +628,7 @@ class SlidePuzzleGame {
                 btn.dataset.cleared = 'true';
                 btn.dataset.hasTime = 'true';
             } else if (isCleared) {
-                ariaLabel += ' すぐクリアのみ';
+                ariaLabel += ' 即堕ちのみ';
                 btn.dataset.cleared = 'true';
                 btn.dataset.forcedOnly = 'true';
             } else {
@@ -656,8 +656,8 @@ class SlidePuzzleGame {
                 bestTimeElement.textContent = `ベスト: ${bestTimeString}`;
                 bestTimeElement.className = 'problem-best-time';
             } else if (isCleared) {
-                // すぐクリアのみの場合
-                bestTimeElement.textContent = 'すぐクリアのみ';
+                // 即堕ちのみの場合
+                bestTimeElement.textContent = '即堕ちのみ';
                 bestTimeElement.className = 'problem-best-time forced-clear-text';
             } else {
                 // 未クリアの場合
@@ -1202,10 +1202,10 @@ class SlidePuzzleGame {
         bestTimeCard.classList.add('hidden');
 
         if (this.isForcedClear) {
-            // すぐクリアの場合
+            // 即堕ちの場合
             const bestTime = this.getBestTime(this.gridSize, this.currentProblem);
 
-            clearTimeCard.querySelector('.time-value').textContent = 'すぐクリア';
+            clearTimeCard.querySelector('.time-value').textContent = '即堕ち';
 
             if (bestTime) {
                 bestTimeCard.querySelector('.time-value').textContent = this.formatTime(bestTime);
@@ -1278,7 +1278,7 @@ class SlidePuzzleGame {
         const cgContainer = document.getElementById('cg-container');
 
         if (this.isForcedClear) {
-            // すぐクリアの場合は画像を非表示
+            // 即堕ちの場合は画像を非表示
             cgContainer.classList.add('hidden');
             this.showScreen('clear-screen');
         } else {
