@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>スライドパズル</title>
+    <title>爆乳スライドパズル Vol.1 チアガール 花宮チアリ</title>
     <link rel="stylesheet" href="css/typography.css">
     <link rel="stylesheet" href="css/style.css">
     <link rel="stylesheet" href="css/animations.css">
@@ -11,6 +11,7 @@
     <link rel="stylesheet" href="css/micro-interactions.css">
     <link rel="stylesheet" href="css/depth-design.css">
     <link rel="stylesheet" href="css/responsive.css">
+    <link rel="stylesheet" href="css/clicker.css">
 </head>
 <body>
     <!-- タイトル画面 -->
@@ -27,15 +28,15 @@
         <h2>パズルサイズを選択</h2>
         <div class="size-buttons">
             <button id="size-3x3" class="size-btn" data-size="3">
-                <div class="size-title">3×3 ゴブリン</div>
+                <div class="size-title">3×3 フェラ</div>
                 <div class="size-desc">簡単</div>
             </button>
             <button id="size-4x4" class="size-btn" data-size="4">
-                <div class="size-title">4×4 触手</div>
+                <div class="size-title">4×4 パイズリ</div>
                 <div class="size-desc">普通</div>
             </button>
             <button id="size-5x5" class="size-btn" data-size="5">
-                <div class="size-title">5×5 オーク</div>
+                <div class="size-title">5×5 中出し</div>
                 <div class="size-desc">難しい</div>
             </button>
         </div>
@@ -82,6 +83,7 @@
             <!-- 操作ボタンエリア -->
             <div class="game-controls">
                 <button id="force-clear" class="btn clear-btn">即堕ち</button>
+                <button id="debug-bonus" class="btn" style="background: linear-gradient(135deg, #ffd700 0%, #ffed4e 100%); color: #333;">🎮 デバッグ：ボーナスステージ</button>
                 <button id="back-to-select" class="btn secondary">問題選択に戻る</button>
             </div>
         </div>
@@ -110,6 +112,10 @@
                 </div>
             </div>
             <div id="new-record-badge" class="hidden">🎉 NEW RECORD!</div>
+            <div id="bonus-stage-offer" class="hidden">
+                <div class="bonus-message">🎉 ボーナスステージ解放！</div>
+                <button id="start-clicker-bonus" class="btn bonus-btn">ボーナスステージへ</button>
+            </div>
             <div class="clear-buttons">
                 <button id="retry-btn" class="btn">同じ問題に再挑戦</button>
                 <button id="back-to-select-clear" class="btn secondary">問題選択に戻る</button>
@@ -119,11 +125,25 @@
 
     <!-- ギャラリー画面 -->
     <div id="gallery-screen" class="screen hidden">
-        <h2>ギャラリー</h2>
+        <div class="gallery-header">
+            <h2>ギャラリー</h2>
+            <button id="back-to-title-gallery" class="btn secondary gallery-back-btn">タイトルに戻る</button>
+        </div>
         <div class="gallery-size-tabs">
             <button class="gallery-tab-btn active" data-size="3">3×3</button>
             <button class="gallery-tab-btn" data-size="4">4×4</button>
             <button class="gallery-tab-btn" data-size="5">5×5</button>
+            <button class="gallery-tab-btn" data-size="bonus">おまけ</button>
+        </div>
+        <div id="bonus-unlock-rate-display" class="hidden">
+            <div class="unlock-rate-container">
+                <div class="unlock-rate-label">おまけCG解放率</div>
+                <div class="unlock-rate-progress">
+                    <div id="unlock-rate-bar" class="unlock-rate-bar"></div>
+                    <div id="unlock-rate-text" class="unlock-rate-text">0/100 (0%)</div>
+                </div>
+                <button id="reset-bonus-cg-btn" class="btn reset-btn bonus-reset-btn">解放率をリセット</button>
+            </div>
         </div>
         <div id="gallery-content">
             <div class="gallery-grid" id="gallery-3x3">
@@ -135,8 +155,59 @@
             <div class="gallery-grid hidden" id="gallery-5x5">
                 <!-- 5×5のギャラリーアイテムがここに動的に追加される -->
             </div>
+            <div class="gallery-grid hidden" id="gallery-bonus">
+                <!-- おまけCGのギャラリーアイテムがここに動的に追加される -->
+            </div>
         </div>
-        <button id="back-to-title-gallery" class="btn secondary">タイトルに戻る</button>
+        <button id="back-to-title-gallery-bottom" class="btn secondary gallery-back-btn">タイトルに戻る</button>
+    </div>
+
+    <!-- クリッカーゲーム画面 -->
+    <div id="clicker-screen" class="screen hidden">
+        <!-- CG表示エリア -->
+        <div id="clicker-cg-area">
+            <!-- CG画像 -->
+            <img id="clicker-cg-image" alt="CG画像">
+
+            <!-- 快楽度ゲージ -->
+            <div id="clicker-pleasure-gauge">
+                <div class="gauge-label">快楽度</div>
+                <div class="gauge-bg">
+                    <div id="pleasure-gauge-bar"></div>
+                    <div id="pleasure-percentage">0%</div>
+                </div>
+            </div>
+
+            <!-- リアクション吹き出し -->
+            <div id="reaction-bubble" class="hidden"></div>
+
+            <!-- ヘルプボタン -->
+            <button id="clicker-help-btn" class="clicker-control-btn">❓</button>
+
+            <!-- 終了ボタン -->
+            <button id="clicker-exit-btn" class="clicker-control-btn">終了</button>
+
+            <!-- おまけCG解放ボタン（100%達成時に表示） -->
+            <button id="unlock-bonus-cg-btn" class="btn bonus-unlock-btn hidden">🎉 おまけCGを見る</button>
+        </div>
+    </div>
+
+    <!-- 解放CG表示画面 -->
+    <div id="unlocked-cg-screen" class="screen hidden">
+        <div class="unlocked-cg-container">
+            <h2 class="unlocked-title">🎉 おまけCG解放！</h2>
+            <div class="unlocked-cg-image-container">
+                <img id="unlocked-cg-image" alt="解放されたCG">
+            </div>
+            <div class="unlocked-cg-info">
+                <p id="unlocked-cg-name" class="unlocked-cg-name"></p>
+                <p id="unlocked-cg-progress" class="unlocked-cg-progress"></p>
+            </div>
+            <div class="unlocked-buttons">
+                <button id="next-unlocked-cg" class="btn btn-primary hidden">次へ</button>
+                <button id="back-to-title-unlocked" class="btn">トップに戻る</button>
+            </div>
+        </div>
     </div>
 
     <!-- 画像拡大表示モーダル -->
@@ -161,12 +232,15 @@
     <div class="tooltip" id="tooltip"></div>
 
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.2/dist/confetti.browser.min.js"></script>
+    <script src="js/save-manager.js"></script>
     <script src="js/sound-manager.js"></script>
     <script src="js/particles.js"></script>
     <script src="js/animations.js"></script>
     <script src="js/feedback.js"></script>
     <script src="js/micro-interactions.js"></script>
     <script src="js/depth-manager.js"></script>
+    <script src="js/reactions-data.js"></script>
+    <script src="js/clicker-game.js"></script>
     <script src="js/game.js"></script>
 </body>
 </html>

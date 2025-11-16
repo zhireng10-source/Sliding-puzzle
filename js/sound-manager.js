@@ -5,11 +5,24 @@
 class SoundManager {
     constructor() {
         this.sounds = {};
+        this.voiceSounds = []; // 音声ファイル配列
+        this.finishVoiceSounds = []; // 絶頂演出用音声ファイル配列
+        this.isVoicePlaying = false; // 音声再生中フラグ
+        this.currentVoice = null; // 現在再生中の音声
         this.bgm = null;
         this.isMuted = false;
         this.isBGMMuted = false; // BGMはデフォルトで再生
-        this.volume = 0.5;
-        this.bgmVolume = 0.3;
+        this.volume = 0.4;       // 効果音音量（小さめ）
+        this.bgmVolume = 0.12;   // BGM音量（小さめ）
+
+        // ボーナスステージ用の音量設定
+        this.bonusBgmVolume = 0.1;   // ボーナスステージのBGM音量（さらに小さめ）
+        this.bonusVoiceVolume = 1.0; // ボーナスステージのボイス音量（最大）
+        this.finishVoiceVolume = 1.0; // 絶頂演出時のボイス音量（最大）
+        this.omakeBgmVolume = 0.08;   // おまけCG解放画面のBGM音量（小さめ）
+        this.defaultVolume = 0.4;     // 通常の効果音音量
+        this.defaultBgmVolume = 0.12; // 通常のBGM音量
+        this.isBonusMode = false;     // ボーナスモードフラグ
 
         this.initSounds();
         this.loadMuteState();
@@ -70,6 +83,20 @@ class SoundManager {
             console.warn('クリアBGMの読み込みに失敗', e);
         });
 
+        this.bonusBGM = new Audio('assets/sound/bgm/bonus.mp3');
+        this.bonusBGM.volume = this.bgmVolume;
+        this.bonusBGM.loop = true;
+        this.bonusBGM.addEventListener('error', (e) => {
+            console.warn('ボーナスBGMの読み込みに失敗', e);
+        });
+
+        this.omakeBGM = new Audio('assets/sound/bgm/omake.mp3');
+        this.omakeBGM.volume = this.omakeBgmVolume;
+        this.omakeBGM.loop = true;
+        this.omakeBGM.addEventListener('error', (e) => {
+            console.warn('おまけBGMの読み込みに失敗', e);
+        });
+
         this.bgm = new Audio('assets/sound/bgm-gameplay.mp3');
         this.bgm.volume = this.bgmVolume;
         this.bgm.loop = true;
@@ -77,16 +104,70 @@ class SoundManager {
             console.warn('BGMの読み込みに失敗', e);
         });
 
+        // ボーナスステージ用効果音（ループ再生用）
+        this.bonusEffectSound = new Audio('assets/sound/effects/kuchu.opus');
+        this.bonusEffectSound.volume = 0.15; // 効果音音量（小さめ）
+        this.bonusEffectSound.loop = true;
+        this.bonusEffectSound.addEventListener('error', (e) => {
+            console.warn('ボーナス効果音の読み込みに失敗', e);
+        });
+
         // デフォルトはタイトルBGMを使用
         this.currentBGM = this.titleBGM;
+
+        // 音声ファイルをロード（ボーナスステージ用）
+        const voiceFiles = [
+            'assets/voice/10_喘ぎ声（小）1.wav',
+            'assets/voice/11_喘ぎ声（小）2.wav',
+            'assets/voice/12_喘ぎ声（小）3.wav',
+            'assets/voice/13_喘ぎ声（小）4.wav',
+            'assets/voice/14_喘ぎ声（中）1.wav',
+            'assets/voice/15_喘ぎ声（中）2.wav',
+            'assets/voice/16_喘ぎ声（大）1.wav',
+            'assets/voice/17_喘ぎ声（大）2.wav',
+            'assets/voice/18_喘ぎ声（大）3.wav'
+        ];
+
+        voiceFiles.forEach((path, index) => {
+            const audio = new Audio(path);
+            audio.volume = this.volume;
+            audio.addEventListener('error', (e) => {
+                console.warn(`音声ファイルの読み込みに失敗: ${path}`, e);
+            });
+            this.voiceSounds.push(audio);
+        });
+
+        // 絶頂演出用音声ファイルをロード（assets/voice/finishフォルダ内）
+        const finishVoiceFiles = [
+            'assets/voice/finish/30_セリフ2.wav',
+            'assets/voice/finish/31_セリフ3.wav',
+            'assets/voice/finish/32_セリフ4.wav',
+            'assets/voice/finish/33_セリフ5.wav',
+            'assets/voice/finish/34_セリフ6.wav'
+        ];
+
+        finishVoiceFiles.forEach((path, index) => {
+            const audio = new Audio(path);
+            audio.volume = this.volume;
+            audio.addEventListener('error', (e) => {
+                console.warn(`絶頂演出用音声ファイルの読み込みに失敗: ${path}`, e);
+            });
+            this.finishVoiceSounds.push(audio);
+        });
     }
 
     /**
-     * ミュート状態をLocalStorageから読み込み
+     * ミュート状態をsaveManagerから読み込み
      */
     loadMuteState() {
-        const savedMuteState = localStorage.getItem('soundMuted');
-        const savedBGMMuteState = localStorage.getItem('bgmMuted');
+        // saveManagerが初期化されるまで待機
+        if (!window.saveManager) {
+            setTimeout(() => this.loadMuteState(), 100);
+            return;
+        }
+
+        const savedMuteState = window.saveManager.getItem('soundMuted');
+        const savedBGMMuteState = window.saveManager.getItem('bgmMuted');
 
         if (savedMuteState !== null) {
             this.isMuted = savedMuteState === 'true';
@@ -98,11 +179,13 @@ class SoundManager {
     }
 
     /**
-     * ミュート状態をLocalStorageに保存
+     * ミュート状態をsaveManagerに保存
      */
     saveMuteState() {
-        localStorage.setItem('soundMuted', this.isMuted.toString());
-        localStorage.setItem('bgmMuted', this.isBGMMuted.toString());
+        if (window.saveManager) {
+            window.saveManager.setItem('soundMuted', this.isMuted.toString());
+            window.saveManager.setItem('bgmMuted', this.isBGMMuted.toString());
+        }
     }
 
     /**
@@ -170,6 +253,14 @@ class SoundManager {
             this.clearBGM.pause();
             this.clearBGM.currentTime = 0;
         }
+        if (this.bonusBGM) {
+            this.bonusBGM.pause();
+            this.bonusBGM.currentTime = 0;
+        }
+        if (this.omakeBGM) {
+            this.omakeBGM.pause();
+            this.omakeBGM.currentTime = 0;
+        }
         if (this.bgm) {
             this.bgm.pause();
             this.bgm.currentTime = 0;
@@ -223,6 +314,13 @@ class SoundManager {
             return;
         }
         this.stopBGM();
+
+        // ボーナスモードをOFFにして音量を元に戻す
+        if (this.isBonusMode) {
+            this.isBonusMode = false;
+            console.log('通常モードに戻しました');
+        }
+
         this.currentBGM = this.titleBGM;
         this.playBGM();
     }
@@ -238,6 +336,13 @@ class SoundManager {
             return;
         }
         this.stopBGM();
+
+        // ボーナスモードをOFFにして音量を元に戻す
+        if (this.isBonusMode) {
+            this.isBonusMode = false;
+            console.log('通常モードに戻しました');
+        }
+
         this.currentBGM = this.puzzleBGM;
         this.playBGM();
     }
@@ -253,6 +358,13 @@ class SoundManager {
             return;
         }
         this.stopBGM();
+
+        // ボーナスモードをOFFにして音量を元に戻す
+        if (this.isBonusMode) {
+            this.isBonusMode = false;
+            console.log('通常モードに戻しました');
+        }
+
         this.currentBGM = this.galleryBGM;
         this.playBGM();
     }
@@ -268,7 +380,35 @@ class SoundManager {
             return;
         }
         this.stopBGM();
+
+        // ボーナスモードをOFFにして音量を元に戻す
+        if (this.isBonusMode) {
+            this.isBonusMode = false;
+            console.log('通常モードに戻しました');
+        }
+
         this.currentBGM = this.clearBGM;
+        this.playBGM();
+    }
+
+    /**
+     * ボーナスBGMに切り替え
+     */
+    switchToBonusBGM() {
+        console.log('ボーナスBGMに切り替え - isBGMMuted:', this.isBGMMuted);
+        // 既にボーナスBGMが再生中の場合は何もしない
+        if (this.currentBGM === this.bonusBGM && !this.bonusBGM.paused) {
+            console.log('ボーナスBGMは既に再生中');
+            return;
+        }
+        this.stopBGM();
+
+        // ボーナスモードをONにして音量を調整
+        this.isBonusMode = true;
+        this.bonusBGM.volume = this.bonusBgmVolume;
+        console.log('ボーナスステージ音量設定 - BGM:', this.bonusBgmVolume, 'ボイス:', this.bonusVoiceVolume);
+
+        this.currentBGM = this.bonusBGM;
         this.playBGM();
     }
 
@@ -283,7 +423,36 @@ class SoundManager {
             return;
         }
         this.stopBGM();
+
+        // ボーナスモードをOFFにして音量を元に戻す
+        if (this.isBonusMode) {
+            this.isBonusMode = false;
+            console.log('通常モードに戻しました');
+        }
+
         this.currentBGM = this.bgm;
+        this.playBGM();
+    }
+
+    /**
+     * おまけBGMに切り替え
+     */
+    switchToOmakeBGM() {
+        console.log('おまけBGMに切り替え - isBGMMuted:', this.isBGMMuted);
+        // 既におまけBGMが再生中の場合は何もしない
+        if (this.currentBGM === this.omakeBGM && !this.omakeBGM.paused) {
+            console.log('おまけBGMは既に再生中');
+            return;
+        }
+        this.stopBGM();
+
+        // ボーナスモードをOFFにして音量を元に戻す
+        if (this.isBonusMode) {
+            this.isBonusMode = false;
+            console.log('通常モードに戻しました');
+        }
+
+        this.currentBGM = this.omakeBGM;
         this.playBGM();
     }
 
@@ -346,6 +515,12 @@ class SoundManager {
         if (this.clearBGM) {
             this.clearBGM.volume = this.bgmVolume;
         }
+        if (this.bonusBGM) {
+            this.bonusBGM.volume = this.bgmVolume;
+        }
+        if (this.omakeBGM) {
+            this.omakeBGM.volume = this.omakeBgmVolume;
+        }
         if (this.bgm) {
             this.bgm.volume = this.bgmVolume;
         }
@@ -398,6 +573,246 @@ class SoundManager {
      */
     playScreenTransition() {
         this.play('screenTransition');
+    }
+
+    /**
+     * ランダムに音声を再生（ボーナスステージ用）
+     */
+    playRandomVoice() {
+        // ミュート中、または音声ファイルがない場合はスキップ
+        if (this.isMuted || this.voiceSounds.length === 0) {
+            return;
+        }
+
+        try {
+            // 既に音声が再生中の場合は停止してから新しい音声を再生
+            if (this.isVoicePlaying && this.currentVoice) {
+                this.currentVoice.pause();
+                this.currentVoice.currentTime = 0;
+            }
+
+            // ランダムに音声を選択
+            const randomIndex = Math.floor(Math.random() * this.voiceSounds.length);
+            const voice = this.voiceSounds[randomIndex].cloneNode();
+
+            // ボーナスモード時はボイス音量を大きくする
+            voice.volume = this.isBonusMode ? this.bonusVoiceVolume : this.volume;
+
+            // 音声要素をDOMに追加（停止処理で検出できるように）
+            voice.style.display = 'none';
+            voice.classList.add('temp-voice');
+            document.body.appendChild(voice);
+
+            console.log(`🎵 ランダムボイス再生: ${randomIndex + 1}/${this.voiceSounds.length} (音量: ${voice.volume})`);
+
+            // 現在の音声を保存
+            this.currentVoice = voice;
+
+            // 再生中フラグをtrueに設定
+            this.isVoicePlaying = true;
+
+            // 音声再生終了時にフラグをリセット＆DOMから削除
+            voice.addEventListener('ended', () => {
+                this.isVoicePlaying = false;
+                this.currentVoice = null;
+                if (voice.parentNode) {
+                    voice.parentNode.removeChild(voice);
+                }
+            });
+
+            // エラー時もフラグをリセット＆DOMから削除
+            voice.addEventListener('error', () => {
+                this.isVoicePlaying = false;
+                this.currentVoice = null;
+                if (voice.parentNode) {
+                    voice.parentNode.removeChild(voice);
+                }
+            });
+
+            voice.play().catch((e) => {
+                console.warn('音声の再生に失敗', e);
+                this.isVoicePlaying = false; // エラー時もフラグをリセット
+                this.currentVoice = null;
+                // DOMから削除
+                if (voice.parentNode) {
+                    voice.parentNode.removeChild(voice);
+                }
+            });
+        } catch (e) {
+            console.warn('音声の再生エラー', e);
+            this.isVoicePlaying = false;
+            this.currentVoice = null;
+            // DOMから削除
+            if (voice && voice.parentNode) {
+                voice.parentNode.removeChild(voice);
+            }
+        }
+    }
+
+    /**
+     * 絶頂演出用音声をランダムに再生
+     */
+    playFinishVoice() {
+        console.log('🎉 playFinishVoice呼び出し - ミュート:', this.isMuted, 'ファイル数:', this.finishVoiceSounds.length);
+
+        // ミュート中、または音声ファイルがない場合はスキップ
+        if (this.isMuted || this.finishVoiceSounds.length === 0) {
+            console.warn('⚠️ 絶頂ボイス再生スキップ - ミュート:', this.isMuted, 'ファイル数:', this.finishVoiceSounds.length);
+            return;
+        }
+
+        try {
+            // 既存の音声を停止
+            this.stopVoice();
+
+            // ランダムに音声を選択
+            const randomIndex = Math.floor(Math.random() * this.finishVoiceSounds.length);
+            const voice = this.finishVoiceSounds[randomIndex].cloneNode();
+
+            console.log(`🎵 絶頂ボイス選択: ${randomIndex + 1}/${this.finishVoiceSounds.length}`);
+
+            // 絶頂演出時は音量を最大にする
+            voice.volume = this.finishVoiceVolume;
+            console.log('🔊 絶頂ボイス音量:', voice.volume);
+
+            // 音声要素をDOMに追加（停止処理で検出できるように）
+            voice.style.display = 'none';
+            voice.classList.add('temp-voice');
+            document.body.appendChild(voice);
+
+            // 現在の音声を保存
+            this.currentVoice = voice;
+
+            // 再生中フラグをtrueに設定
+            this.isVoicePlaying = true;
+
+            // 音声再生終了時にフラグをリセット＆DOMから削除
+            voice.addEventListener('ended', () => {
+                this.isVoicePlaying = false;
+                this.currentVoice = null;
+                if (voice.parentNode) {
+                    voice.parentNode.removeChild(voice);
+                }
+                console.log('✅ 絶頂ボイス再生完了');
+            });
+
+            // エラー時もフラグをリセット＆DOMから削除
+            voice.addEventListener('error', (e) => {
+                this.isVoicePlaying = false;
+                this.currentVoice = null;
+                if (voice.parentNode) {
+                    voice.parentNode.removeChild(voice);
+                }
+                console.error('❌ 絶頂ボイス再生エラー:', e);
+            });
+
+            // 再生開始
+            voice.play()
+                .then(() => {
+                    console.log('▶️ 絶頂ボイス再生開始成功');
+                })
+                .catch((e) => {
+                    console.error('❌ 絶頂演出用音声の再生に失敗:', e);
+                    this.isVoicePlaying = false;
+                    this.currentVoice = null;
+                    // DOMから削除
+                    if (voice.parentNode) {
+                        voice.parentNode.removeChild(voice);
+                    }
+                });
+        } catch (e) {
+            console.error('❌ 絶頂演出用音声の再生エラー:', e);
+            this.isVoicePlaying = false;
+            this.currentVoice = null;
+            // DOMから削除
+            if (voice && voice.parentNode) {
+                voice.parentNode.removeChild(voice);
+            }
+        }
+    }
+
+    /**
+     * ボーナスステージ用効果音を再生
+     */
+    playBonusEffect() {
+        if (this.isMuted || !this.bonusEffectSound) {
+            console.log('ボーナス効果音再生スキップ - ミュート:', this.isMuted);
+            return;
+        }
+
+        // 既に再生中の場合は何もしない
+        if (!this.bonusEffectSound.paused) {
+            console.log('ボーナス効果音は既に再生中');
+            return;
+        }
+
+        this.bonusEffectSound.currentTime = 0;
+        this.bonusEffectSound.play()
+            .then(() => {
+                console.log('✅ ボーナス効果音再生開始');
+            })
+            .catch((e) => {
+                console.warn('❌ ボーナス効果音の再生に失敗', e);
+            });
+    }
+
+    /**
+     * ボーナスステージ用効果音を停止
+     */
+    stopBonusEffect() {
+        if (this.bonusEffectSound) {
+            this.bonusEffectSound.pause();
+            this.bonusEffectSound.currentTime = 0;
+            console.log('🛑 ボーナス効果音を停止');
+        }
+    }
+
+    /**
+     * 再生中の音声を停止
+     */
+    stopVoice() {
+        console.log('🔇 stopVoice呼び出し - currentVoice:', this.currentVoice ? '存在する' : 'null', 'isVoicePlaying:', this.isVoicePlaying);
+
+        // currentVoiceを停止
+        if (this.currentVoice) {
+            try {
+                console.log('🛑 音声を停止中... paused:', this.currentVoice.paused, 'currentTime:', this.currentVoice.currentTime);
+                this.currentVoice.pause();
+                this.currentVoice.currentTime = 0;
+
+                // DOMから削除
+                if (this.currentVoice.parentNode) {
+                    this.currentVoice.parentNode.removeChild(this.currentVoice);
+                }
+
+                this.currentVoice = null;
+                this.isVoicePlaying = false;
+                console.log('✅ 音声を停止しました');
+            } catch (e) {
+                console.warn('❌ 音声停止エラー:', e);
+            }
+        } else {
+            console.log('⚠️ 停止する音声がありません（currentVoice is null）');
+        }
+
+        // 念のため、全てのaudio要素を強制停止（取りこぼしを防ぐ）
+        try {
+            const allAudios = document.querySelectorAll('audio');
+            let stoppedCount = 0;
+            allAudios.forEach((audio) => {
+                if (!audio.paused && !audio.src.includes('bgm')) {
+                    console.log('🛑 未停止の音声を発見して停止:', audio.src);
+                    audio.pause();
+                    audio.currentTime = 0;
+                    stoppedCount++;
+                }
+            });
+            if (stoppedCount > 0) {
+                console.log(`✅ ${stoppedCount}個の追加音声を停止しました`);
+            }
+        } catch (e) {
+            console.warn('❌ 全audio要素の停止エラー:', e);
+        }
     }
 }
 

@@ -1,0 +1,872 @@
+/* クリッカーゲーム専用CSS */
+
+/* クリッカー画面全体 */
+#clicker-screen {
+    background: #000 !important;
+    backdrop-filter: none !important;
+    border-radius: 0 !important;
+    padding: 0 !important;
+    box-shadow: none !important;
+    max-width: 100vw !important;
+    width: 100vw !important;
+    height: 100vh !important;
+    display: flex !important;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    border: none !important;
+    margin: 0 !important;
+    position: fixed !important;
+    top: 0 !important;
+    left: 0 !important;
+}
+
+/* CG表示エリア */
+#clicker-cg-area {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: #000 !important;
+    cursor: pointer;
+    user-select: none;
+    z-index: 1;
+}
+
+/* CG画像 */
+#clicker-cg-image {
+    position: absolute;
+    top: 50%;
+    left: 48%;
+    transform: translate(-50%, -50%);
+    max-width: 90vw;
+    max-height: 95vh;
+    width: auto;
+    height: auto;
+    object-fit: contain;
+    z-index: 10;
+    pointer-events: none;
+    border-radius: 15px;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.7);
+}
+
+/* 快楽度ゲージ（画面右側） */
+#clicker-pleasure-gauge {
+    position: fixed;
+    right: 20px;
+    top: 50%;
+    transform: translateY(-50%);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    z-index: 200;
+}
+
+.gauge-label {
+    color: #fff;
+    font-size: 14px;
+    font-weight: bold;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.8);
+    writing-mode: vertical-rl;
+    text-orientation: upright;
+}
+
+.gauge-bg {
+    width: 50px;
+    height: 380px;
+    max-height: 60vh;
+    background: rgba(0, 0, 0, 0.8);
+    border: 3px solid rgba(255, 255, 255, 0.5);
+    border-radius: 25px;
+    position: relative;
+    overflow: hidden;
+    box-shadow:
+        0 0 20px rgba(0, 0, 0, 0.8),
+        inset 0 0 10px rgba(0, 0, 0, 0.5);
+}
+
+#pleasure-gauge-bar {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: 0%;
+    background: linear-gradient(to top,
+        #4facfe 0%,
+        #00f2fe 20%,
+        #ff6ec7 45%,
+        #ff0080 70%,
+        #ff0000 90%,
+        #ff66ff 100%
+    );
+    transition: height 0.3s ease;
+    border-radius: 22px;
+    box-shadow:
+        0 0 20px rgba(255, 110, 199, 0.5),
+        inset 0 0 10px rgba(255, 255, 255, 0.2);
+}
+
+#pleasure-percentage {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    color: #fff;
+    font-size: 18px;
+    font-weight: bold;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.9);
+    z-index: 10;
+}
+
+/* リアクション吹き出し */
+#reaction-bubble {
+    position: fixed;
+    transform: translate(-50%, -50%);
+    background: linear-gradient(135deg, #ff6ec7 0%, #ff85d4 50%, #ffa8e1 100%);
+    border: 4px solid #fff;
+    border-radius: 30px;
+    padding: 20px 40px;
+    color: #fff;
+    font-size: 24px;
+    font-weight: bold;
+    text-shadow:
+        2px 2px 4px rgba(0, 0, 0, 0.5),
+        0 0 10px rgba(255, 255, 255, 0.3);
+    box-shadow:
+        0 8px 20px rgba(255, 110, 199, 0.6),
+        0 0 30px rgba(255, 110, 199, 0.4);
+    opacity: 0;
+    pointer-events: none;
+    z-index: 300;
+    max-width: 500px;
+    min-width: 200px;
+    text-align: center;
+    line-height: 1.4;
+    transition: opacity 0.3s ease;
+    word-wrap: break-word;
+}
+
+#reaction-bubble.show {
+    opacity: 1;
+}
+
+#reaction-bubble.shake {
+    animation: shake 0.5s infinite;
+}
+
+/* コントロールボタン共通 */
+.clicker-control-btn {
+    position: fixed;
+    padding: 15px 30px;
+    font-size: 18px;
+    font-weight: bold;
+    border: 2px solid rgba(255, 255, 255, 0.3);
+    border-radius: 12px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow:
+        0 4px 15px rgba(0, 0, 0, 0.4),
+        inset 0 1px 0 rgba(255, 255, 255, 0.2);
+    z-index: 250;
+    backdrop-filter: blur(10px);
+}
+
+.clicker-control-btn:hover {
+    transform: scale(1.08) translateY(-2px);
+    box-shadow:
+        0 6px 25px rgba(0, 0, 0, 0.5),
+        inset 0 1px 0 rgba(255, 255, 255, 0.3);
+    border-color: rgba(255, 255, 255, 0.5);
+}
+
+.clicker-control-btn:active {
+    transform: scale(0.98);
+    box-shadow:
+        0 2px 10px rgba(0, 0, 0, 0.4),
+        inset 0 1px 0 rgba(255, 255, 255, 0.2);
+}
+
+#clicker-help-btn {
+    top: 20px;
+    right: 20px;
+    width: 52px;
+    height: 52px;
+    background: linear-gradient(135deg, #60a5fa 0%, #3b82f6 100%);
+    color: #fff;
+    border: 3px solid rgba(255, 255, 255, 0.6);
+    font-size: 28px;
+    border-radius: 50%;
+    padding: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow:
+        0 4px 15px rgba(59, 130, 246, 0.5),
+        inset 0 1px 0 rgba(255, 255, 255, 0.3);
+}
+
+#clicker-help-btn:hover {
+    background: linear-gradient(135deg, #7bb4ff 0%, #5097ff 100%);
+    border-color: rgba(255, 255, 255, 0.8);
+    box-shadow:
+        0 6px 25px rgba(59, 130, 246, 0.7),
+        inset 0 1px 0 rgba(255, 255, 255, 0.4);
+}
+
+#clicker-exit-btn {
+    bottom: 30px;
+    right: 30px;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: #fff;
+    border-color: rgba(102, 126, 234, 0.5);
+}
+
+#clicker-exit-btn:hover {
+    background: linear-gradient(135deg, #7c8fef 0%, #8a5bb7 100%);
+}
+
+/* おまけCG解放ボタン */
+.bonus-unlock-btn {
+    position: fixed !important;
+    bottom: 30px;
+    left: 50% !important;
+    transform: translateX(-50%) !important;
+    padding: 20px 50px;
+    font-size: 26px;
+    font-weight: bold;
+    background: linear-gradient(135deg, #ffd700 0%, #ffed4e 50%, #ffd700 100%);
+    background-size: 200% 200%;
+    color: #333;
+    border: 4px solid #fff;
+    border-radius: 20px;
+    cursor: pointer;
+    box-shadow:
+        0 0 30px rgba(255, 215, 0, 0.8),
+        0 8px 20px rgba(0, 0, 0, 0.5),
+        inset 0 2px 0 rgba(255, 255, 255, 0.5);
+    z-index: 250;
+    transition: all 0.3s ease;
+    animation: pulse 1.5s ease-in-out infinite, gradientMove 3s ease infinite;
+    text-shadow:
+        2px 2px 4px rgba(0, 0, 0, 0.3),
+        0 0 10px rgba(255, 255, 255, 0.8);
+    width: auto !important;
+    max-width: 90vw;
+}
+
+.bonus-unlock-btn:hover {
+    transform: translateX(-50%) scale(1.1) translateY(-5px) !important;
+    background: linear-gradient(135deg, #ffd700 0%, #ffed4e 50%, #ffd700 100%) !important;
+    background-size: 200% 200%;
+    box-shadow:
+        0 0 50px rgba(255, 215, 0, 1),
+        0 12px 30px rgba(0, 0, 0, 0.6),
+        inset 0 2px 0 rgba(255, 255, 255, 0.7);
+}
+
+.bonus-unlock-btn:active {
+    transform: translateX(-50%) scale(1.05) translateY(-2px) !important;
+    background: linear-gradient(135deg, #ffd700 0%, #ffed4e 50%, #ffd700 100%) !important;
+    background-size: 200% 200%;
+    box-shadow:
+        0 0 40px rgba(255, 215, 0, 0.9),
+        0 6px 15px rgba(0, 0, 0, 0.5),
+        inset 0 2px 0 rgba(255, 255, 255, 0.6);
+}
+
+/* ボーナスステージオファー */
+#bonus-stage-offer {
+    margin: 20px 0;
+    padding: 20px;
+    background: linear-gradient(135deg, #ffd700 0%, #ffed4e 100%);
+    border-radius: 15px;
+    text-align: center;
+}
+
+.bonus-message {
+    font-size: 24px;
+    font-weight: bold;
+    color: #333;
+    margin-bottom: 15px;
+    text-shadow: 2px 2px 4px rgba(255, 255, 255, 0.5);
+}
+
+.bonus-btn {
+    background: linear-gradient(135deg, #ff6ec7 0%, #ff0080 100%);
+    color: #fff;
+    border: none;
+    padding: 15px 40px;
+    font-size: 20px;
+    font-weight: bold;
+    border-radius: 10px;
+    cursor: pointer;
+    box-shadow: 0 4px 15px rgba(255, 110, 199, 0.5);
+    transition: all 0.3s ease;
+}
+
+.bonus-btn:hover {
+    transform: scale(1.05);
+    box-shadow: 0 6px 20px rgba(255, 110, 199, 0.7);
+}
+
+/* アニメーション */
+@keyframes shake {
+    0%, 100% { transform: translate(-50%, -50%) translateX(0); }
+    25% { transform: translate(-50%, -50%) translateX(-5px); }
+    75% { transform: translate(-50%, -50%) translateX(5px); }
+}
+
+@keyframes floatUp {
+    0% {
+        bottom: 0;
+        opacity: 1;
+    }
+    100% {
+        bottom: 100%;
+        opacity: 0;
+    }
+}
+
+@keyframes sweetSpotHeartFloat {
+    0% {
+        transform: translate(-50%, -50%) scale(0) rotate(0deg);
+        opacity: 0;
+    }
+    20% {
+        transform: translate(-50%, -50%) scale(1.3) rotate(20deg);
+        opacity: 1;
+    }
+    100% {
+        transform: translate(-50%, calc(-50% - 200px)) scale(0.8) rotate(360deg);
+        opacity: 0;
+    }
+}
+
+@keyframes fadeIn {
+    0% {
+        opacity: 0;
+        transform: scale(0.9);
+    }
+    100% {
+        opacity: 1;
+        transform: scale(1);
+    }
+}
+
+@keyframes fadeOut {
+    0% {
+        opacity: 1;
+        transform: scale(1);
+    }
+    100% {
+        opacity: 0;
+        transform: scale(0.9);
+    }
+}
+
+/* ハート粒子 */
+.heart-particle {
+    position: absolute;
+    font-size: 40px;
+    pointer-events: none;
+    z-index: 150;
+    animation: floatUp 2s ease-out forwards;
+}
+
+/* Sweet Spot専用ハート粒子 */
+.sweet-spot-heart {
+    position: fixed;
+    font-size: 48px;
+    pointer-events: none;
+    z-index: 350;
+    animation: sweetSpotHeartFloat 1.5s ease-out forwards;
+    text-shadow:
+        0 0 10px rgba(255, 20, 147, 0.8),
+        0 0 20px rgba(255, 20, 147, 0.6);
+    filter: drop-shadow(0 0 8px rgba(255, 215, 0, 0.8));
+}
+
+/* 解放CG表示画面 */
+#unlocked-cg-screen {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #f093fb 100%) !important;
+    background-size: 200% 200%;
+    animation: gradientMove 8s ease infinite;
+    position: fixed !important;
+    top: 0 !important;
+    left: 0 !important;
+    width: 100vw !important;
+    height: 100vh !important;
+    overflow: hidden;
+    backdrop-filter: none !important;
+    border-radius: 0 !important;
+    padding: 0 !important;
+    box-shadow: none !important;
+    max-width: 100vw !important;
+    border: none !important;
+    margin: 0 !important;
+}
+
+/* 背景の装飾キラキラ */
+#unlocked-cg-screen::before,
+#unlocked-cg-screen::after {
+    content: '';
+    position: absolute;
+    width: 400px;
+    height: 400px;
+    border-radius: 50%;
+    filter: blur(80px);
+    animation: float 6s ease-in-out infinite;
+}
+
+#unlocked-cg-screen::before {
+    background: rgba(255, 215, 0, 0.3);
+    top: -200px;
+    left: -200px;
+}
+
+#unlocked-cg-screen::after {
+    background: rgba(255, 105, 180, 0.3);
+    bottom: -200px;
+    right: -200px;
+    animation-delay: 3s;
+}
+
+.unlocked-cg-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 100vh;
+    padding: 20px 15px;
+    position: relative;
+    z-index: 10;
+}
+
+.unlocked-title {
+    font-size: 48px;
+    font-weight: bold;
+    color: #fff;
+    text-shadow:
+        0 0 10px rgba(255, 215, 0, 0.8),
+        0 0 20px rgba(255, 215, 0, 0.6),
+        0 0 30px rgba(255, 215, 0, 0.4),
+        3px 3px 6px rgba(0, 0, 0, 0.5);
+    margin-bottom: 25px;
+    animation: bounceIn 1s ease, sparkle 2s ease-in-out infinite;
+    position: relative;
+}
+
+/* タイトルの周りにキラキラエフェクト */
+.unlocked-title::before,
+.unlocked-title::after {
+    content: '✨';
+    position: absolute;
+    font-size: 36px;
+    animation: rotate 3s linear infinite;
+}
+
+.unlocked-title::before {
+    left: -60px;
+    top: 50%;
+    transform: translateY(-50%);
+}
+
+.unlocked-title::after {
+    right: -60px;
+    top: 50%;
+    transform: translateY(-50%);
+    animation-direction: reverse;
+}
+
+.unlocked-cg-image-container {
+    max-width: 95vw;
+    max-height: 75vh;
+    margin-bottom: 30px;
+    border-radius: 30px;
+    overflow: hidden;
+    position: relative;
+    animation: zoomIn 0.8s ease, float 3s ease-in-out infinite;
+    box-shadow:
+        0 0 0 8px rgba(255, 255, 255, 0.3),
+        0 0 0 16px rgba(255, 215, 0, 0.2),
+        0 20px 60px rgba(0, 0, 0, 0.6),
+        inset 0 0 30px rgba(255, 215, 0, 0.1);
+    border: 4px solid #ffd700;
+}
+
+/* 画像の周りに光るエフェクト */
+.unlocked-cg-image-container::before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    left: -50%;
+    width: 200%;
+    height: 200%;
+    background: linear-gradient(
+        45deg,
+        transparent 30%,
+        rgba(255, 255, 255, 0.3) 50%,
+        transparent 70%
+    );
+    animation: shine 3s ease-in-out infinite;
+    z-index: 10;
+    pointer-events: none;
+}
+
+#unlocked-cg-image {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    display: block;
+}
+
+.unlocked-cg-info {
+    margin-bottom: 25px;
+    animation: fadeInUp 1s ease 0.5s both;
+}
+
+.unlocked-cg-name {
+    font-size: 32px;
+    font-weight: bold;
+    background: linear-gradient(45deg, #ffd700, #ffed4e, #ffd700);
+    background-size: 200% auto;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    animation: gradientText 3s linear infinite;
+    text-shadow: 0 0 20px rgba(255, 215, 0, 0.5);
+    filter: drop-shadow(2px 2px 4px rgba(0, 0, 0, 0.7));
+}
+
+.unlocked-cg-progress {
+    font-size: 22px;
+    font-weight: 600;
+    color: #ffffff;
+    margin-top: 8px;
+    text-shadow: 0 2px 10px rgba(0, 0, 0, 0.5);
+    opacity: 0.9;
+}
+
+.unlocked-buttons {
+    display: flex;
+    gap: 15px;
+    flex-wrap: wrap;
+    justify-content: center;
+    animation: fadeInUp 1s ease 0.8s both;
+}
+
+.unlocked-buttons .btn {
+    font-size: 20px;
+    padding: 15px 40px;
+    border-radius: 15px;
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
+    transition: all 0.3s ease;
+    animation: pulse 2s ease-in-out infinite;
+}
+
+.unlocked-buttons .btn:hover {
+    transform: scale(1.1) translateY(-5px);
+    box-shadow: 0 12px 30px rgba(0, 0, 0, 0.4);
+}
+
+/* アニメーション */
+@keyframes gradientMove {
+    0% {
+        background-position: 0% 50%;
+    }
+    50% {
+        background-position: 100% 50%;
+    }
+    100% {
+        background-position: 0% 50%;
+    }
+}
+
+@keyframes bounceIn {
+    0% {
+        opacity: 0;
+        transform: scale(0.3) translateY(-50px);
+    }
+    50% {
+        opacity: 1;
+        transform: scale(1.1) translateY(0);
+    }
+    70% {
+        transform: scale(0.95);
+    }
+    100% {
+        transform: scale(1);
+    }
+}
+
+@keyframes zoomIn {
+    0% {
+        opacity: 0;
+        transform: scale(0.3) rotate(-10deg);
+    }
+    60% {
+        transform: scale(1.05) rotate(2deg);
+    }
+    100% {
+        opacity: 1;
+        transform: scale(1) rotate(0);
+    }
+}
+
+@keyframes sparkle {
+    0%, 100% {
+        filter: brightness(1);
+    }
+    50% {
+        filter: brightness(1.3);
+    }
+}
+
+@keyframes shine {
+    0% {
+        transform: translateX(-100%) translateY(-100%) rotate(45deg);
+    }
+    100% {
+        transform: translateX(100%) translateY(100%) rotate(45deg);
+    }
+}
+
+@keyframes float {
+    0%, 100% {
+        transform: translateY(0);
+    }
+    50% {
+        transform: translateY(-20px);
+    }
+}
+
+@keyframes rotate {
+    0% {
+        transform: translateY(-50%) rotate(0deg);
+    }
+    100% {
+        transform: translateY(-50%) rotate(360deg);
+    }
+}
+
+@keyframes gradientText {
+    0% {
+        background-position: 0% center;
+    }
+    100% {
+        background-position: 200% center;
+    }
+}
+
+@keyframes fadeInUp {
+    0% {
+        opacity: 0;
+        transform: translateY(30px);
+    }
+    100% {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes pulse {
+    0%, 100% {
+        transform: scale(1);
+    }
+    50% {
+        transform: scale(1.05);
+    }
+}
+
+/* タブレット対応 */
+@media (min-width: 768px) and (max-width: 1024px) {
+    #clicker-cg-image {
+        max-width: 88vw;
+        max-height: 92vh;
+        left: 48%;
+    }
+
+    #clicker-pleasure-gauge {
+        right: 15px;
+    }
+
+    .gauge-bg {
+        width: 44px;
+        height: 340px;
+    }
+
+    #reaction-bubble {
+        font-size: 22px;
+        padding: 18px 36px;
+        max-width: 480px;
+        min-width: 180px;
+    }
+
+    .clicker-control-btn {
+        padding: 14px 28px;
+        font-size: 17px;
+    }
+
+    .bonus-unlock-btn {
+        padding: 18px 45px;
+        font-size: 24px;
+        bottom: 25px;
+    }
+}
+
+/* スマートフォン対応 */
+@media (max-width: 767px) {
+    #clicker-cg-image {
+        max-width: 92vw;
+        max-height: 88vh;
+        left: 50%;
+    }
+
+    #clicker-pleasure-gauge {
+        right: 10px;
+        gap: 5px;
+    }
+
+    .gauge-bg {
+        width: 34px;
+        height: 250px;
+        max-height: 45vh;
+    }
+
+    .gauge-label {
+        font-size: 11px;
+    }
+
+    #pleasure-percentage {
+        font-size: 13px;
+    }
+
+    #reaction-bubble {
+        font-size: 16px;
+        padding: 12px 24px;
+        max-width: 70%;
+        min-width: 150px;
+    }
+
+    .clicker-control-btn {
+        padding: 10px 20px;
+        font-size: 15px;
+    }
+
+    #clicker-help-btn {
+        top: 15px;
+        right: 15px;
+        width: 42px;
+        height: 42px;
+        font-size: 22px;
+    }
+
+    #clicker-exit-btn {
+        bottom: 20px;
+        right: 20px;
+    }
+
+    .bonus-unlock-btn {
+        padding: 15px 35px;
+        font-size: 20px;
+        bottom: 20px;
+    }
+
+    .bonus-message {
+        font-size: 18px;
+    }
+
+    .unlocked-title {
+        font-size: 36px;
+    }
+
+    .unlocked-title::before,
+    .unlocked-title::after {
+        font-size: 24px;
+        left: -40px;
+        right: -40px;
+    }
+
+    .unlocked-title::before {
+        left: -40px;
+    }
+
+    .unlocked-title::after {
+        right: -40px;
+    }
+
+    .unlocked-cg-image-container {
+        max-width: 95vw;
+        max-height: 50vh;
+    }
+
+    .unlocked-cg-name {
+        font-size: 24px;
+    }
+
+    .unlocked-buttons .btn {
+        font-size: 20px;
+        padding: 14px 36px;
+    }
+}
+
+/* 横向きモード（ランドスケープ）対応 */
+@media (max-height: 600px) and (orientation: landscape) {
+    #clicker-cg-image {
+        max-width: 85vw;
+        max-height: 92vh;
+        left: 48%;
+    }
+
+    #clicker-pleasure-gauge {
+        right: 15px;
+        gap: 4px;
+    }
+
+    .gauge-bg {
+        width: 38px;
+        height: 60vh;
+        max-height: 280px;
+    }
+
+    .gauge-label {
+        font-size: 11px;
+    }
+
+    #pleasure-percentage {
+        font-size: 14px;
+    }
+
+    #reaction-bubble {
+        font-size: 17px;
+        padding: 12px 24px;
+        max-width: 400px;
+        min-width: 160px;
+    }
+
+    .clicker-control-btn {
+        padding: 10px 20px;
+        font-size: 15px;
+    }
+
+    #clicker-help-btn {
+        top: 15px;
+        right: 15px;
+        width: 42px;
+        height: 42px;
+        font-size: 22px;
+    }
+
+    #clicker-exit-btn {
+        bottom: 20px;
+        right: 20px;
+    }
+
+    .bonus-unlock-btn {
+        padding: 12px 30px;
+        font-size: 18px;
+        bottom: 15px;
+    }
+}

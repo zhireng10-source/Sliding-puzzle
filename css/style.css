@@ -1891,6 +1891,32 @@ p, .body-text {
 }
 
 /* ギャラリー画面 */
+.gallery-header {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-bottom: var(--spacing-lg);
+    gap: var(--spacing-md);
+}
+
+.gallery-header h2 {
+    margin: 0;
+}
+
+.gallery-back-btn {
+    margin: 0 auto !important;
+    padding: 12px 24px !important;
+    font-size: 1.1em !important;
+    white-space: nowrap;
+    width: auto !important;
+    min-width: auto !important;
+    display: block;
+}
+
+#back-to-title-gallery-bottom {
+    margin-top: var(--spacing-lg) !important;
+}
+
 .gallery-size-tabs {
     display: flex;
     /* 視線の流れ: タブを中央に配置 */
@@ -1922,6 +1948,96 @@ p, .body-text {
 .gallery-tab-btn:hover {
     transform: translateY(-2px);
     box-shadow: var(--shadow-md);
+}
+
+/* おまけCG解放率表示 */
+#bonus-unlock-rate-display {
+    margin-bottom: 30px;
+    padding: 0 20px;
+}
+
+.unlock-rate-container {
+    max-width: 600px;
+    margin: 0 auto;
+    background: linear-gradient(135deg, rgba(255, 165, 0, 0.2), rgba(255, 215, 0, 0.25));
+    border: 2px solid rgba(255, 200, 50, 0.8);
+    border-radius: 15px;
+    padding: 20px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3), 0 0 20px rgba(255, 215, 0, 0.2);
+}
+
+.unlock-rate-label {
+    font-size: 20px;
+    font-weight: bold;
+    color: #ffd700;
+    text-align: center;
+    margin-bottom: 15px;
+    text-shadow: 2px 2px 6px rgba(0, 0, 0, 0.9), 0 0 10px rgba(255, 215, 0, 0.5);
+}
+
+.unlock-rate-progress {
+    position: relative;
+    width: 100%;
+    height: 40px;
+    background: rgba(0, 0, 0, 0.5);
+    border-radius: 20px;
+    overflow: hidden;
+    border: 2px solid rgba(255, 200, 50, 0.6);
+}
+
+.unlock-rate-bar {
+    position: absolute;
+    left: 0;
+    top: 0;
+    height: 100%;
+    width: 0%;
+    background: linear-gradient(90deg, #ff6b35 0%, #f7931e 40%, #ffd700 100%);
+    transition: width 1s ease;
+    border-radius: 20px;
+    box-shadow: 0 0 25px rgba(255, 215, 0, 0.8), 0 0 10px rgba(255, 107, 53, 0.6);
+}
+
+.unlock-rate-text {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    font-size: 18px;
+    font-weight: bold;
+    color: #ffffff;
+    text-shadow: 2px 2px 6px rgba(0, 0, 0, 1), 0 0 8px rgba(0, 0, 0, 0.8);
+    z-index: 10;
+}
+
+/* おまけCG解放率リセットボタン */
+.bonus-reset-btn {
+    margin-top: 15px;
+    margin-left: auto;
+    margin-right: auto;
+    display: block;
+    width: auto;
+    max-width: 280px;
+    padding: 12px 24px;
+    font-size: 16px;
+    background: linear-gradient(135deg, #e74c3c, #c0392b);
+    color: #fff;
+    border: 2px solid rgba(231, 76, 60, 0.6);
+    border-radius: 10px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 12px rgba(231, 76, 60, 0.3);
+}
+
+.bonus-reset-btn:hover {
+    background: linear-gradient(135deg, #c0392b, #a93226);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 18px rgba(231, 76, 60, 0.5);
+    border-color: rgba(231, 76, 60, 0.8);
+}
+
+.bonus-reset-btn:active {
+    transform: translateY(0);
+    box-shadow: 0 2px 8px rgba(231, 76, 60, 0.4);
 }
 
 .gallery-grid {
@@ -2111,5 +2227,18 @@ p, .body-text {
         margin-bottom: 24px;
         border-radius: 12px;
         box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
+    }
+}
+
+/* 絶頂演出用フラッシュアニメーション */
+@keyframes climax-flash {
+    0% {
+        opacity: 0;
+    }
+    20% {
+        opacity: 1;
+    }
+    100% {
+        opacity: 0;
     }
 }

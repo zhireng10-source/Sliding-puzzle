@@ -36,15 +36,22 @@ class SlidePuzzleGame {
         this.imageExtensions = ['jpg', 'jpeg', 'png', 'webp'];
         this.loadedImagePaths = {};
 
+        // クリッカーゲームのインスタンス
+        this.clickerGame = null;
+
+        // 複数CG解放用
+        this.unlockQueue = [];
+        this.currentUnlockIndex = 0;
+
         this.init();
     }
 
     saveBestTime(size, problemNum, timeInMs) {
         const key = `puzzle_${size}x${size}_problem${problemNum}`;
-        const existingTime = localStorage.getItem(key);
+        const existingTime = window.saveManager.getItem(key);
 
         if (!existingTime || timeInMs < parseInt(existingTime)) {
-            localStorage.setItem(key, timeInMs.toString());
+            window.saveManager.setItem(key, timeInMs.toString());
             return true; // 新記録
         }
         return false; // 記録更新なし
@@ -52,25 +59,25 @@ class SlidePuzzleGame {
 
     getBestTime(size, problemNum) {
         const key = `puzzle_${size}x${size}_problem${problemNum}`;
-        const time = localStorage.getItem(key);
+        const time = window.saveManager.getItem(key);
         return time ? parseInt(time) : null;
     }
 
     markProblemAsCleared(size, problemNum) {
         const key = `puzzle_${size}x${size}_problem${problemNum}_cleared`;
-        localStorage.setItem(key, 'true');
+        window.saveManager.setItem(key, 'true');
     }
 
     isProblemCleared(size, problemNum) {
         const key = `puzzle_${size}x${size}_problem${problemNum}_cleared`;
-        return localStorage.getItem(key) === 'true';
+        return window.saveManager.getItem(key) === 'true';
     }
 
     clearProblemFlags(size, problemNum) {
         const timeKey = `puzzle_${size}x${size}_problem${problemNum}`;
         const clearedKey = `puzzle_${size}x${size}_problem${problemNum}_cleared`;
-        localStorage.removeItem(timeKey);
-        localStorage.removeItem(clearedKey);
+        window.saveManager.removeItem(timeKey);
+        window.saveManager.removeItem(clearedKey);
     }
 
     formatTime(timeInMs) {
@@ -88,6 +95,23 @@ class SlidePuzzleGame {
             this.clearTimesForSize(this.gridSize);
             this.updateBestTimesDisplay();
             alert(`${sizeText}の記録をリセットしました。`);
+        }
+    }
+
+    resetBonusCGs() {
+        const confirmMessage = `おまけCGの解放率をリセットしますか？\nこの操作は取り消せません。`;
+
+        if (confirm(confirmMessage)) {
+            // おまけCG解放情報をクリア
+            window.saveManager.setItem('unlockedBonusCGs', JSON.stringify([]));
+
+            // ギャラリー表示を更新
+            this.updateBonusGalleryDisplay();
+
+            // 解放率表示を更新
+            this.updateBonusUnlockRate();
+
+            alert('おまけCGの解放率をリセットしました。');
         }
     }
 
@@ -109,7 +133,7 @@ class SlidePuzzleGame {
         // タブボタンの状態を更新
         document.querySelectorAll('.gallery-tab-btn').forEach(btn => {
             btn.classList.remove('active');
-            if (parseInt(btn.dataset.size) === size) {
+            if (btn.dataset.size === String(size)) {
                 btn.classList.add('active');
             }
         });
@@ -118,28 +142,161 @@ class SlidePuzzleGame {
         document.querySelectorAll('.gallery-grid').forEach(grid => {
             grid.classList.add('hidden');
         });
-        document.getElementById(`gallery-${size}x${size}`).classList.remove('hidden');
+
+        // 解放率表示の表示/非表示を切り替え
+        const bonusRateDisplay = document.getElementById('bonus-unlock-rate-display');
+        if (bonusRateDisplay) {
+            if (size === 'bonus') {
+                bonusRateDisplay.classList.remove('hidden');
+                document.getElementById('gallery-bonus').classList.remove('hidden');
+            } else {
+                bonusRateDisplay.classList.add('hidden');
+                document.getElementById(`gallery-${size}x${size}`).classList.remove('hidden');
+            }
+        }
 
         this.updateGalleryDisplay();
     }
 
     updateGalleryDisplay() {
+        if (this.currentGallerySize === 'bonus') {
+            this.updateBonusGalleryDisplay();
+            return;
+        }
+
+        console.time(`⏱️ 通常CGギャラリー表示 (${this.currentGallerySize}x${this.currentGallerySize})`);
         const galleryGrid = document.getElementById(`gallery-${this.currentGallerySize}x${this.currentGallerySize}`);
         galleryGrid.innerHTML = '';
 
         const clearedProblems = this.getClearedProblems(this.currentGallerySize);
+        console.log(`📊 クリア済み問題数: ${clearedProblems.length}問`);
 
         if (clearedProblems.length === 0) {
             galleryGrid.innerHTML = '<div class="gallery-empty">まだクリアした問題がありません</div>';
+            console.timeEnd(`⏱️ 通常CGギャラリー表示 (${this.currentGallerySize}x${this.currentGallerySize})`);
             return;
         }
 
+        console.time('⏱️ ギャラリーアイテム作成（通常CG）');
+        const fragment = document.createDocumentFragment();
         clearedProblems.forEach((problem, index) => {
             const galleryItem = this.createGalleryItem(problem);
-            galleryGrid.appendChild(galleryItem);
+            fragment.appendChild(galleryItem);
 
             // ギャラリーアイテムのアニメーションは無効化
         });
+        console.timeEnd('⏱️ ギャラリーアイテム作成（通常CG）');
+
+        console.time('⏱️ DOM追加（通常CG）');
+        galleryGrid.appendChild(fragment);
+        console.timeEnd('⏱️ DOM追加（通常CG）');
+
+        console.timeEnd(`⏱️ 通常CGギャラリー表示 (${this.currentGallerySize}x${this.currentGallerySize})`);
+    }
+
+    updateBonusGalleryDisplay() {
+        console.time('⏱️ おまけCGギャラリー表示');
+        const galleryGrid = document.getElementById('gallery-bonus');
+        galleryGrid.innerHTML = '';
+
+        // 解放済みボーナスCGを取得
+        console.time('⏱️ 解放済みCG取得');
+        const unlockedBonuses = this.getUnlockedBonusCGs();
+        console.timeEnd('⏱️ 解放済みCG取得');
+        console.log(`📊 解放済みCG数: ${unlockedBonuses.length}枚`);
+
+        // 解放率を画面上部に表示
+        const unlockRate = Math.floor((unlockedBonuses.length / 100) * 100);
+        const rateBar = document.getElementById('unlock-rate-bar');
+        const rateText = document.getElementById('unlock-rate-text');
+
+        if (rateBar) {
+            rateBar.style.width = `${unlockRate}%`;
+        }
+
+        if (rateText) {
+            rateText.textContent = `${unlockedBonuses.length}/100 (${unlockRate}%)`;
+        }
+
+        if (unlockedBonuses.length === 0) {
+            galleryGrid.innerHTML = '';
+            console.timeEnd('⏱️ おまけCGギャラリー表示');
+            return;
+        }
+
+        // ボーナスIDを番号順にソート（bonus001, bonus002, ...）
+        console.time('⏱️ ソート処理');
+        const sortedBonuses = [...unlockedBonuses].sort();
+        console.timeEnd('⏱️ ソート処理');
+
+        // DocumentFragmentを使って一括追加（DOM操作を最適化）
+        console.time('⏱️ ギャラリーアイテム作成');
+        const fragment = document.createDocumentFragment();
+        sortedBonuses.forEach((bonusId) => {
+            const galleryItem = this.createBonusGalleryItem(bonusId);
+            fragment.appendChild(galleryItem);
+        });
+        console.timeEnd('⏱️ ギャラリーアイテム作成');
+
+        console.time('⏱️ DOM追加');
+        galleryGrid.appendChild(fragment);
+        console.timeEnd('⏱️ DOM追加');
+
+        console.timeEnd('⏱️ おまけCGギャラリー表示');
+    }
+
+    createBonusGalleryItem(bonusId) {
+        const item = document.createElement('div');
+        item.className = 'gallery-item';
+
+        // bonusIdから番号を抽出（bonus001 → 1）
+        const bonusNum = parseInt(bonusId.replace('bonus', ''));
+
+        const imagePath = `assets/img/bonus/${bonusId}.jpg`;
+
+        const img = document.createElement('img');
+        img.src = imagePath;
+        img.alt = `おまけCG No.${bonusNum}`;
+        img.loading = 'lazy';  // 遅延読み込みを有効化
+
+        const info = document.createElement('div');
+        info.className = 'gallery-item-info';
+
+        const title = document.createElement('div');
+        title.className = 'gallery-item-title';
+        title.textContent = `おまけCG No.${bonusNum}`;
+
+        info.appendChild(title);
+        item.appendChild(img);
+        item.appendChild(info);
+
+        // クリックで拡大（通常のCGと同じshowModalを使用）
+        item.addEventListener('click', () => {
+            // おまけCG用のproblemオブジェクトを作成
+            const bonusProblem = {
+                imagePath: imagePath,
+                size: 'おまけCG',
+                problemNum: bonusNum,
+                bestTime: null,
+                isBonusCG: true  // おまけCGであることを示すフラグ
+            };
+            this.showModal(bonusProblem);
+        });
+
+        return item;
+    }
+
+    getUnlockedBonusCGs() {
+        const saved = window.saveManager.getItem('unlockedBonusCGs');
+        if (saved) {
+            try {
+                return JSON.parse(saved);
+            } catch (e) {
+                console.error('解放済みボーナスCGの読み込みに失敗:', e);
+                return [];
+            }
+        }
+        return [];
     }
 
     getClearedProblems(size) {
@@ -170,6 +327,7 @@ class SlidePuzzleGame {
         }
 
         const img = document.createElement('img');
+        img.loading = 'lazy';  // 遅延読み込みを有効化
 
         // 画像パスを非同期で解決
         this.detectImageExtension(problem.imagePath).then(fullPath => {
@@ -214,17 +372,24 @@ class SlidePuzzleGame {
         const modalTitle = document.getElementById('modal-title');
         const modalTime = document.getElementById('modal-time');
 
-        // 画像パスを非同期で解決
-        this.detectImageExtension(problem.imagePath).then(fullPath => {
-            modalImage.src = fullPath;
-        });
-
-        modalTitle.textContent = `${problem.size}×${problem.size} 第${problem.problemNum}問`;
-
-        if (problem.bestTime) {
-            modalTime.textContent = `ベストタイム: ${this.formatTime(problem.bestTime)}`;
+        // おまけCGの場合は画像パスを直接設定（.jpg固定）
+        if (problem.isBonusCG) {
+            modalImage.src = problem.imagePath;
+            modalTitle.textContent = `おまけCG No.${problem.problemNum}`;
+            modalTime.textContent = '';
         } else {
-            modalTime.textContent = '即堕ちのみ（正式なクリア記録なし）';
+            // 通常のCGの場合は画像パスを非同期で解決
+            this.detectImageExtension(problem.imagePath).then(fullPath => {
+                modalImage.src = fullPath;
+            });
+
+            modalTitle.textContent = `${problem.size}×${problem.size} 第${problem.problemNum}問`;
+
+            if (problem.bestTime) {
+                modalTime.textContent = `ベストタイム: ${this.formatTime(problem.bestTime)}`;
+            } else {
+                modalTime.textContent = '即堕ちのみ（正式なクリア記録なし）';
+            }
         }
 
         modal.classList.remove('hidden');
@@ -291,6 +456,11 @@ class SlidePuzzleGame {
 
         // デバッグ用: タッチイベントのログ
         console.log('Game initialized. Touch events bound.');
+
+        // クリッカーゲームのインスタンスを作成
+        if (window.ClickerGame) {
+            this.clickerGame = new window.ClickerGame();
+        }
     }
 
     initBGM() {
@@ -412,13 +582,28 @@ class SlidePuzzleGame {
             this.startGameWithProblem(this.currentProblem);
         });
 
+        // ボーナスステージボタン
+        document.getElementById('start-clicker-bonus').addEventListener('click', () => {
+            this.startClickerBonus();
+        });
+
         document.getElementById('force-clear').addEventListener('click', () => {
             this.forceClear();
+        });
+
+        // デバッグ用：ボーナスステージ直行ボタン
+        document.getElementById('debug-bonus').addEventListener('click', () => {
+            this.startClickerBonus();
         });
 
         // リセットボタン
         document.getElementById('reset-times-btn').addEventListener('click', () => {
             this.resetAllTimes();
+        });
+
+        // おまけCG解放率リセットボタン
+        document.getElementById('reset-bonus-cg-btn').addEventListener('click', () => {
+            this.resetBonusCGs();
         });
 
         // ギャラリーボタン: タッチイベントとクリックイベントの両方に対応
@@ -453,10 +638,14 @@ class SlidePuzzleGame {
             this.showScreen('title-screen');
         });
 
+        document.getElementById('back-to-title-gallery-bottom').addEventListener('click', () => {
+            this.showScreen('title-screen');
+        });
+
         // ギャラリータブボタン
         document.querySelectorAll('.gallery-tab-btn').forEach(btn => {
             btn.addEventListener('click', () => {
-                const size = parseInt(btn.dataset.size);
+                const size = btn.dataset.size === 'bonus' ? 'bonus' : parseInt(btn.dataset.size);
                 this.switchGalleryTab(size);
             });
         });
@@ -485,6 +674,15 @@ class SlidePuzzleGame {
 
         document.getElementById('next-page-btn').addEventListener('click', () => {
             this.goToNextPage();
+        });
+
+        // 解放CG画面のボタン
+        document.getElementById('next-unlocked-cg').addEventListener('click', () => {
+            this.showNextUnlockedCG();
+        });
+
+        document.getElementById('back-to-title-unlocked').addEventListener('click', () => {
+            this.showScreen('title-screen');
         });
     }
 
@@ -521,12 +719,144 @@ class SlidePuzzleGame {
 
         // BGM管理: 画面ごとに適切なBGMを再生
         if (window.soundManager) {
-            if (screenId === 'title-screen' || screenId === 'select-screen' || screenId === 'problem-select-screen') {
+            // タイトル画面に遷移する際はボイスを停止
+            if (screenId === 'title-screen') {
+                window.soundManager.stopVoice();
+                window.soundManager.switchToTitleBGM();
+            } else if (screenId === 'select-screen' || screenId === 'problem-select-screen') {
                 window.soundManager.switchToTitleBGM();
             } else if (screenId === 'gallery-screen') {
                 window.soundManager.switchToGalleryBGM();
+                // ギャラリー表示を最新の状態に更新
+                this.updateBonusGalleryDisplay();
+                this.updateBonusUnlockRate();
             } else if (screenId === 'clear-screen') {
                 window.soundManager.switchToClearBGM();
+            } else if (screenId === 'unlocked-cg-screen') {
+                window.soundManager.switchToOmakeBGM(); // おまけCG解放画面でおまけBGMを使用
+            }
+        }
+    }
+
+    showUnlockedCGScreen(cgDataArray) {
+        // 音声を停止
+        if (window.soundManager) {
+            window.soundManager.stopVoice();
+        }
+
+        // cgDataArrayが配列でない場合は配列に変換（後方互換性のため）
+        if (!Array.isArray(cgDataArray)) {
+            // 旧形式: showUnlockedCGScreen(imagePath, cgName)
+            const imagePath = arguments[0];
+            const cgName = arguments[1];
+            cgDataArray = [{ imagePath, cgName }];
+        }
+
+        // CGキューを設定
+        this.unlockQueue = cgDataArray;
+        this.currentUnlockIndex = 0;
+
+        // 最初のCGを表示
+        this.displayCurrentUnlockedCG();
+
+        // 画面遷移
+        this.showScreen('unlocked-cg-screen');
+
+        // 紙吹雪エフェクト
+        if (window.confetti) {
+            confetti({
+                particleCount: 100,
+                spread: 70,
+                origin: { y: 0.6 }
+            });
+
+            setTimeout(() => {
+                confetti({
+                    particleCount: 50,
+                    angle: 60,
+                    spread: 55,
+                    origin: { x: 0 }
+                });
+            }, 250);
+
+            setTimeout(() => {
+                confetti({
+                    particleCount: 50,
+                    angle: 120,
+                    spread: 55,
+                    origin: { x: 1 }
+                });
+            }, 400);
+        }
+    }
+
+    /**
+     * 現在のCGを表示
+     */
+    displayCurrentUnlockedCG() {
+        if (this.unlockQueue.length === 0) return;
+
+        const currentCG = this.unlockQueue[this.currentUnlockIndex];
+        const cgImage = document.getElementById('unlocked-cg-image');
+        const cgNameElement = document.getElementById('unlocked-cg-name');
+        const cgProgressElement = document.getElementById('unlocked-cg-progress');
+        const nextButton = document.getElementById('next-unlocked-cg');
+        const backToTitleButton = document.getElementById('back-to-title-unlocked');
+
+        // CG画像を設定
+        if (cgImage) {
+            cgImage.src = currentCG.imagePath;
+        }
+
+        // CG名を設定
+        if (cgNameElement) {
+            cgNameElement.textContent = currentCG.cgName;
+        }
+
+        // 進捗を表示
+        if (cgProgressElement) {
+            if (this.unlockQueue.length > 1) {
+                cgProgressElement.textContent = `${this.currentUnlockIndex + 1} / ${this.unlockQueue.length}枚目`;
+                cgProgressElement.classList.remove('hidden');
+            } else {
+                cgProgressElement.classList.add('hidden');
+            }
+        }
+
+        // 次へボタンの表示制御
+        if (nextButton) {
+            if (this.currentUnlockIndex < this.unlockQueue.length - 1) {
+                nextButton.classList.remove('hidden');
+            } else {
+                nextButton.classList.add('hidden');
+            }
+        }
+
+        // トップへ戻るボタンの表示制御（最後の1枚のみ表示）
+        if (backToTitleButton) {
+            if (this.currentUnlockIndex === this.unlockQueue.length - 1) {
+                backToTitleButton.classList.remove('hidden');
+            } else {
+                backToTitleButton.classList.add('hidden');
+            }
+        }
+    }
+
+    /**
+     * 次のCGを表示
+     */
+    showNextUnlockedCG() {
+        if (this.currentUnlockIndex < this.unlockQueue.length - 1) {
+            this.currentUnlockIndex++;
+            this.displayCurrentUnlockedCG();
+
+            // 軽い紙吹雪エフェクト
+            if (window.confetti) {
+                confetti({
+                    particleCount: 50,
+                    spread: 60,
+                    origin: { y: 0.6 }
+                });
             }
         }
     }
@@ -1196,10 +1526,12 @@ class SlidePuzzleGame {
         const clearTimeCard = document.getElementById('clear-time');
         const bestTimeCard = document.getElementById('best-time');
         const newRecordBadge = document.getElementById('new-record-badge');
+        const bonusStageOffer = document.getElementById('bonus-stage-offer');
 
-        // バッジとベストタイムカードを初期化
+        // バッジとベストタイムカードとボーナスステージオファーを初期化
         newRecordBadge.classList.add('hidden');
         bestTimeCard.classList.add('hidden');
+        bonusStageOffer.classList.add('hidden');
 
         if (this.isForcedClear) {
             // 即堕ちの場合
@@ -1271,6 +1603,9 @@ class SlidePuzzleGame {
                     bestTimeCard.classList.remove('hidden');
                 }
             }
+
+            // 通常クリア時はボーナスステージオファーを表示
+            bonusStageOffer.classList.remove('hidden');
         }
 
         // CG画像の処理
@@ -1326,6 +1661,36 @@ class SlidePuzzleGame {
             this.stopTimer();
             this.showWinScreen();
         }
+    }
+
+    /**
+     * クリッカーボーナスステージ開始
+     */
+    async startClickerBonus() {
+        console.log('🎮 ボーナスステージ開始');
+
+        if (!this.clickerGame) {
+            console.error('クリッカーゲームが初期化されていません');
+            return;
+        }
+
+        // クリア画像パスを取得
+        const baseImagePath = this.getPuzzleImagePath();
+        const fullImagePath = await this.detectImageExtension(baseImagePath);
+
+        // 画像リストを作成（現在のクリア画像のみ）
+        const images = [fullImagePath];
+
+        // クリッカー画面に遷移
+        this.showScreen('clicker-screen');
+
+        // ボーナスBGMに切り替え
+        if (window.soundManager) {
+            window.soundManager.switchToBonusBGM();
+        }
+
+        // クリッカーゲーム開始
+        this.clickerGame.start(images);
     }
 
     generatePageNumbers() {
