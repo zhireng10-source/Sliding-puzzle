@@ -115,6 +115,63 @@ class SlidePuzzleGame {
         }
     }
 
+    unlockAllCGs() {
+        const confirmMessage = `全てのCGを解放しますか？\n（通常CG 150枚 + おまけCG 100枚）`;
+
+        if (confirm(confirmMessage)) {
+            // 通常CG（3x3, 4x4, 5x5）を全て解放
+            for (let size of [3, 4, 5]) {
+                for (let problemNum = 1; problemNum <= 50; problemNum++) {
+                    // クリア済みフラグを設定
+                    this.markProblemAsCleared(size, problemNum);
+                    // ベストタイムを設定（適当な時間: 1分）
+                    const dummyTime = 60000; // 60秒 = 1分
+                    this.saveBestTime(size, problemNum, dummyTime);
+                }
+            }
+
+            // おまけCG 100枚を全て解放
+            const allBonusCGs = [];
+            for (let i = 1; i <= 100; i++) {
+                const bonusId = `bonus${i.toString().padStart(3, '0')}`;
+                allBonusCGs.push(bonusId);
+            }
+            window.saveManager.setItem('unlockedBonusCGs', JSON.stringify(allBonusCGs));
+
+            // ギャラリー表示を更新
+            this.updateGalleryDisplay();
+            this.updateBonusGalleryDisplay();
+            this.updateBonusUnlockRate();
+
+            alert('全てのCGを解放しました！');
+        }
+    }
+
+    resetAllData() {
+        const confirmMessage = `全てのセーブデータを削除しますか？\n\n削除されるデータ:\n・全てのクリアタイム\n・全てのCG解放状況（通常CG + おまけCG）\n\nこの操作は取り消せません。`;
+
+        if (confirm(confirmMessage)) {
+            // 最終確認
+            const finalConfirm = confirm('本当に全てのデータを削除しますか？');
+
+            if (finalConfirm) {
+                // 全セーブデータを削除
+                window.saveManager.clear();
+
+                alert('全てのセーブデータを削除しました。\nゲームを再起動します。');
+
+                // ページをリロードして初期状態に戻す
+                if (typeof nw !== 'undefined') {
+                    // NW.js環境の場合
+                    location.reload();
+                } else {
+                    // ブラウザ環境の場合
+                    location.reload();
+                }
+            }
+        }
+    }
+
     clearTimesForSize(size) {
         for (let problemNum = 1; problemNum <= 50; problemNum++) {
             this.clearProblemFlags(size, problemNum);
@@ -243,6 +300,24 @@ class SlidePuzzleGame {
         console.timeEnd('⏱️ DOM追加');
 
         console.timeEnd('⏱️ おまけCGギャラリー表示');
+    }
+
+    updateBonusUnlockRate() {
+        // 解放済みボーナスCGを取得
+        const unlockedBonuses = this.getUnlockedBonusCGs();
+
+        // 解放率を画面上部に表示
+        const unlockRate = Math.floor((unlockedBonuses.length / 100) * 100);
+        const rateBar = document.getElementById('unlock-rate-bar');
+        const rateText = document.getElementById('unlock-rate-text');
+
+        if (rateBar) {
+            rateBar.style.width = `${unlockRate}%`;
+        }
+
+        if (rateText) {
+            rateText.textContent = `${unlockedBonuses.length}/100 (${unlockRate}%)`;
+        }
     }
 
     createBonusGalleryItem(bonusId) {
@@ -569,13 +644,26 @@ class SlidePuzzleGame {
             this.showScreen('select-screen');
         });
 
+        document.getElementById('back-to-title-problem').addEventListener('click', () => {
+            this.showScreen('title-screen');
+        });
+
         document.getElementById('back-to-select').addEventListener('click', () => {
             this.stopTimer();
             this.showProblemSelectScreen();
         });
 
+        document.getElementById('back-to-title-game').addEventListener('click', () => {
+            this.stopTimer();
+            this.showScreen('title-screen');
+        });
+
         document.getElementById('back-to-select-clear').addEventListener('click', () => {
             this.showProblemSelectScreen();
+        });
+
+        document.getElementById('back-to-title-clear').addEventListener('click', () => {
+            this.showScreen('title-screen');
         });
 
         document.getElementById('retry-btn').addEventListener('click', () => {
@@ -596,14 +684,19 @@ class SlidePuzzleGame {
             this.startClickerBonus();
         });
 
-        // リセットボタン
-        document.getElementById('reset-times-btn').addEventListener('click', () => {
-            this.resetAllTimes();
+        // 全CG解放ボタン
+        document.getElementById('unlock-all-cg-btn').addEventListener('click', () => {
+            this.unlockAllCGs();
         });
 
-        // おまけCG解放率リセットボタン
-        document.getElementById('reset-bonus-cg-btn').addEventListener('click', () => {
-            this.resetBonusCGs();
+        // データリセットボタン
+        document.getElementById('reset-all-data-btn').addEventListener('click', () => {
+            this.resetAllData();
+        });
+
+        // おさわりモードボタン
+        document.getElementById('osawairi-mode-btn').addEventListener('click', () => {
+            this.startOsawariMode();
         });
 
         // ギャラリーボタン: タッチイベントとクリックイベントの両方に対応
@@ -689,6 +782,14 @@ class SlidePuzzleGame {
     showScreen(screenId) {
         // スクロールを即座にリセット（画面切り替え前）
         this.resetScroll();
+
+        // bodyとhtmlのスタイルを強制的にリセット（クリッカー画面からの遷移時の問題を解決）
+        document.body.style.cssText = '';
+        document.documentElement.style.cssText = '';
+
+        // CSSクラスで定義されたスタイルを適用
+        document.body.style.overflow = 'visible';
+        document.documentElement.style.overflow = 'visible';
 
         const screens = document.querySelectorAll('.screen');
         screens.forEach(screen => screen.classList.add('hidden'));
@@ -1689,8 +1790,31 @@ class SlidePuzzleGame {
             window.soundManager.switchToBonusBGM();
         }
 
-        // クリッカーゲーム開始
-        this.clickerGame.start(images);
+        // クリッカーゲーム開始（通常モード、CG解放あり）
+        this.clickerGame.start(images, false);
+    }
+
+    /**
+     * おさわりモード（練習モード）開始
+     */
+    startOsawariMode() {
+        console.log('💕 おさわりモード開始');
+
+        if (!this.clickerGame) {
+            console.error('クリッカーゲームが初期化されていません');
+            return;
+        }
+
+        // クリッカー画面に遷移
+        this.showScreen('clicker-screen');
+
+        // ボーナスBGMに切り替え
+        if (window.soundManager) {
+            window.soundManager.switchToBonusBGM();
+        }
+
+        // クリッカーゲーム開始（練習モード、CG解放なし）
+        this.clickerGame.start([], true);
     }
 
     generatePageNumbers() {
@@ -1790,17 +1914,6 @@ class SlidePuzzleGame {
 document.addEventListener('DOMContentLoaded', () => {
     const game = new SlidePuzzleGame();
     window.game = game; // グローバルアクセス用（キーボード操作）
-
-    // ツールチップをバインド
-    if (window.feedbackManager) {
-        // 遅延実行でボタンが生成された後にバインド
-        setTimeout(() => {
-            const resetBtn = document.getElementById('reset-times-btn');
-            if (resetBtn) {
-                window.feedbackManager.bindTooltip(resetBtn, '全ての記録をリセット', 'top');
-            }
-        }, 500);
-    }
 
     // NW.js環境でのウィンドウクローズ処理
     if (typeof nw !== 'undefined') {

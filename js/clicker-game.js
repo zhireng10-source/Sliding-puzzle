@@ -31,6 +31,9 @@ class ClickerGame {
 
         // イベントバインド済みフラグ
         this.eventsbound = false;
+
+        // 練習モードフラグ（おさわりモードで使用、CG解放なし）
+        this.isPracticeMode = false;
     }
 
     /**
@@ -73,9 +76,15 @@ class ClickerGame {
 
     /**
      * クリッカーゲーム開始
+     * @param {Array} images - 使用する画像のリスト（未使用、bonusフォルダの画像を使用）
+     * @param {Boolean} isPracticeMode - 練習モードかどうか（true: CG解放なし）
      */
-    start(images) {
-        console.log('🎮 クリッカーゲーム開始');
+    start(images, isPracticeMode = false) {
+        console.log('🎮 クリッカーゲーム開始 - isPracticeModeパラメータ:', isPracticeMode, '現在のフラグ:', this.isPracticeMode);
+
+        // 練習モードフラグを設定
+        this.isPracticeMode = isPracticeMode;
+        console.log('🎮 フラグ設定後 - isPracticeMode:', this.isPracticeMode);
 
         // リアクションテキストを読み込み（初回のみ）
         if (this.reactions.length === 0) {
@@ -616,9 +625,11 @@ class ClickerGame {
 
         // 絶頂演出を実行
         this.showClimax(() => {
-            // 全て解放済みかどうかをチェック
+            // 練習モードまたは全て解放済みかどうかをチェック
             const unlockedBonuses = this.getUnlockedBonusCGs();
             const allUnlocked = unlockedBonuses.length >= 100;
+
+            console.log('🎯 showMilestone - isPracticeMode:', this.isPracticeMode, 'allUnlocked:', allUnlocked);
 
             const unlockBtn = document.getElementById('unlock-bonus-cg-btn');
             const bubble = document.getElementById('reaction-bubble');
@@ -630,13 +641,13 @@ class ClickerGame {
             }
 
             if (unlockBtn) {
-                if (allUnlocked) {
-                    // 全て解放済みの場合は「トップに戻る」ボタンと100%達成メッセージを表示
+                if (this.isPracticeMode || allUnlocked) {
+                    // 練習モードまたは全て解放済みの場合は「トップに戻る」ボタンを表示
                     unlockBtn.textContent = '🏠 トップに戻る';
                     unlockBtn.classList.add('back-to-title-btn');
 
-                    // 100%達成メッセージを画面中央に表示
-                    if (bubble) {
+                    // メッセージを画面中央に表示（練習モード時は非表示）
+                    if (bubble && !this.isPracticeMode) {
                         bubble.textContent = '🎉 おまけCG解放率100%達成！\nコンプリートおめでとうございます！💕';
                         bubble.style.fontSize = '24px';
                         bubble.style.whiteSpace = 'pre-line';
@@ -650,6 +661,9 @@ class ClickerGame {
                         bubble.classList.remove('hidden');
                         bubble.classList.add('show');
                         bubble.style.background = 'linear-gradient(135deg, #ffd700 0%, #ffed4e 50%, #ffd700 100%)';
+                    } else if (bubble && this.isPracticeMode) {
+                        // 練習モード時はメッセージを非表示
+                        bubble.classList.add('hidden');
                     }
 
                     // イベントリスナーを削除して新しいものを追加
@@ -661,7 +675,7 @@ class ClickerGame {
                         }
                     });
                     newBtn.classList.remove('hidden');
-                    console.log('🏠 トップに戻るボタンを表示（全て解放済み）');
+                    console.log('🏠 トップに戻るボタンを表示' + (this.isPracticeMode ? '（練習モード）' : '（全て解放済み）'));
                 } else {
                     // 未解放がある場合は「おまけCGを見る」ボタンを表示
                     unlockBtn.textContent = '🎉 おまけCGを見る';
@@ -888,6 +902,15 @@ class ClickerGame {
      * 複数のランダムなボーナスCGを解放（3～5枚）
      */
     unlockMultipleBonusCGs() {
+        // デバッグログ: 練習モードフラグの確認
+        console.log('🔍 unlockMultipleBonusCGs() 呼び出し - isPracticeMode:', this.isPracticeMode);
+
+        // 練習モードの場合はCGを解放しない
+        if (this.isPracticeMode) {
+            console.log('🔒 練習モードのため、おまけCGは解放されません');
+            return null;
+        }
+
         // 解放済みボーナスCGのリストを取得
         const unlockedBonuses = this.getUnlockedBonusCGs();
         console.log('🔍 現在の解放済みCG数:', unlockedBonuses.length);
@@ -942,6 +965,12 @@ class ClickerGame {
      * ランダムなボーナスCGを解放（1枚のみ）
      */
     unlockRandomBonusCG() {
+        // 練習モードの場合はCGを解放しない
+        if (this.isPracticeMode) {
+            console.log('🔒 練習モードのため、おまけCGは解放されません');
+            return null;
+        }
+
         // 解放済みボーナスCGのリストを取得
         const unlockedBonuses = this.getUnlockedBonusCGs();
 
@@ -1114,8 +1143,9 @@ class ClickerGame {
 ・特別なセリフが表示される
 
 🎁 おまけCG
-・100%達成するとおまけCGを3～5枚解放
-・全100枚のおまけCGをコンプリートしよう！`);
+・快楽度100%達成するとおまけCGを3～5枚解放
+・全100枚のおまけCGをコンプリートしよう！
+・タイトル画面のおさわりモードからクリア時は解放されません`);
     }
 
     /**
@@ -1132,11 +1162,22 @@ class ClickerGame {
             bubble.classList.remove('show', 'shake');
         }
 
-        // おまけCG解放ボタンを非表示
+        // おまけCG解放ボタンを非表示＆初期状態に戻す
         const unlockBtn = document.getElementById('unlock-bonus-cg-btn');
         if (unlockBtn) {
             unlockBtn.classList.add('hidden');
             unlockBtn.classList.remove('back-to-title-btn');
+
+            // ボタンのテキストを初期状態に戻す
+            unlockBtn.textContent = '🎉 おまけCGを見る';
+
+            // イベントハンドラーをリセット（2回目以降の呼び出し時のみ）
+            // 初回はbindEvents()で設定されるため、ここではスキップ
+            if (this.eventsbound) {
+                unlockBtn.replaceWith(unlockBtn.cloneNode(true));
+                const newBtn = document.getElementById('unlock-bonus-cg-btn');
+                newBtn.addEventListener('click', () => this.showUnlockedCGsFromButton());
+            }
         }
 
         // 終了ボタンを再表示

@@ -122,9 +122,7 @@ body {
     align-items: flex-start;
     padding: 0;
     margin: 0;
-    /* スクロールを無効化 */
     overflow-x: hidden;
-    overflow-y: auto;
 }
 
 .screen {
@@ -1821,7 +1819,6 @@ p, .body-text {
     flex-direction: column;
     justify-content: center;
     align-items: center;
-    min-height: 100vh;
     padding: 12px;
     /* かわいいピンク系グラデーション背景 */
     background:
@@ -1903,8 +1900,16 @@ p, .body-text {
     margin: 0;
 }
 
+.gallery-header-buttons {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--spacing-sm);
+    justify-content: center;
+    align-items: center;
+}
+
 .gallery-back-btn {
-    margin: 0 auto !important;
+    margin: 0 !important;
     padding: 12px 24px !important;
     font-size: 1.1em !important;
     white-space: nowrap;
@@ -1915,6 +1920,29 @@ p, .body-text {
 
 #back-to-title-gallery-bottom {
     margin-top: var(--spacing-lg) !important;
+}
+
+.gallery-bottom-buttons {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--spacing-md);
+    justify-content: center;
+    align-items: center;
+    margin-top: var(--spacing-lg);
+    width: 100%;
+}
+
+.gallery-bottom-buttons .btn {
+    width: auto !important;
+    min-width: 180px;
+    max-width: 250px;
+    padding: 12px 24px !important;
+    font-size: 1.1em !important;
+    margin: 0 !important;
+}
+
+.gallery-bottom-buttons #back-to-title-gallery-bottom {
+    margin: 0 !important;
 }
 
 .gallery-size-tabs {
